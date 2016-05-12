@@ -1,0 +1,173 @@
+
+<div
+	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+
+	<div class="container content" style="padding-top: 30px;">
+		<div class="row">
+			<div class="col-md-12">
+
+				<modal title="Detalhamento de Problema" visible="showErrorDetails">
+				<div id="error-detail">
+					<div class="headline">
+						<h4>{{errorDetails[currentErrorId].error}}</h4>
+					</div>
+					<div class="error-details-code">
+						<code>{{errorDetails[currentErrorId]}}</code>
+					</div>
+				</div>
+				</modal>
+
+				<modal title="{{progressbarTitle}}" visible="progressbarShow"
+					on-hide="progressbarHide()">
+				<div>
+					<p>{{progressbarCaption}}</p>
+
+					<div class="progress">
+						<div id="progressbar-ad" class="progress-bar" role="progressbar"
+							aria-valuenow="{progressbarWidth}" aria-valuemin="0"
+							aria-valuemax="100"
+							ng-style="{ 'width' : progressbarWidth + '%'}">
+							<span class="sr-only"></span>
+						</div>
+					</div>
+				</div>
+				</modal>
+
+				<div class="alert alert-warning" role="alert"
+					ng-repeat="w in warnings">
+					<strong>{{w.title}}</strong> {{w.description}}
+				</div>
+
+				<div class="alert alert-danger fade in" ng-show="instalarBluC">
+					<strong>Problema Detactado:</strong> Não foi possível detectar o
+					programa <a href="signer/windows/{{assijusexe}}"><u>{{assijusexe}}</u></a>.
+					Por favor, verifique o passo a passo para utilização clicando na
+					opção de menu <a href="#sobre"><u>SOBRE</u></a> e depois <a
+						href="javascript:location.reload();"><u>recarregue</u></a> esta
+					página.
+				</div>
+
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.hasOwnProperty('geral')">
+					<p>
+						<strong>Problema Detectado:</strong> {{errorDetails.geral.error}}<span
+							ng-show="errorDetails.hasOwnProperty('geral')"
+							ng-click="presentError('geral')">&nbsp;&#128269;</span>
+					</p>
+					<p>
+						Para tentar novamente, <a href="javascript:location.reload();"><u>recarregue</u></a>
+						esta página.
+					</p>
+				</div>
+
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.hasOwnProperty('sigadoc')">
+					<strong>Problema no Siga-Doc:</strong>
+					{{errorDetails.sigadoc.error}}<span
+						ng-click="presentError('sigadoc')">&nbsp;&#128269;</span>
+				</div>
+
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.hasOwnProperty('apolo')">
+					<strong>Problema no Apolo:</strong> {{errorDetails.apolo.error}}<span
+						ng-click="presentError('apolo')">&nbsp;&#128269;</span>
+				</div>
+
+			</div>
+		</div>
+		<div class="row margin-bottom-30"
+			ng-show="documentosCarregados() && zeroDocumentosCarregados()">
+			<div class="col-md-12" ng-show="zeroDocumentosCarregados()">
+				<p style="font-size: 120%;">Dr. {{assinante()}}, não localizamos
+					nenhum documento pendente de assinatura.</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8" ng-show="documentosCarregados()">
+				<p style="font-size: 120%;"
+					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">Dr.
+					{{assinante()}}, por favor, verifique os documentos abaixo e clique
+					em "Assinar Documentos Marcados".</p>
+			</div>
+			<div class="col-md-4" ng-show="documentosCarregados()">
+				<button id="reload" class="btn btn-primary pull-right"
+					data-style="expand-left" ng-click="assinarDocumentos(progress)">
+					<span class="ladda-label">Assinar Documentos Marcados</span><span
+						class="ladda-spinner"></span>
+					<div class="ladda-progress" style="width: 0px;"></div>
+				</button>
+			</div>
+			<div class="col-md-12" ng-show="documentosCarregados()">
+				<input type="hidden" name="ad_url_base" value="" /> <input
+					type="hidden" name="ad_url_next" value="" />
+
+				<!-- 
+						<div class="headline"
+							style="border-bottom-width: 0px; margin-bottom: 0px;">
+							<h2 style="margin-bottom: 15px;">Documentos do Siga-Doc</h2>
+						</div>
+						 -->
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th style="text-align: center"><input type="checkbox"
+								id="progress_checkall" ng-model="checkall"
+								ng-change="marcarTodos()" /></th>
+							<th>Número</th>
+							<th>Descrição</th>
+							<th>Tipo</th>
+							<th>Origem</th>
+							<th style="text-align: center">Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="doc in documentos">
+							<td style="text-align: center">
+								<!--
+										 Checkbox para selecionar o documento 
+										 --> <input type="checkbox" id="ad_chk_{{doc.id}}"
+								name="ad_chk_{{doc.id}}" value="true" ng-model="doc.checked"
+								class="chk-assinar" /> <!--
+										 Sigla do documento 
+										 --> <input type="hidden" name="ad_descr_{{doc.id}}"
+								value="{{doc.code}}" /> <!--
+										 Url para download do pacote assinável 
+										 --> <input type="hidden" name="ad_url_pdf_{{doc.id}}"
+								value="{{doc.urlHash}}" /> <!--
+										 Url para o post da assinatura 
+										 --> <input type="hidden" name="ad_url_post_{{doc.id}}"
+								value="{{doc.urlSave}}" /> <!--
+										 Url para o post da assinatura com senha 
+										 --> <input type="hidden"
+								name="ad_url_post_password_{{doc.id}}" value="{{doc.code}}" />
+							</td>
+							<td><span
+								ng-show="doc.urlView != undefined && doc.urlView.lastIndexOf('http', 0) === 0"><a
+									href="{{doc.urlView}}" target="_blank">{{doc.code}}</a></span><span
+								ng-show="doc.urlView != undefined && doc.urlView.lastIndexOf('http', 0) !== 0"><a
+									ng-click="view(doc)">{{doc.code}}</a></span><span
+								ng-show="doc.urlView == undefined">{{doc.code}}</span></td>
+							<td>{{doc.descr}}</td>
+							<td>{{doc.kind}}</td>
+							<td>{{doc.origin}}</td>
+							<td class="status-td"><span id="status{{doc.id}}"><span
+									class="status-pending"><a
+										ng-click="assinarDocumento(doc.id)">&#9997;</a></span></span><span
+								ng-show="errorDetails.hasOwnProperty(doc.id)"
+								ng-click="presentError(doc.id)">&nbsp;&#128269;</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row" ng-show="lastUpdateFormatted != null">
+			<div class="col-md-12">
+				<p>
+					{{lastUpdateFormatted}} <a class="refresh"
+						ng-click="forceRefresh()">&#9851;</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+</div>

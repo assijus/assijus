@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<servlet>
+		<servlet-name>Token</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.TokenServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Token</servlet-name>
+		<url-pattern>/api/v1/token</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>List</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.ListServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>List</servlet-name>
+		<url-pattern>/api/v1/list</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Hash</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.HashServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Hash</servlet-name>
+		<url-pattern>/api/v1/hash</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Save</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.SaveServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Save</servlet-name>
+		<url-pattern>/api/v1/save</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Store</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.StoreServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Store</servlet-name>
+		<url-pattern>/api/v1/store</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Retrieve</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.RetrieveServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Retrieve</servlet-name>
+		<url-pattern>/api/v1/retrieve</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>View</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.ViewServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>View</servlet-name>
+		<url-pattern>/api/v1/view</url-pattern>
+	</servlet-mapping>
+
+
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+</web-app>

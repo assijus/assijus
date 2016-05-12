@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<title>Assijus</title>
+<base href="/assijus/">
+
+<!-- favicon -->
+<link rel="icon" type="image/png" href="/assijus/favicon-32x32.png"
+	sizes="32x32">
+<link rel="icon" type="image/png" href="/assijus/favicon-96x96.png"
+	sizes="96x96">
+<link rel="icon" type="image/png" href="/assijus/favicon-16x16.png"
+	sizes="16x16">
+
+<!-- Bootstrap -->
+<link href="assets/bootstrap-3.3.6-dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="assets/bootstrap-3.3.6-dist/css/bootstrap-theme.min.css"
+	rel="stylesheet">
+
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<link href="resources/javascripts/ie10-viewport-bug-workaround.css"
+	rel="stylesheet">
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<link rel="shortcut icon" href="resources/favicon.ico">
+
+<link rel="stylesheet"
+	href="resources/javascripts/angular-busy/angular-busy.css">
+
+<link rel="stylesheet" href="resources/app.css">
+</head>
+
+<body ng-app="app" ng-controller="routerCtrl">
+	<div class="wrapper">
+		<!--=== Header ===-->
+		<div class="header">
+			<!-- Navbar -->
+			<div class="navbar navbar-inverse" role="navigation"">
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed"
+							data-toggle="collapse" data-target=".navbar-collapse">
+							<span class="sr-only">Toggle navigation</span> <span
+								class="icon-bar"></span> <span class="icon-bar"></span> <span
+								class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="#home" style="top: -5px !important;"><span>
+								<img id="logo-header" src="favicon-32x32.png" alt="Logo"
+								width="20" height="20" />Assijus
+						</span> </a>
+					</div>
+
+					<div class="collapse navbar-collapse navbar-responsive-collapse">
+						<!-- Collect the nav links, forms, and other content for toggling -->
+						<ul class="nav navbar-nav">
+							<!-- Home -->
+							<li class="active"><a href="#/home" class="dropdown-toggle"
+								data-toggle="dropdown"> Documentos </a> <!-- End Home --> <!-- Home -->
+							</li>
+							<li class="active"><a href="#/sobre">Sobre</a></li>
+							<!-- End Home -->
+						</ul>
+					</div>
+					<!--/navbar-collapse-->
+				</div>
+			</div>
+			<!-- End Navbar -->
+
+		</div>
+		<!--=== End Header ===-->
+
+		<!--=== Content Part ===-->
+		<div ng-view></div>
+
+	</div>
+	<!--/wrapper-->
+
+	<!-- JS Global Compulsory -->
+	<script type="text/javascript" src="assets/jquery-1.12.3.min.js"></script>
+	<script src="resources/javascripts/jquery-ui/jquery-ui.min.js"
+		type="text/javascript"></script>
+	<script type="text/javascript"
+		src="assets/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="resources/javascripts/ie10-viewport-bug-workaround.js"></script>
+
+	<script src="assets/angular-1.5.5/angular.min.js"></script>
+	<script src="assets/angular-1.5.5/angular-route.min.js"></script>
+
+	<script src="assets/angular-1.5.5/angular-animate.min.js"></script>
+
+	<script src="resources/javascripts/angular-locale_pt-br.js"></script>
+	<script src="resources/javascripts/angular-busy/angular-busy.js"></script>
+
+	<script src="resources/util.js"></script>
+	<script src="resources/app.js"></script>
+
+</body>
+</html>
