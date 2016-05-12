@@ -10,3 +10,9 @@ hs_err_pid*
 
 # maven products
 /target/
+
+# eclipse project
+.project
+.classpath
+.tern-project
+.settings
