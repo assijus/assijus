@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 @SuppressWarnings("serial")
-public class RetrieveServlet extends Trf2SignerServlet {
+public class RetrieveServlet extends AssijusServlet {
 
 	private static final String CONTEXT = "store servlet";
 

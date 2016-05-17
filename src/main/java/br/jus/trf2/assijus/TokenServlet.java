@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 
 @SuppressWarnings("serial")
-public class TokenServlet extends Trf2SignerServlet {
+public class TokenServlet extends AssijusServlet {
 
 	@Override
 	protected void run(HttpServletRequest request,

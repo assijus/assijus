@@ -8,8 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import br.jus.trf2.restservlet.RestServlet;
+import br.jus.trf2.restservlet.RestUtils;
+
 @SuppressWarnings("serial")
-public class HashServlet extends Trf2SignerServlet {
+public class HashServlet extends AssijusServlet {
 
 	@Override
 	protected void run(HttpServletRequest request,
@@ -39,8 +42,8 @@ public class HashServlet extends Trf2SignerServlet {
 		gedreq.put("password", password);
 
 		// Call document repository hash webservice
-		JSONObject gedresp = Utils.getJsonObjectFromJsonPost(new URL(urlHash),
-				gedreq, "ged-hash");
+		JSONObject gedresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+				urlHash), gedreq, "ged-hash");
 
 		// Produce response
 
@@ -61,7 +64,7 @@ public class HashServlet extends Trf2SignerServlet {
 			blucreq.put("crl", true);
 
 			// Call bluc-server hash webservice
-			JSONObject blucresp = Utils.getJsonObjectFromJsonPost(new URL(
+			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
 					urlblucserver + "/hash"), blucreq, "bluc-hash");
 
 			String hash = blucresp.getString("hash");

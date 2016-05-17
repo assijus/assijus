@@ -18,7 +18,7 @@ app.config([ '$routeProvider', '$locationProvider', function($routeProvider, $lo
 } ]);
 
 app.controller('routerCtrl', function($scope, $http, $templateCache) {
-	$scope.assijusexe = "assijus-v0-9.exe";
+	$scope.assijusexe = "assijus-v0-91.exe";
 });
 
 app.controller('ctrlSugerir', function($scope, $http, $templateCache, $interval, $window) {

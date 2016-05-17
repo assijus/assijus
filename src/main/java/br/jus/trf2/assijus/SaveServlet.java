@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import br.jus.trf2.restservlet.RestUtils;
+
 @SuppressWarnings("serial")
-public class SaveServlet extends Trf2SignerServlet {
+public class SaveServlet extends AssijusServlet {
 
 	private static final String CONTEXT = "save servlet";
 
@@ -44,8 +46,8 @@ public class SaveServlet extends Trf2SignerServlet {
 				kvreq.put("password", Utils.getKeyValuePassword());
 
 			// Call bluc-server hash webservice
-			JSONObject kvresp = Utils.getJsonObjectFromJsonPost(
-					new URL(Utils.getKeyValueServer() + "/retrieve"), kvreq,
+			JSONObject kvresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+					Utils.getKeyValueServer() + "/retrieve"), kvreq,
 					"sign-retrieve");
 			signature = kvresp.optString("payload", null);
 		}
@@ -58,7 +60,7 @@ public class SaveServlet extends Trf2SignerServlet {
 		blucreq2.put("certificate", certificate);
 
 		// Call bluc-server hash webservice
-		JSONObject blucresp2 = Utils.getJsonObjectFromJsonPost(new URL(
+		JSONObject blucresp2 = RestUtils.getJsonObjectFromJsonPost(new URL(
 				urlblucserver + "/certificate"), blucreq2, "bluc-certificate");
 
 		String subject = blucresp2.getString("subject");
@@ -77,7 +79,7 @@ public class SaveServlet extends Trf2SignerServlet {
 		if (!"PKCS7".equals(policy)) {
 			blucreq.put("signature", signature);
 			// Call bluc-server hash webservice
-			JSONObject blucresp = Utils.getJsonObjectFromJsonPost(new URL(
+			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
 					urlblucserver + "/envelope"), blucreq, "bluc-envelope");
 
 			envelope = blucresp.getString("envelope");
@@ -92,8 +94,8 @@ public class SaveServlet extends Trf2SignerServlet {
 
 		// Call bluc-server validate webservice. If there is an error,
 		// Utils will throw an exception.
-		JSONObject blucvalidateresp = Utils.getJsonObjectFromJsonPost(new URL(
-				urlblucserver + "/validate"), blucreq, "bluc-validate");
+		JSONObject blucvalidateresp = RestUtils.getJsonObjectFromJsonPost(
+				new URL(urlblucserver + "/validate"), blucreq, "bluc-validate");
 
 		// Call
 		JSONObject sigareq = new JSONObject();
@@ -109,8 +111,8 @@ public class SaveServlet extends Trf2SignerServlet {
 		sigareq.put("password", password);
 
 		// Call document repository hash webservice
-		JSONObject sigaresp = Utils.getJsonObjectFromJsonPost(new URL(urlSave),
-				sigareq, "save-signature");
+		JSONObject sigaresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+				urlSave), sigareq, "save-signature");
 
 		// Produce response
 		JSONArray warning = sigaresp.optJSONArray("warning");

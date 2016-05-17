@@ -2,7 +2,6 @@ package br.jus.trf2.assijus;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
+
+import br.jus.trf2.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
 public class ViewServlet extends HttpServlet {
@@ -30,7 +31,7 @@ public class ViewServlet extends HttpServlet {
 			req.put("certificate", request.getParameter("certificate"));
 			req.put("token", request.getParameter("token"));
 			req.put("urlView", request.getParameter("urlView"));
-			
+
 			JSONObject resp = new JSONObject();
 			run(request, response, req, resp);
 
@@ -40,7 +41,7 @@ public class ViewServlet extends HttpServlet {
 			response.getOutputStream().write(pdf);
 			response.getOutputStream().flush();
 		} catch (Exception e) {
-			Utils.writeJsonError(response, e, getContext());
+			RestUtils.writeJsonError(response, e, getContext(), "assijus");
 		}
 	}
 
@@ -54,7 +55,7 @@ public class ViewServlet extends HttpServlet {
 		urlView = Utils.fixUrl(urlView);
 
 		String token = req.getString("token");
-		Utils.assertValidToken(token, urlblucserver);
+		String cpf = Utils.assertValidToken(token, urlblucserver);
 
 		JSONObject gedreq = new JSONObject();
 		gedreq.put("certificate", certificate);
@@ -65,10 +66,11 @@ public class ViewServlet extends HttpServlet {
 			gedreq.put("urlapi", urlsiga);
 
 		gedreq.put("password", password);
+		gedreq.put("cpf", cpf);
 
 		// Call document repository hash webservice
-		JSONObject gedresp = Utils.getJsonObjectFromJsonPost(new URL(urlView),
-				gedreq, "ged-view");
+		JSONObject gedresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+				urlView), gedreq, "ged-view");
 
 		// Produce response
 		String doc = gedresp.getString("doc");

@@ -10,8 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import br.jus.trf2.restservlet.RestAsyncCallback;
+import br.jus.trf2.restservlet.RestUtils;
+
 @SuppressWarnings("serial")
-public class ListServlet extends Trf2SignerServlet {
+public class ListServlet extends AssijusServlet {
 
 	@Override
 	protected void run(HttpServletRequest request,
@@ -26,7 +29,7 @@ public class ListServlet extends Trf2SignerServlet {
 		Utils.assertValidToken(token, urlblucserver);
 
 		// Call bluc-server hash webservice
-		JSONObject blucresp = Utils.getJsonObjectFromJsonPost(new URL(
+		JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
 				urlblucserver + "/certificate"), blucreq, "bluc-certificate");
 		req.put("certificate", certificate);
 		req.put("subject", blucresp.get("subject"));
@@ -42,9 +45,9 @@ public class ListServlet extends Trf2SignerServlet {
 		JSONObject reqsiga = new JSONObject(req, JSONObject.getNames(req));
 		reqsiga.put("urlapi", urlsiga);
 		reqsiga.put("password", Utils.getSigaDocPassword());
-		Future futureSiga = Utils.getJsonObjectFromJsonPostAsync(new URL(
+		Future futureSiga = RestUtils.getJsonObjectFromJsonPostAsync(new URL(
 				urlsiga + "/list"), reqsiga, "siga-list",
-				new JSONAsyncCallback() {
+				new RestAsyncCallback() {
 
 					@Override
 					public void completed(JSONObject obj) throws Exception {
@@ -66,9 +69,10 @@ public class ListServlet extends Trf2SignerServlet {
 					@Override
 					public void failed(Exception ex) throws Exception {
 						try {
-							resp.put("error-sigadoc", Utils.messageAsString(ex));
+							resp.put("error-sigadoc",
+									RestUtils.messageAsString(ex));
 							resp.put("stacktrace-sigadoc",
-									Utils.stackAsString(ex));
+									RestUtils.stackAsString(ex));
 						} finally {
 							responseWaiter.countDown();
 						}
@@ -84,9 +88,9 @@ public class ListServlet extends Trf2SignerServlet {
 		JSONObject reqapolo = new JSONObject(req, JSONObject.getNames(req));
 		reqapolo.put("urlapi", urlapolo);
 		reqapolo.put("password", Utils.getApoloPassword());
-		Future futureApolo = Utils.getJsonObjectFromJsonPostAsync(new URL(
+		Future futureApolo = RestUtils.getJsonObjectFromJsonPostAsync(new URL(
 				urlapolo + "/list"), reqapolo, "apolo-list",
-				new JSONAsyncCallback() {
+				new RestAsyncCallback() {
 
 					@Override
 					public void completed(JSONObject obj) throws Exception {
@@ -108,9 +112,10 @@ public class ListServlet extends Trf2SignerServlet {
 					@Override
 					public void failed(Exception ex) throws Exception {
 						try {
-							resp.put("error-apolo", Utils.messageAsString(ex));
+							resp.put("error-apolo",
+									RestUtils.messageAsString(ex));
 							resp.put("stacktrace-apolo",
-									Utils.stackAsString(ex));
+									RestUtils.stackAsString(ex));
 						} finally {
 							responseWaiter.countDown();
 						}
