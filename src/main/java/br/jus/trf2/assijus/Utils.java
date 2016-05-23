@@ -1,9 +1,5 @@
 package br.jus.trf2.assijus;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,13 +11,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import br.jus.trf2.restservlet.RestUtils;
+import com.crivano.restservlet.RestUtils;
 
 public class Utils {
 	private static final Logger log = Logger.getLogger(Utils.class.getName());
@@ -32,6 +24,15 @@ public class Utils {
 			ISO_FORMAT);
 
 	private static final Map<String, byte[]> cache = new HashMap<String, byte[]>();
+
+	public static String getUrlBaseTextoWeb() {
+		return RestUtils.getProperty("textowebsigner.url",
+				"http://localhost:8080/textowebsigner/api/v1");
+	}
+
+	public static String getTextoWebPassword() {
+		return RestUtils.getProperty("textowebsigner.password", null);
+	}
 
 	public static String getUrlBaseApolo() {
 		return RestUtils.getProperty("apolosigner.url",
@@ -75,6 +76,9 @@ public class Utils {
 	}
 
 	public static String fixUrl(String url) {
+		if (url.startsWith("textoweb/")) {
+			return getUrlBaseTextoWeb() + url.substring(8);
+		}
 		if (url.startsWith("apolo/")) {
 			return getUrlBaseApolo() + url.substring(5);
 		}
@@ -85,6 +89,9 @@ public class Utils {
 	}
 
 	public static String choosePassword(String url) {
+		if (url.startsWith("textoweb/")) {
+			return getTextoWebPassword();
+		}
 		if (url.startsWith("apolo/")) {
 			return getApoloPassword();
 		}

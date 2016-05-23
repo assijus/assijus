@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import br.jus.trf2.restservlet.RestUtils;
+import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
 public class SaveServlet extends AssijusServlet {
@@ -111,7 +111,7 @@ public class SaveServlet extends AssijusServlet {
 		sigareq.put("password", password);
 
 		// Call document repository hash webservice
-		JSONObject sigaresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+		JSONObject sigaresp = RestUtils.getJsonObjectFromJsonPut(new URL(
 				urlSave), sigareq, "save-signature");
 
 		// Produce response

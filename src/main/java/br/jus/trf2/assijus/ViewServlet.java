@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import br.jus.trf2.restservlet.RestUtils;
+import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
 public class ViewServlet extends HttpServlet {
@@ -52,25 +52,18 @@ public class ViewServlet extends HttpServlet {
 		String certificate = req.getString("certificate");
 		String urlView = req.getString("urlView");
 		String password = Utils.choosePassword(urlView);
-		urlView = Utils.fixUrl(urlView);
 
 		String token = req.getString("token");
 		String cpf = Utils.assertValidToken(token, urlblucserver);
 
-		JSONObject gedreq = new JSONObject();
-		gedreq.put("certificate", certificate);
+		if (Utils.cacheRetrieve(cpf + "-" + urlView) == null)
+			throw new Exception("CPF não autorizado.");
 
-		if (urlView.startsWith(urlapolo))
-			gedreq.put("urlapi", urlapolo);
-		if (urlView.startsWith(urlsiga))
-			gedreq.put("urlapi", urlsiga);
-
-		gedreq.put("password", password);
-		gedreq.put("cpf", cpf);
+		urlView = Utils.fixUrl(urlView);
 
 		// Call document repository hash webservice
-		JSONObject gedresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-				urlView), gedreq, "ged-view");
+		JSONObject gedresp = RestUtils.getJsonObject("ged-view", urlView,
+				"password", password, "cpf", cpf);
 
 		// Produce response
 		String doc = gedresp.getString("doc");

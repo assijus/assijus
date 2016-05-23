@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import br.jus.trf2.restservlet.RestServlet;
-import br.jus.trf2.restservlet.RestUtils;
+import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
 public class HashServlet extends AssijusServlet {
@@ -22,28 +21,19 @@ public class HashServlet extends AssijusServlet {
 		String certificate = req.getString("certificate");
 		String urlHash = req.getString("urlHash");
 		String password = Utils.choosePassword(urlHash);
-		urlHash = Utils.fixUrl(urlHash);
 
 		String token = req.getString("token");
-		Utils.assertValidToken(token, urlblucserver);
+		String cpf = Utils.assertValidToken(token, urlblucserver);
 
+		if (Utils.cacheRetrieve(cpf + "-" + urlHash) == null)
+			throw new Exception("CPF não autorizado.");
+
+		urlHash = Utils.fixUrl(urlHash);
 		String time = Utils.format(new Date());
 
-		JSONObject gedreq = new JSONObject();
-		// restreq.put("policy", policy);
-		gedreq.put("certificate", certificate);
-		gedreq.put("time", time);
-
-		if (urlHash.startsWith(urlapolo))
-			gedreq.put("urlapi", urlapolo);
-		if (urlHash.startsWith(urlsiga))
-			gedreq.put("urlapi", urlsiga);
-
-		gedreq.put("password", password);
-
 		// Call document repository hash webservice
-		JSONObject gedresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-				urlHash), gedreq, "ged-hash");
+		JSONObject gedresp = RestUtils.getJsonObject("ged-hash", urlHash,
+				"password", password, "cpf", cpf);
 
 		// Produce response
 
@@ -88,7 +78,13 @@ public class HashServlet extends AssijusServlet {
 			resp.put("sha1", sha1);
 			resp.put("sha256", sha256);
 		}
-		resp.put("urlSave", gedresp.optString("urlSave", null));
+
+		String urlSave = gedresp.optString("urlSave", null);
+		if (urlSave != null) {
+			resp.put("urlSave", urlSave);
+			Utils.cacheStore(cpf + "-" + urlSave, new byte[] { 1 });
+		}
+
 	}
 
 	@Override

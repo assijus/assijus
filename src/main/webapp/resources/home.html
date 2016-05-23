@@ -73,6 +73,12 @@
 						ng-click="presentError('apolo')">&nbsp;&#128269;</span>
 				</div>
 
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.hasOwnProperty('textoweb')">
+					<strong>Problema no TextoWeb:</strong> {{errorDetails.textoweb.error}}<span
+						ng-click="presentError('textoweb')">&nbsp;&#128269;</span>
+				</div>
+
 			</div>
 		</div>
 		<div class="row margin-bottom-30"

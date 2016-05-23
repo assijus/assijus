@@ -448,6 +448,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.list = function(progress) {
 		delete $scope.errorDetails.sigadoc;
 		delete $scope.errorDetails.apolo;
+		delete $scope.errorDetails.textoweb;
 
 		progress.step("Listando documentos", "Solicitando ao site do Assijus a lista de documentos que podem ser assinados por este usuário.");
 		$http({
@@ -471,6 +472,12 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.errorDetails.apolo = {
 					"error" : data["error-apolo"],
 					"error-details" : data["stacktrace-apolo"]
+				};
+			}
+			if (data.hasOwnProperty("error-textoweb")) {
+				$scope.errorDetails.textoweb = {
+					"error" : data["error-textoweb"],
+					"error-details" : data["stacktrace-textoweb"]
 				};
 			}
 		}).error(function(data, status, headers, config) {

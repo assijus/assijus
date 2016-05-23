@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import br.jus.trf2.restservlet.RestAsyncCallback;
-import br.jus.trf2.restservlet.RestUtils;
+import com.crivano.restservlet.RestAsyncCallback;
+import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
 public class ListServlet extends AssijusServlet {
@@ -26,23 +26,19 @@ public class ListServlet extends AssijusServlet {
 		blucreq.put("certificate", certificate);
 
 		String token = req.getString("token");
-		Utils.assertValidToken(token, urlblucserver);
+		String cpf = Utils.assertValidToken(token, urlblucserver);
 
 		// Call bluc-server hash webservice
-		JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-				urlblucserver + "/certificate"), blucreq, "bluc-certificate");
-		req.put("certificate", certificate);
-		req.put("subject", blucresp.get("subject"));
-		req.put("cn", blucresp.get("cn"));
-		req.put("name", blucresp.get("name"));
-		req.put("cpf", blucresp.get("cpf"));
-		req.put("certdetails", blucresp.get("certdetails"));
+		// JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
+		// urlblucserver + "/certificate"), blucreq, "bluc-certificate");
+		// String cpf = blucresp.getString("cpf");
 
 		final JSONArray arrtmp = new JSONArray();
-		final CountDownLatch responseWaiter = new CountDownLatch(2);
+		final CountDownLatch responseWaiter = new CountDownLatch(3);
 
 		// Call Siga
-		JSONObject reqsiga = new JSONObject(req, JSONObject.getNames(req));
+		JSONObject reqsiga = new JSONObject();
+		reqsiga.put("cpf", cpf);
 		reqsiga.put("urlapi", urlsiga);
 		reqsiga.put("password", Utils.getSigaDocPassword());
 		Future futureSiga = RestUtils.getJsonObjectFromJsonPostAsync(new URL(
@@ -56,7 +52,6 @@ public class ListServlet extends AssijusServlet {
 									.length(); i++) {
 								JSONObject o = obj.getJSONArray("list")
 										.getJSONObject(i);
-								o.put("status", "Siga-Doc");
 								synchronized (arrtmp) {
 									arrtmp.put(o);
 								}
@@ -85,11 +80,11 @@ public class ListServlet extends AssijusServlet {
 				});
 
 		// Call Apolo
-		JSONObject reqapolo = new JSONObject(req, JSONObject.getNames(req));
-		reqapolo.put("urlapi", urlapolo);
+		JSONObject reqapolo = new JSONObject();
+		reqapolo.put("cpf", cpf);
 		reqapolo.put("password", Utils.getApoloPassword());
-		Future futureApolo = RestUtils.getJsonObjectFromJsonPostAsync(new URL(
-				urlapolo + "/list"), reqapolo, "apolo-list",
+		Future futureApolo = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
+				urlapolo + "/doc/list"), reqapolo, "apolo-list",
 				new RestAsyncCallback() {
 
 					@Override
@@ -99,7 +94,6 @@ public class ListServlet extends AssijusServlet {
 									.length(); i++) {
 								JSONObject o = obj.getJSONArray("list")
 										.getJSONObject(i);
-								o.put("status", "Apolo");
 								synchronized (arrtmp) {
 									arrtmp.put(o);
 								}
@@ -115,6 +109,48 @@ public class ListServlet extends AssijusServlet {
 							resp.put("error-apolo",
 									RestUtils.messageAsString(ex));
 							resp.put("stacktrace-apolo",
+									RestUtils.stackAsString(ex));
+						} finally {
+							responseWaiter.countDown();
+						}
+					}
+
+					@Override
+					public void cancelled() {
+						responseWaiter.countDown();
+					}
+				});
+
+		// Call TextoWeb
+		JSONObject reqtextoweb = new JSONObject();
+		reqapolo.put("cpf", cpf);
+		reqapolo.put("password", Utils.getTextoWebPassword());
+		Future futureTextoWeb = RestUtils.getJsonObjectFromJsonGetAsync(
+				new URL(urltextoweb + "/doc/list"), reqapolo, "textoweb-list",
+				new RestAsyncCallback() {
+
+					@Override
+					public void completed(JSONObject obj) throws Exception {
+						try {
+							for (int i = 0; i < obj.getJSONArray("list")
+									.length(); i++) {
+								JSONObject o = obj.getJSONArray("list")
+										.getJSONObject(i);
+								synchronized (arrtmp) {
+									arrtmp.put(o);
+								}
+							}
+						} finally {
+							responseWaiter.countDown();
+						}
+					}
+
+					@Override
+					public void failed(Exception ex) throws Exception {
+						try {
+							resp.put("error-textoweb",
+									RestUtils.messageAsString(ex));
+							resp.put("stacktrace-textoweb",
 									RestUtils.stackAsString(ex));
 						} finally {
 							responseWaiter.countDown();
@@ -151,14 +187,22 @@ public class ListServlet extends AssijusServlet {
 			doc.put("descr", descr);
 			doc.put("kind", kind);
 			doc.put("origin", origin);
-			if (urlView != null)
+			if (urlView != null) {
 				doc.put("urlView", urlView);
+				// Acrescenta essa informação na tabela para permitir a
+				// posterior visualização.
+				Utils.cacheStore(cpf + "-" + urlView, new byte[] { 1 });
+			}
 			doc.put("urlHash", urlHash);
-			if (urlSave != null)
+			Utils.cacheStore(cpf + "-" + urlHash, new byte[] { 1 });
+			if (urlSave != null) {
 				doc.put("urlSave", urlSave);
+				Utils.cacheStore(cpf + "-" + urlSave, new byte[] { 1 });
+			}
 			doc.put("status", status);
 			// for (int j = 0; j < 50; j++)
 			arr.put(doc);
+
 		}
 		System.out.println("retornou");
 
