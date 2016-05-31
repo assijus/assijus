@@ -9,7 +9,7 @@
 	<name>Assijus Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 
-	<dependencies>
+	<dependencies> 
 		<dependency>
 			<groupId>com.crivano</groupId>
 			<artifactId>swaggerservlet</artifactId>

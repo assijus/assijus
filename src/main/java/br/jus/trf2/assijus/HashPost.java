@@ -8,22 +8,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
+import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
-public class HashServlet extends AssijusServlet {
+public class HashPost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, JSONObject resp)
-			throws Exception {
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 		String certificate = req.getString("certificate");
 		String urlHash = req.getString("urlHash");
 		String password = Utils.choosePassword(urlHash);
 
 		String token = req.getString("token");
-		String cpf = Utils.assertValidToken(token, urlblucserver);
+		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
 		if (Utils.cacheRetrieve(cpf + "-" + urlHash) == null)
 			throw new Exception("CPF não autorizado.");
@@ -55,7 +55,7 @@ public class HashServlet extends AssijusServlet {
 
 			// Call bluc-server hash webservice
 			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-					urlblucserver + "/hash"), blucreq, "bluc-hash");
+					Utils.getUrlBluCServer() + "/hash"), blucreq, "bluc-hash");
 
 			String hash = blucresp.getString("hash");
 			String hashPolicyVersion = blucresp.getString("policyversion");
@@ -88,7 +88,7 @@ public class HashServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "obter o hash";
 	}
 }

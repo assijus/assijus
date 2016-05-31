@@ -10,23 +10,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestAsyncCallback;
 import com.crivano.restservlet.RestUtils;
 
-@SuppressWarnings("serial")
-public class ListServlet extends AssijusServlet {
+public class ListPost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, final JSONObject resp)
-			throws Exception {
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, final JSONObject resp) throws Exception {
 		// Parse certificate
 		String certificate = req.getString("certificate");
 		JSONObject blucreq = new JSONObject();
 		blucreq.put("certificate", certificate);
 
 		String token = req.getString("token");
-		String cpf = Utils.assertValidToken(token, urlblucserver);
+		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
 		// Call bluc-server hash webservice
 		// JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
@@ -39,10 +38,10 @@ public class ListServlet extends AssijusServlet {
 		// Call Siga
 		JSONObject reqsiga = new JSONObject();
 		reqsiga.put("cpf", cpf);
-		reqsiga.put("urlapi", urlsiga);
+		reqsiga.put("urlapi", Utils.getUrlSigaDoc());
 		reqsiga.put("password", Utils.getSigaDocPassword());
-		Future futureSiga = RestUtils.getJsonObjectFromJsonPostAsync(new URL(
-				urlsiga + "/list"), reqsiga, "siga-list",
+		Future futureSiga = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
+				Utils.getUrlSigaDoc() + "/doc/list"), reqsiga, "siga-list",
 				new RestAsyncCallback() {
 
 					@Override
@@ -84,7 +83,7 @@ public class ListServlet extends AssijusServlet {
 		reqapolo.put("cpf", cpf);
 		reqapolo.put("password", Utils.getApoloPassword());
 		Future futureApolo = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
-				urlapolo + "/doc/list"), reqapolo, "apolo-list",
+				Utils.getUrlApolo() + "/doc/list"), reqapolo, "apolo-list",
 				new RestAsyncCallback() {
 
 					@Override
@@ -126,8 +125,8 @@ public class ListServlet extends AssijusServlet {
 		reqapolo.put("cpf", cpf);
 		reqapolo.put("password", Utils.getTextoWebPassword());
 		Future futureTextoWeb = RestUtils.getJsonObjectFromJsonGetAsync(
-				new URL(urltextoweb + "/doc/list"), reqapolo, "textoweb-list",
-				new RestAsyncCallback() {
+				new URL(Utils.getUrlTextoWeb() + "/doc/list"), reqapolo,
+				"textoweb-list", new RestAsyncCallback() {
 
 					@Override
 					public void completed(JSONObject obj) throws Exception {
@@ -209,7 +208,7 @@ public class ListServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "listar documentos";
 	}
 }

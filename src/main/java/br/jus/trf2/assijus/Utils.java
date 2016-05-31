@@ -25,7 +25,7 @@ public class Utils {
 
 	private static final Map<String, byte[]> cache = new HashMap<String, byte[]>();
 
-	public static String getUrlBaseTextoWeb() {
+	public static String getUrlTextoWeb() {
 		return RestUtils.getProperty("textowebsigner.url",
 				"http://localhost:8080/textowebsigner/api/v1");
 	}
@@ -34,7 +34,7 @@ public class Utils {
 		return RestUtils.getProperty("textowebsigner.password", null);
 	}
 
-	public static String getUrlBaseApolo() {
+	public static String getUrlApolo() {
 		return RestUtils.getProperty("apolosigner.url",
 				"http://localhost:8080/apolosigner/api/v1");
 	}
@@ -43,7 +43,7 @@ public class Utils {
 		return RestUtils.getProperty("apolosigner.password", null);
 	}
 
-	public static String getUrlBaseSigaDoc() {
+	public static String getUrlSigaDoc() {
 		return RestUtils.getProperty("sigadocsigner.url",
 				"http://localhost:8080/sigaex/public/app/assinador-externo");
 	}
@@ -52,7 +52,7 @@ public class Utils {
 		return RestUtils.getProperty("sigadocsigner.password", null);
 	}
 
-	public static String getUrlBaseBluCServer() {
+	public static String getUrlBluCServer() {
 		return RestUtils.getProperty("blucservice.url",
 				"http://localhost:8080/blucservice/api/v1");
 	}
@@ -77,13 +77,13 @@ public class Utils {
 
 	public static String fixUrl(String url) {
 		if (url.startsWith("textoweb/")) {
-			return getUrlBaseTextoWeb() + url.substring(8);
+			return getUrlTextoWeb() + url.substring(8);
 		}
 		if (url.startsWith("apolo/")) {
-			return getUrlBaseApolo() + url.substring(5);
+			return getUrlApolo() + url.substring(5);
 		}
 		if (url.startsWith("sigadoc/")) {
-			return getUrlBaseSigaDoc() + url.substring(7);
+			return getUrlSigaDoc() + url.substring(7);
 		}
 		return url;
 	}

@@ -202,11 +202,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			form.target = '_blank';
 			form.style.display = 'none';
 
-			var certificate = document.createElement('input');
-			certificate.type = 'text';
-			certificate.name = 'certificate';
-			certificate.value = $scope.cert.certificate;
-
 			var token = document.createElement('input');
 			token.type = 'text';
 			token.name = 'token';
@@ -221,7 +216,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			submit.type = 'submit';
 			submit.id = 'submitView';
 
-			form.appendChild(certificate);
 			form.appendChild(token);
 			form.appendChild(urlView);
 			form.appendChild(submit);

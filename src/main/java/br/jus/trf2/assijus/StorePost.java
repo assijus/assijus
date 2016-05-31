@@ -5,15 +5,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-@SuppressWarnings("serial")
-public class StoreServlet extends AssijusServlet {
+import com.crivano.restservlet.IRestAction;
 
-	private static final String CONTEXT = "store servlet";
+public class StorePost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, JSONObject resp)
-			throws Exception {
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, JSONObject resp) throws Exception {
 		// Parse request
 		String payload = req.getString("payload");
 
@@ -26,7 +24,7 @@ public class StoreServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "armazenar a assinatura";
 	}
 }

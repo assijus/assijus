@@ -1,0 +1,324 @@
+swagger: '2.0'
+
+info:
+  version: "1.0.0"
+  title: Assijus
+  description: Micro-serviço para listar documentos, obter o hash, salvar assinaturas e visualizar PDFs de múltiplos sistemas simultaneamente
+
+# host: assijus.jfrj.jus.br
+basePath: /assijus/api/v1
+schemes: [http,https]
+consumes: [application/json]
+produces: [application/json]
+
+tags:
+  - name: view
+    description: Listar os documentos a serem assinado e visualizar os PDFs
+  - name: sign
+    description: Obter o hash e gravar a assinatura digital
+  - name: store
+    description: Armazenar assinaturas digitais para garantir a segurança da transação
+
+paths:
+  /token:
+    post:
+      description: Obter um token que deverá ser assinado para comprovar a identidade do usuário
+      tags: [view,sign]
+      parameters: []
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/tokenResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+
+  /list:
+    post:
+      description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
+      tags: [view,sign]
+      parameters:
+        - $ref: "#/parameters/token"
+        - $ref: "#/parameters/certificate"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              list:
+                type: array
+                items:
+                  $ref: "#/definitions/document"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /view:
+    post:
+      description: Obter o PDF de um documento para visualização
+      tags: [view]
+      parameters:
+        - $ref: "#/parameters/token"
+        - name: urlView
+          in: formData
+          description: URL que deve ser chamada no webservice destino para obter o PDF, ou a própria URL do PDF
+          required: true
+          type: string
+          format: byte
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/viewResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /hash:
+    post:
+      description: Obter o hash de um documento
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/token"
+        - $ref: "#/parameters/certificate"
+        - name: urlHash
+          in: formData
+          description: URL que deve ser chamada no webservice destino para objer o hash do documento
+          required: true
+          type: string
+          format: byte
+        
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/hashResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /save:
+    post:
+      description: Gravar a assinatura do documento
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/certificate" 
+        - name: signature
+          in: formData
+          description: Envelope da assinatura digital em base64
+          required: false
+          type: string
+          format: byte
+        - name: signkey
+          in: formData
+          description: Chave para obter o envelope da assinatura digital em base64
+          required: false
+          type: string
+          format: byte
+        - name: time
+          in: formData
+          description: Data e hora da assinatura digital
+          required: true
+          type: string
+          format: datetime
+        - name: policy
+          in: formData
+          description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+          required: true
+          type: string
+        - name: policyversion
+          in: formData
+          description: Número de versão da política usada na assinatura digital
+          required: false
+          type: string
+        - name: sha1
+          in: formData
+          description: SHA-1 do PDF codificado em base64
+          required: true
+          type: string
+          format: byte
+        - name: sha256
+          in: formData
+          description: SHA-256 do PDF codificado em base64
+          required: true
+          type: string
+          format: byte
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/saveResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+
+  /store:
+    post:
+      description: Armazenar temporariamente a assinatura digital produzida pelo assijus.exe para aumentar a segurança
+      tags: [store]
+      parameters:
+        - name: payload
+          in: formData
+          description: Array de bytes em base64 que será armazenado
+          required: true
+          type: string
+          format: byte
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/saveResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+
+  /retrieve:
+    post:
+      description: Devolver uma assinatura digital que foi armazenada temporariamente
+      tags: [store]
+      parameters:
+        - name: key
+          in: formData
+          description: Chave para recuperar a assinatura digital previamente armazenada
+          required: true
+          type: string
+          format: byte
+        - name: remove
+          in: formData
+          description: Chave para recuperar a assinatura digital previamente armazenada
+          required: false
+          type: string
+          format: byte
+        - name: password
+          in: formData
+          description: Senha para acessar o serviço de armazenamento, só deve transitar em HTTPS para garantir a segurança
+          required: false
+          type: string
+          format: byte
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/saveResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+parameters:
+  certificate:
+    name: certificate
+    in: formData
+    description: Certificado X509 do assinante em base64
+    required: true
+    type: string
+    format: byte
+  token:
+    name: token
+    in: formData
+    description: Assinatura em base64 de um token para comprovar a identidade do usuário
+    required: true
+    type: string
+    format: byte
+
+            
+definitions:
+  document:
+    type: object
+    properties:
+      id:
+        type: string
+        description: identificador do documento
+      code: 
+        type: string
+      descr: 
+        type: string
+      kind: 
+        type: string
+      origin: 
+        type: string
+      urlView: 
+        type: string
+      urlHash: 
+        type: string
+      urlSave: 
+        type: string
+    example:
+      id: 00489623760_2_67631650_1460490840000_0_0
+      code: 0100222-90.2014.4.02.0000
+      descr: Conclusão para Decisão  -  Concedida a Antecipação de tutela
+      kind: Decisão
+      origin: Apolo
+      urlView: apolo/view/00489623760_2_67631650_1460490840000_0_0
+      urlHash: apolo/hash/00489623760_2_67631650_1460490840000_0_0
+      urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
+
+  tokenResponse:
+    type: object
+    properties:
+      token:
+        type: string
+        description: Token que deve ser assinado para autenticar o usuário
+      policy:
+        type: string
+        description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+    example:
+      policy: AD-RB
+      token: TOKEN-2016-05-24T14:05:11.248-03:00
+        
+  viewResponse:
+    type: object
+    properties:
+      doc:
+        type: string
+        description: PDF codificado em base64
+    example:
+      doc: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
+        
+  hashResponse:
+    type: object
+    properties:
+      sha1:
+        type: string
+        format: byte
+      sha256:
+        type: string
+        format: byte
+      urlSave:
+        type: string
+    example:      
+      sha1: csTZGGSt1AG1m3T5VaIzcHX8Av0=
+      sha256: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
+      urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
+
+  saveResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      warning:
+        type: array
+        items:
+          $ref: "#/definitions/warning"
+
+  warning:
+    type: object
+    properties:
+      label:
+        type: string
+      description:
+        type: string
+
+  error:
+    type: object
+    properties:
+      error:
+        type: string

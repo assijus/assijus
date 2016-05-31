@@ -8,17 +8,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestUtils;
 
 @SuppressWarnings("serial")
-public class SaveServlet extends AssijusServlet {
-
-	private static final String CONTEXT = "save servlet";
+public class SavePost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, JSONObject resp)
-			throws Exception {
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 
 		String urlSave = req.getString("urlSave");
@@ -61,7 +59,8 @@ public class SaveServlet extends AssijusServlet {
 
 		// Call bluc-server hash webservice
 		JSONObject blucresp2 = RestUtils.getJsonObjectFromJsonPost(new URL(
-				urlblucserver + "/certificate"), blucreq2, "bluc-certificate");
+				Utils.getUrlBluCServer() + "/certificate"), blucreq2,
+				"bluc-certificate");
 
 		String subject = blucresp2.getString("subject");
 		String cn = blucresp2.getString("cn");
@@ -80,7 +79,8 @@ public class SaveServlet extends AssijusServlet {
 			blucreq.put("signature", signature);
 			// Call bluc-server hash webservice
 			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-					urlblucserver + "/envelope"), blucreq, "bluc-envelope");
+					Utils.getUrlBluCServer() + "/envelope"), blucreq,
+					"bluc-envelope");
 
 			envelope = blucresp.getString("envelope");
 
@@ -95,7 +95,8 @@ public class SaveServlet extends AssijusServlet {
 		// Call bluc-server validate webservice. If there is an error,
 		// Utils will throw an exception.
 		JSONObject blucvalidateresp = RestUtils.getJsonObjectFromJsonPost(
-				new URL(urlblucserver + "/validate"), blucreq, "bluc-validate");
+				new URL(Utils.getUrlBluCServer() + "/validate"), blucreq,
+				"bluc-validate");
 
 		// Call
 		JSONObject sigareq = new JSONObject();
@@ -132,7 +133,7 @@ public class SaveServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "gravar a assinatura";
 	}
 }

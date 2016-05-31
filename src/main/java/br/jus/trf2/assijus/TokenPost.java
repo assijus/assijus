@@ -7,16 +7,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-@SuppressWarnings("serial")
-public class TokenServlet extends AssijusServlet {
+import com.crivano.restservlet.IRestAction;
+
+public class TokenPost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, JSONObject resp)
-			throws Exception {
-		// Parse request
-		String certificate = req.optString("certificate", null);
-
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, JSONObject resp) throws Exception {
 		String time = Utils.format(new Date());
 
 		// Produce response
@@ -26,7 +23,7 @@ public class TokenServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "obter o token";
 	}
 }

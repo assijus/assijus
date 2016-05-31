@@ -5,21 +5,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-@SuppressWarnings("serial")
-public class RetrieveServlet extends AssijusServlet {
+import com.crivano.restservlet.IRestAction;
 
-	private static final String CONTEXT = "store servlet";
+@SuppressWarnings("serial")
+public class RetrievePost implements IRestAction {
 
 	@Override
-	protected void run(HttpServletRequest request,
-			HttpServletResponse response, JSONObject req, JSONObject resp)
-			throws Exception {
+	public void run(HttpServletRequest request, HttpServletResponse response,
+			JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 		String key = req.getString("key");
 		boolean remove = req.optBoolean("remove", false);
 		String password = req.optString("password", null);
-		
-		if (Utils.getRetrievePassword() != null) 
+
+		if (Utils.getRetrievePassword() != null)
 			if (!Utils.getRetrievePassword().equals(password))
 				throw new Exception("acesso negado");
 
@@ -35,7 +34,7 @@ public class RetrieveServlet extends AssijusServlet {
 	}
 
 	@Override
-	protected String getContext() {
+	public String getContext() {
 		return "recuperar a assinatura";
 	}
 }
