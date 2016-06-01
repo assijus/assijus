@@ -68,6 +68,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.showErrorDetails = false;
+	$scope.filterErrorDetails = function(v) {
+		return !v.hasOwnProperty('hideAlert');
+	};
 	$scope.promise = null;
 	$scope.checkall = true;
 	$scope.instalarBluC = false;
@@ -271,9 +274,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			$scope.iOperacao = i;
 
 			$scope.state = {
-				urlapolo : $scope.state.urlapolo,
-				urlsiga : $scope.state.urlsiga,
-				urlbluc : $scope.state.urlbluc,
 				nome : o.nome,
 				codigo : o.codigo,
 				urlPost : o.urlPost,
@@ -302,9 +302,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			data : {
 				urlHash : $scope.state.urlHash,
 				certificate : $scope.cert.certificate,
-				urlsiga : $scope.state.urlsiga,
-				urlapolo : $scope.state.urlapolo,
-				urlbluc : $scope.state.urlbluc,
 				token : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
@@ -376,10 +373,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				sha1 : $scope.state.sha1,
 				sha256 : $scope.state.sha256,
 				urlSave : $scope.state.urlPost,
-				certificate : $scope.cert.certificate,
-				urlsiga : $scope.state.urlsiga,
-				urlapolo : $scope.state.urlapolo,
-				urlbluc : $scope.state.urlbluc
+				certificate : $scope.cert.certificate
 			}
 		}).success(function(data, status, headers, config) {
 			// $('#status' + state.codigo).goTo();
@@ -424,6 +418,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}
 
 		$scope.errorDetails[codigo] = data;
+		$scope.errorDetails[codigo].hideAlert = true;
 
 		// $('#status' + state.codigo).goTo();
 		$('#status' + $scope.state.codigo).html('<span class="status-error">' + msg + '</span>');
@@ -440,10 +435,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 
 	$scope.list = function(progress) {
-		delete $scope.errorDetails.sigadoc;
-		delete $scope.errorDetails.apolo;
-		delete $scope.errorDetails.textoweb;
-
 		progress.step("Listando documentos", "Solicitando ao site do Assijus a lista de documentos que podem ser assinados por este usuário.");
 		$http({
 			url : $scope.urlBaseAPI + '/list',
@@ -453,27 +444,24 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				"token" : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
+			for ( var property in data) {
+				if (data.hasOwnProperty(property)) {
+					if (property.startsWith("status-")) {
+						var system = property.substring(7);
+						if (data[property] == "OK") {
+							delete $scope.errorDetails[system];
+						} else if (data[property] == "Error") {
+							$scope.errorDetails[system] = {
+								"error" : data["error-" + system],
+								"error-details" : data["stacktrace-" + system]
+							};
+						}
+					}
+				}
+			}
 			if (progress.active)
 				$scope.update(data.list);
 			progress.stop();
-			if (data.hasOwnProperty("error-sigadoc")) {
-				$scope.errorDetails.sigadoc = {
-					"error" : data["error-sigadoc"],
-					"error-details" : data["stacktrace-sigadoc"]
-				};
-			}
-			if (data.hasOwnProperty("error-apolo")) {
-				$scope.errorDetails.apolo = {
-					"error" : data["error-apolo"],
-					"error-details" : data["stacktrace-apolo"]
-				};
-			}
-			if (data.hasOwnProperty("error-textoweb")) {
-				$scope.errorDetails.textoweb = {
-					"error" : data["error-textoweb"],
-					"error-details" : data["stacktrace-textoweb"]
-				};
-			}
 		}).error(function(data, status, headers, config) {
 			progress.stop();
 			$scope.errorDetails.geral = data;

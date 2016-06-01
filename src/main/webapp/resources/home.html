@@ -47,38 +47,19 @@
 					página.
 				</div>
 
-				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.hasOwnProperty('geral')">
-					<p>
-						<strong>Problema Detectado:</strong> {{errorDetails.geral.error}}<span
-							ng-show="errorDetails.hasOwnProperty('geral')"
-							ng-click="presentError('geral')">&nbsp;&#128269;</span>
-					</p>
-					<p>
-						Para tentar novamente, <a href="javascript:location.reload();"><u>recarregue</u></a>
-						esta página.
-					</p>
+				<div ng-repeat="(key, value) in errorDetails">
+					<div class="alert alert-danger fade in"
+						ng-show="!value.hasOwnProperty('hideAlert')">
+						<p>
+							<strong>Problema - {{key}}:</strong> {{value.error}}<span
+								ng-click="presentError(key)">&nbsp;&#128269;</span>
+						</p>
+						<p>
+							Para tentar novamente, <a href="javascript:location.reload();"><u>recarregue</u></a>
+							esta página.
+						</p>
+					</div>
 				</div>
-
-				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.hasOwnProperty('sigadoc')">
-					<strong>Problema no Siga-Doc:</strong>
-					{{errorDetails.sigadoc.error}}<span
-						ng-click="presentError('sigadoc')">&nbsp;&#128269;</span>
-				</div>
-
-				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.hasOwnProperty('apolo')">
-					<strong>Problema no Apolo:</strong> {{errorDetails.apolo.error}}<span
-						ng-click="presentError('apolo')">&nbsp;&#128269;</span>
-				</div>
-
-				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.hasOwnProperty('textoweb')">
-					<strong>Problema no TextoWeb:</strong> {{errorDetails.textoweb.error}}<span
-						ng-click="presentError('textoweb')">&nbsp;&#128269;</span>
-				</div>
-
 			</div>
 		</div>
 		<div class="row margin-bottom-30"

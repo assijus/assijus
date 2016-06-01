@@ -25,40 +25,13 @@ public class Utils {
 
 	private static final Map<String, byte[]> cache = new HashMap<String, byte[]>();
 
-	public static String getUrlTextoWeb() {
-		return RestUtils.getProperty("textowebsigner.url",
-				"http://localhost:8080/textowebsigner/api/v1");
+	public static String getUrl(String system) {
+		return RestUtils.getProperty(system + ".url", "http://localhost:8080/"
+				+ system + "/api/v1");
 	}
 
-	public static String getTextoWebPassword() {
-		return RestUtils.getProperty("textowebsigner.password", null);
-	}
-
-	public static String getUrlApolo() {
-		return RestUtils.getProperty("apolosigner.url",
-				"http://localhost:8080/apolosigner/api/v1");
-	}
-
-	public static String getApoloPassword() {
-		return RestUtils.getProperty("apolosigner.password", null);
-	}
-
-	public static String getUrlSigaDoc() {
-		return RestUtils.getProperty("sigadocsigner.url",
-				"http://localhost:8080/sigaex/public/app/assinador-externo");
-	}
-
-	public static String getSigaDocPassword() {
-		return RestUtils.getProperty("sigadocsigner.password", null);
-	}
-
-	public static String getUrlTNU() {
-		return RestUtils.getProperty("tnusigner.url",
-				"http://localhost:8080/tnusigner/api/v1");
-	}
-
-	public static String getTNUPassword() {
-		return RestUtils.getProperty("tnusigner.password", null);
+	public static String getPassword(String system) {
+		return RestUtils.getProperty(system + ".password", null);
 	}
 
 	public static String getUrlBluCServer() {
@@ -79,34 +52,30 @@ public class Utils {
 		return RestUtils.getProperty("assijus.retrieve.password", null);
 	}
 
+	public static String[] getSystems() {
+		String systems = RestUtils.getProperty("assijus.systems", null);
+		if (systems == null)
+			return null;
+		return systems.split(",");
+	}
+
 	public static String fixUrl(String url) {
-		if (url.startsWith("textoweb/")) {
-			return getUrlTextoWeb() + url.substring(8);
-		}
-		if (url.startsWith("apolo/")) {
-			return getUrlApolo() + url.substring(5);
-		}
-		if (url.startsWith("sigadoc/")) {
-			return getUrlSigaDoc() + url.substring(7);
-		}
-		if (url.startsWith("tnu/")) {
-			return getUrlTNU() + url.substring(3);
+		for (String system : getSystems()) {
+			if (url.startsWith(system.replace("signer", "") + "/")
+					|| url.startsWith(system + "/")) {
+				String urlSystem = Utils.getUrl(system);
+				return urlSystem + url.substring(url.indexOf("/"));
+			}
 		}
 		return url;
 	}
 
 	public static String choosePassword(String url) {
-		if (url.startsWith("textoweb/")) {
-			return getTextoWebPassword();
-		}
-		if (url.startsWith("apolo/")) {
-			return getApoloPassword();
-		}
-		if (url.startsWith("sigadoc/")) {
-			return getSigaDocPassword();
-		}
-		if (url.startsWith("tnu/")) {
-			return getTNUPassword();
+		for (String system : getSystems()) {
+			if (url.startsWith(system.replace("signer", "") + "/")
+					|| url.startsWith(system + "/")) {
+				return Utils.getPassword(system);
+			}
 		}
 		return null;
 	}

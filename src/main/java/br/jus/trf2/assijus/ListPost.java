@@ -1,9 +1,10 @@
 package br.jus.trf2.assijus;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,8 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
-import com.crivano.restservlet.RestAsyncCallback;
 import com.crivano.restservlet.RestUtils;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 
 public class ListPost implements IRestAction {
 
@@ -34,177 +36,62 @@ public class ListPost implements IRestAction {
 		// String cpf = blucresp.getString("cpf");
 
 		final JSONArray arrtmp = new JSONArray();
-		final CountDownLatch responseWaiter = new CountDownLatch(4);
 
-		// Call Siga
-		JSONObject reqsiga = new JSONObject();
-		reqsiga.put("cpf", cpf);
-		reqsiga.put("urlapi", Utils.getUrlSigaDoc());
-		reqsiga.put("password", Utils.getSigaDocPassword());
-		Future futureSiga = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
-				Utils.getUrlSigaDoc() + "/doc/list"), reqsiga, "siga-list",
-				new RestAsyncCallback() {
+		String[] systems = Utils.getSystems();
 
-					@Override
-					public void completed(JSONObject obj) throws Exception {
-						try {
-							for (int i = 0; i < obj.getJSONArray("list")
-									.length(); i++) {
-								JSONObject o = obj.getJSONArray("list")
-										.getJSONObject(i);
-								synchronized (arrtmp) {
-									arrtmp.put(o);
-								}
-							}
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
+		final CountDownLatch responseWaiter = new CountDownLatch(systems.length);
+		Map<String, Future<HttpResponse<JsonNode>>> map = new HashMap<>();
 
-					@Override
-					public void failed(Exception ex) throws Exception {
-						try {
-							resp.put("error-sigadoc",
-									RestUtils.messageAsString(ex));
-							resp.put("stacktrace-sigadoc",
-									RestUtils.stackAsString(ex));
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
+		// Call Each System
+		for (String system : systems) {
+			final String context = system.replace("signer", "");
+			String urlsys = Utils.getUrl(system);
+			JSONObject reqsys = new JSONObject();
+			reqsys.put("cpf", cpf);
+			reqsys.put("urlapi", urlsys);
+			reqsys.put("password", Utils.getPassword(system));
+			Future<HttpResponse<JsonNode>> future = RestUtils
+					.getJsonObjectFromJsonGetAsync(
+							new URL(urlsys + "/doc/list"), reqsys, system
+									+ "-list");
+			map.put(system, future);
+		}
 
-					@Override
-					public void cancelled() {
-						responseWaiter.countDown();
-					}
-				});
+		for (String system : systems) {
+			final String context = system.replace("signer", "");
+			try {
+				HttpResponse<JsonNode> futureresponse = map.get(system).get();
+				JSONObject o = futureresponse.getBody().getObject();
+				String error = o.optString("error", null);
+				if (error != null) {
+					resp.put("status-" + context, "Error");
+					resp.put("error-" + context, error);
+					resp.put("stacktrace-" + context,
+							o.optString("stacktrace", null));
+					continue;
+				}
+				resp.put("status-" + context, "OK");
+				for (int i = 0; i < o.getJSONArray("list").length(); i++) {
+					JSONObject doc = o.getJSONArray("list").getJSONObject(i);
+					arrtmp.put(doc);
+				}
+			} catch (Exception ex) {
+				resp.put("status-" + context, "Error");
+				resp.put("error-" + context, RestUtils.messageAsString(ex));
+				resp.put("stacktrace-" + context, RestUtils.stackAsString(ex));
+			}
+		}
 
-		// Call Apolo
-		JSONObject reqapolo = new JSONObject();
-		reqapolo.put("cpf", cpf);
-		reqapolo.put("password", Utils.getApoloPassword());
-		Future futureApolo = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
-				Utils.getUrlApolo() + "/doc/list"), reqapolo, "apolo-list",
-				new RestAsyncCallback() {
-
-					@Override
-					public void completed(JSONObject obj) throws Exception {
-						try {
-							for (int i = 0; i < obj.getJSONArray("list")
-									.length(); i++) {
-								JSONObject o = obj.getJSONArray("list")
-										.getJSONObject(i);
-								synchronized (arrtmp) {
-									arrtmp.put(o);
-								}
-							}
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void failed(Exception ex) throws Exception {
-						try {
-							resp.put("error-tnu", RestUtils.messageAsString(ex));
-							resp.put("stacktrace-tnu",
-									RestUtils.stackAsString(ex));
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void cancelled() {
-						responseWaiter.countDown();
-					}
-				});
-
-		// Call TextoWeb
-		JSONObject reqtextoweb = new JSONObject();
-		reqapolo.put("cpf", cpf);
-		reqapolo.put("password", Utils.getTextoWebPassword());
-		Future futureTextoWeb = RestUtils.getJsonObjectFromJsonGetAsync(
-				new URL(Utils.getUrlTextoWeb() + "/doc/list"), reqapolo,
-				"textoweb-list", new RestAsyncCallback() {
-
-					@Override
-					public void completed(JSONObject obj) throws Exception {
-						try {
-							for (int i = 0; i < obj.getJSONArray("list")
-									.length(); i++) {
-								JSONObject o = obj.getJSONArray("list")
-										.getJSONObject(i);
-								synchronized (arrtmp) {
-									arrtmp.put(o);
-								}
-							}
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void failed(Exception ex) throws Exception {
-						try {
-							resp.put("error-textoweb",
-									RestUtils.messageAsString(ex));
-							resp.put("stacktrace-textoweb",
-									RestUtils.stackAsString(ex));
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void cancelled() {
-						responseWaiter.countDown();
-					}
-				});
-
-		// Call TNU
-		JSONObject reqtnu = new JSONObject();
-		reqtnu.put("cpf", cpf);
-		reqtnu.put("password", Utils.getTextoWebPassword());
-		Future futureTNU = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
-				Utils.getUrlTNU() + "/doc/list"), reqtnu, "tnu-list",
-				new RestAsyncCallback() {
-
-					@Override
-					public void completed(JSONObject obj) throws Exception {
-						try {
-							for (int i = 0; i < obj.getJSONArray("list")
-									.length(); i++) {
-								JSONObject o = obj.getJSONArray("list")
-										.getJSONObject(i);
-								synchronized (arrtmp) {
-									arrtmp.put(o);
-								}
-							}
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void failed(Exception ex) throws Exception {
-						try {
-							resp.put("error-textoweb",
-									RestUtils.messageAsString(ex));
-							resp.put("stacktrace-textoweb",
-									RestUtils.stackAsString(ex));
-						} finally {
-							responseWaiter.countDown();
-						}
-					}
-
-					@Override
-					public void cancelled() {
-						responseWaiter.countDown();
-					}
-				});
-
-		responseWaiter.await(25, TimeUnit.SECONDS);
+		// for (int i = 0; i < 25; i++) {
+		// responseWaiter.await(1, TimeUnit.SECONDS);
+		// boolean completed = true;
+		// for (String system : systems) {
+		// if (!map.get(system).isDone())
+		// completed = false;
+		// }
+		// if (completed)
+		// break;
+		// }
 
 		// Produce response
 		JSONArray arr = new JSONArray();
@@ -245,8 +132,6 @@ public class ListPost implements IRestAction {
 			arr.put(doc);
 
 		}
-		System.out.println("retornou");
-
 	}
 
 	@Override
