@@ -52,14 +52,18 @@ public class Utils {
 		return RestUtils.getProperty("sigadocsigner.password", null);
 	}
 
+	public static String getUrlTNU() {
+		return RestUtils.getProperty("tnusigner.url",
+				"http://localhost:8080/tnusigner/api/v1");
+	}
+
+	public static String getTNUPassword() {
+		return RestUtils.getProperty("tnusigner.password", null);
+	}
+
 	public static String getUrlBluCServer() {
 		return RestUtils.getProperty("blucservice.url",
 				"http://localhost:8080/blucservice/api/v1");
-	}
-
-	public static String getUrlBaseAPI() {
-		return RestUtils.getProperty("assijus.url",
-				"http://localhost:8080/trf2signer/api/v1");
 	}
 
 	public static String getKeyValueServer() {
@@ -85,6 +89,9 @@ public class Utils {
 		if (url.startsWith("sigadoc/")) {
 			return getUrlSigaDoc() + url.substring(7);
 		}
+		if (url.startsWith("tnu/")) {
+			return getUrlTNU() + url.substring(3);
+		}
 		return url;
 	}
 
@@ -97,6 +104,9 @@ public class Utils {
 		}
 		if (url.startsWith("sigadoc/")) {
 			return getSigaDocPassword();
+		}
+		if (url.startsWith("tnu/")) {
+			return getTNUPassword();
 		}
 		return null;
 	}

@@ -3,6 +3,7 @@ package br.jus.trf2.assijus;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +34,7 @@ public class ListPost implements IRestAction {
 		// String cpf = blucresp.getString("cpf");
 
 		final JSONArray arrtmp = new JSONArray();
-		final CountDownLatch responseWaiter = new CountDownLatch(3);
+		final CountDownLatch responseWaiter = new CountDownLatch(4);
 
 		// Call Siga
 		JSONObject reqsiga = new JSONObject();
@@ -105,9 +106,8 @@ public class ListPost implements IRestAction {
 					@Override
 					public void failed(Exception ex) throws Exception {
 						try {
-							resp.put("error-apolo",
-									RestUtils.messageAsString(ex));
-							resp.put("stacktrace-apolo",
+							resp.put("error-tnu", RestUtils.messageAsString(ex));
+							resp.put("stacktrace-tnu",
 									RestUtils.stackAsString(ex));
 						} finally {
 							responseWaiter.countDown();
@@ -162,7 +162,49 @@ public class ListPost implements IRestAction {
 					}
 				});
 
-		responseWaiter.await();
+		// Call TNU
+		JSONObject reqtnu = new JSONObject();
+		reqtnu.put("cpf", cpf);
+		reqtnu.put("password", Utils.getTextoWebPassword());
+		Future futureTNU = RestUtils.getJsonObjectFromJsonGetAsync(new URL(
+				Utils.getUrlTNU() + "/doc/list"), reqtnu, "tnu-list",
+				new RestAsyncCallback() {
+
+					@Override
+					public void completed(JSONObject obj) throws Exception {
+						try {
+							for (int i = 0; i < obj.getJSONArray("list")
+									.length(); i++) {
+								JSONObject o = obj.getJSONArray("list")
+										.getJSONObject(i);
+								synchronized (arrtmp) {
+									arrtmp.put(o);
+								}
+							}
+						} finally {
+							responseWaiter.countDown();
+						}
+					}
+
+					@Override
+					public void failed(Exception ex) throws Exception {
+						try {
+							resp.put("error-textoweb",
+									RestUtils.messageAsString(ex));
+							resp.put("stacktrace-textoweb",
+									RestUtils.stackAsString(ex));
+						} finally {
+							responseWaiter.countDown();
+						}
+					}
+
+					@Override
+					public void cancelled() {
+						responseWaiter.countDown();
+					}
+				});
+
+		responseWaiter.await(25, TimeUnit.SECONDS);
 
 		// Produce response
 		JSONArray arr = new JSONArray();
