@@ -39,17 +39,40 @@
 				</div>
 
 				<div class="alert alert-danger fade in" ng-show="instalarBluC">
-					<strong>Problema Detactado:</strong> Não foi possível detectar o
-					programa <a href="signer/windows/{{assijusexe}}"><u>{{assijusexe}}</u></a>.
-					Por favor, verifique o passo a passo para utilização clicando na
-					opção de menu <a href="#sobre"><u>SOBRE</u></a> e depois <a
-						href="javascript:location.reload();"><u>recarregue</u></a> esta
-					página.
+					<p>Não foi possível detectar o programa assijus.exe.</p>
+					<p>No primeiro acesso ao Assijus, em cada equipamento, é
+						necessária uma instalação prévia, conforme as orientações abaixo:</p>
+					<ol>
+						<li>Instale o driver do token para acessar seu certificado.</li>
+						<li>Instale o programa <a
+							href="signer/windows/{{assijusexe}}"><u>{{assijusexe}}</u></a> em
+							seu PC/Windows. Este programa depende do <a
+							href="https://www.microsoft.com/pt-br/download/details.aspx?id=40779"><u>Microsoft
+									.NET Framework 4.5.1</u></a>, e talvez seja necessário instalá-lo
+							também.
+						</li>
+						<li><a href="javascript:location.reload();"><u>Recarregue</u></a>
+							esta página.</li>
+					</ol>
+				</div>
+
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.geral.error == 'Nenhum certificado encontrado.'">
+					<p>Não foi possível detectar nenhum token contendo certificado
+						digital válido.</p>
+					<p>
+						Por favor, verifique se o token está corretamente instalado na
+						porta USB e <a href="javascript:location.reload();"><u>recarregue</u></a>
+						esta página.
+					</p>
+					<p>Se o token estiver instalado e mesmo assim o erro persistir
+						pode haver um problema entre o Windows e o driver do token. Neste
+						caso, por favor, tente reiniciar o Windows.</p>
 				</div>
 
 				<div ng-repeat="(key, value) in errorDetails">
 					<div class="alert alert-danger fade in"
-						ng-show="!value.hasOwnProperty('hideAlert')">
+						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && errorDetails.geral.error == 'Nenhum certificado encontrado.')">
 						<p>
 							<strong>Problema - {{key}}:</strong> {{value.error}}<span
 								ng-click="presentError(key)">&nbsp;&#128269;</span>

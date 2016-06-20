@@ -446,7 +446,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}).success(function(data, status, headers, config) {
 			for ( var property in data) {
 				if (data.hasOwnProperty(property)) {
-					if (property.startsWith("status-")) {
+					if (property.indexOf("status-") == 0) {
 						var system = property.substring(7);
 						if (data[property] == "OK") {
 							delete $scope.errorDetails[system];
