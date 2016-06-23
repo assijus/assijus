@@ -36,3 +36,11 @@ Além disso, precisamos indicar onde está o serviço BluCService:
 Quando se trata de um servidor que não é de produção, precisamos informar onde fica a produção para que ele consiga recuperar a assinatura que foi enviada pelo assijus.exe
 - assijus.keyvalue.url=http://assijus.jfrj.jus.br/assijus/api/v1
 - assijus.keyvalue.password=375258df-d2fe-46c1-a976-61102546d451
+
+## Docker
+
+Para iniciar com o Docker, gere o assijus.war usando ```mvn clean install``` e depois execute algo parecido com:
+
+```
+docker run -d -p 5001:8080 --name assijus --read-only -v /tmp/jetty -v /run/jetty -v /Users/user/warpath:/var/lib/jetty/webapps -e "PROP_BLUCSERVICE_URL=http://blucservice:8080/blucservice/api/v1" -e "PROP_APOLOSIGNER_URL=http://apolosigner:8080/apolosigner/api/v1" -e "PROP_SIGADOCSIGNER_URL=http://macmini.local/sigaex/public/app/assinador-externo" --link blucservice --link apolosigner jetty
+```
