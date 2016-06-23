@@ -146,7 +146,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.marcarTodos = function() {
 		var checked = $scope.checkall;
 		$("input:checkbox.chk-assinar").each(function() {
-			$(this).prop('checked', checked);
+			if (!$(this).prop('disabled')) {
+				$(this).prop('checked', checked);
+			}
 		});
 	}
 
