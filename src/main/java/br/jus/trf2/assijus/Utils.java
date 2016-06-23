@@ -41,7 +41,7 @@ public class Utils {
 
 	public static String getKeyValueServer() {
 		return RestUtils.getProperty("assijus.keyvalue.url",
-				"http://localhost:8080/trf2signer/api/v1");
+				"http://localhost:8080/assijus/api/v1");
 	}
 
 	public static String getKeyValuePassword() {
