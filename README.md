@@ -19,3 +19,20 @@ Completamente baseado em micro-serviços, o Assijus é composto dos seguintes co
 - Assijus.exe: um assinador REST que roda em http://localhost:8612 e foi desenvolvido em .NET
 - BluCService: Servidor REST do BlueCrystalSign, serviço que auxilia na criação do pacote assinável no padrão da ICP-Brasil, além de produzir o envelope e validar assinaturas.
 - Sistemas integrados: qualquer sistema que implemente os 4 métodos REST descritos acima
+
+## Ambiente
+
+Para executar o Assijus, é necessário que algumas propriedades sejam definidas.
+
+Por exemplo, se estivermos operando com as 3 integrações abaixo, devemos configurar a propriedade assijus.systems para indicar o nome de cada sistema provedor de documentos e depois especificar em nome_do_sistema.url a localização do respectivo webservice:
+- assijus.systems=sigadocsigner,apolosigner,textowebsigner
+- sigadocsigner.url=http://macmini.local/sigaex/public/app/assinador
+- apolosigner.url=http://apolosigner:8080/apolosigner/api/v1
+- textowebsigner.url=http://textoweb.jfrj.jus.br:8080/textowebsigner/api/v1
+
+Além disso, precisamos indicar onde está o serviço BluCService:
+- blucservice.url=http://blucservice:8080/blucservice/api/v1
+
+Quando se trata de um servidor que não é de produção, precisamos informar onde fica a produção para que ele consiga recuperar a assinatura que foi enviada pelo assijus.exe
+- assijus.keyvalue.url=http://assijus.jfrj.jus.br/assijus/api/v1
+- assijus.keyvalue.password=375258df-d2fe-46c1-a976-61102546d451
