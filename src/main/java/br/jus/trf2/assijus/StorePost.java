@@ -1,8 +1,5 @@
 package br.jus.trf2.assijus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
@@ -10,8 +7,7 @@ import com.crivano.restservlet.IRestAction;
 public class StorePost implements IRestAction {
 
 	@Override
-	public void run(HttpServletRequest request, HttpServletResponse response,
-			JSONObject req, JSONObject resp) throws Exception {
+	public void run(JSONObject req, JSONObject resp) throws Exception {
 		// Parse request
 		String payload = req.getString("payload");
 

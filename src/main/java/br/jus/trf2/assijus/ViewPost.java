@@ -1,8 +1,5 @@
 package br.jus.trf2.assijus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
@@ -10,8 +7,7 @@ import com.crivano.restservlet.RestUtils;
 
 public class ViewPost implements IRestAction {
 
-	public void run(HttpServletRequest request, HttpServletResponse response,
-			JSONObject req, final JSONObject resp) throws Exception {
+	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 		String urlView = req.getString("urlView");
 		String password = Utils.choosePassword(urlView);

@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,8 +17,7 @@ import com.mashape.unirest.http.JsonNode;
 public class ListPost implements IRestAction {
 
 	@Override
-	public void run(HttpServletRequest request, HttpServletResponse response,
-			JSONObject req, final JSONObject resp) throws Exception {
+	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse certificate
 		String certificate = req.getString("certificate");
 		JSONObject blucreq = new JSONObject();

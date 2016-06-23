@@ -3,20 +3,15 @@ package br.jus.trf2.assijus;
 import java.net.URL;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestUtils;
 
-@SuppressWarnings("serial")
 public class HashPost implements IRestAction {
 
 	@Override
-	public void run(HttpServletRequest request, HttpServletResponse response,
-			JSONObject req, final JSONObject resp) throws Exception {
+	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 		String certificate = req.getString("certificate");
 		String urlHash = req.getString("urlHash");
