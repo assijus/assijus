@@ -20,22 +20,10 @@ public class AssijusServlet extends SwaggerServlet {
 		super.setActionPackage("br.jus.trf2.assijus");
 
 		Swagger sw = new Swagger();
-		sw.loadFromInputStream(this.getServletContext().getResourceAsStream(
-				"/api/v1/swagger.yaml"));
+		sw.loadFromInputStream(this.getClass().getResourceAsStream(
+				"/swagger.yaml"));
 
 		super.setSwagger(sw);
-	}
-
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		Swagger sw = new Swagger();
-		sw.loadFromInputStream(this.getServletContext().getResourceAsStream(
-				"/api/v1/swagger.yaml"));
-
-		super.setSwagger(sw);
-
-		super.doPost(request, response);
 	}
 
 	@Override
