@@ -14,7 +14,9 @@ digraph assijus {
 
   "apolo-signer" -> "WebDocumentos"
   "apolo-signer" -> "apolo"
-
+  
+  "textoweb-signer" -> "apolo"
+  
   "sigadoc-signer" -> "blucservice"
   "sigadoc-signer" -> "siga"
 
