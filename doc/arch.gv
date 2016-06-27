@@ -12,13 +12,13 @@ digraph assijus {
   "assijus-site" -> "assijus.exe"
   "assijus.exe" -> "assijus"
 
-  "apolo-signer" -> "pdf-converter"
+  "apolo-signer" -> "WebDocumentos"
   "apolo-signer" -> "apolo"
 
   "sigadoc-signer" -> "blucservice"
   "sigadoc-signer" -> "siga"
 
-  "pdf-converter" -> "apolo"
+  "WebDocumentos" -> "apolo" [style=invis]
 
   "tnu-signer" -> "tnu"
   "blucservice" -> "LCR"
@@ -46,7 +46,7 @@ digraph assijus {
      "sigadoc-signer"
      "textoweb-signer"  
      "tnu-signer"    
-     "pdf-converter"
+     "WebDocumentos"
   }
 
   subgraph cluster_bd{
@@ -65,6 +65,12 @@ digraph assijus {
      "CDN"
   }
 
-
-  
+  subgraph cluster_batch{
+     style = "dashed";
+     label = "Servidor Batch"
+     "AppDoctopdf"
+     
+  }
+"AppDoctopdf" -> "WebDocumentos"
+"AppDoctopdf" -> "apolo"  
 }
