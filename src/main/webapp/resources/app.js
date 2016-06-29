@@ -152,8 +152,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		});
 	}
 
-	$scope.state = {};
-
 	// 0 - Nenhuma, 1 = digital
 	$scope.verificarTipoDeAssinatura = function() {
 		var useToken = false;
@@ -275,106 +273,104 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				continue;
 			$scope.iOperacao = i;
 
-			$scope.state = {
-				nome : o.nome,
-				codigo : o.codigo,
-				urlPost : o.urlPost,
-				urlHash : o.urlPdf
-			};
-
 			window.setTimeout(function() {
-				$scope.assinar(progress);
+				$scope.assinar({
+					nome : o.nome,
+					codigo : o.codigo,
+					urlPost : o.urlPost,
+					urlHash : o.urlPdf
+				}, progress);
 			}, 10);
 			return;
 		}
 		$scope.progress.stop();
 	}
 
-	$scope.assinar = function(progress) {
+	$scope.assinar = function(state, progress) {
 		if (progress.active)
-			$scope.obterHash(progress);
+			$scope.obterHash(state, progress);
 	}
 
-	$scope.obterHash = function(progress) {
-		progress.step($scope.state.nome + ": Buscando no servidor...");
+	$scope.obterHash = function(state, progress) {
+		progress.step(state.nome + ": Buscando no servidor...");
 
 		$http({
 			url : $scope.urlBaseAPI + "/hash",
 			method : "POST",
 			data : {
-				urlHash : $scope.state.urlHash,
+				urlHash : state.urlHash,
 				certificate : $scope.cert.certificate,
 				token : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
-			$scope.state.policy = data.policy;
-			$scope.state.policyversion = data.policyversion;
-			$scope.state.time = data.time;
-			$scope.state.hash = data.hash;
-			$scope.state.sha1 = data.sha1;
-			$scope.state.sha256 = data.sha256;
-			$scope.state.hash = data.hash;
+			state.policy = data.policy;
+			state.policyversion = data.policyversion;
+			state.time = data.time;
+			state.hash = data.hash;
+			state.sha1 = data.sha1;
+			state.sha256 = data.sha256;
+			state.hash = data.hash;
 			if (data.hasOwnProperty('urlSave'))
-				$scope.state.urlPost = data.urlSave;
-			$scope.clearError($scope.state.codigo);
+				state.urlPost = data.urlSave;
+			$scope.clearError(state.codigo);
 			if (progress.active)
-				$scope.produzirAssinatura(progress);
+				$scope.produzirAssinatura(state, progress);
 		}).error(function(data, status, headers, config) {
 			progress.step();
 			progress.step();
-			$scope.reportErrorAndResume($scope.state.codigo, "obtendo o hash", data, status);
+			$scope.reportErrorAndResume(state.codigo, "obtendo o hash", data, status);
 			$scope.executar(progress);
 		});
 	}
 
-	$scope.produzirAssinatura = function(progress) {
-		progress.step($scope.state.nome + ": Assinando...");
+	$scope.produzirAssinatura = function(state, progress) {
+		progress.step(state.nome + ": Assinando...");
 
 		$http({
 			url : $scope.urlBluCRESTSigner + "/sign",
 			method : "POST",
 			data : {
-				policy : $scope.state.policy,
-				payload : $scope.state.hash,
+				policy : state.policy,
+				payload : state.hash,
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject
 			}
 		}).success(function(data, status, headers, config) {
 			if (data.sign != "")
-				$scope.state.assinaturaB64 = data.sign;
+				state.assinaturaB64 = data.sign;
 			if (data.signkey != "")
-				$scope.state.signkey = data.signkey;
-			$scope.state.assinante = data.cn;
+				state.signkey = data.signkey;
+			state.assinante = data.cn;
 			var re = /CN=([^,]+),/gi;
 			var m;
-			if ((m = re.exec($scope.state.assinante)) != null) {
-				$scope.state.assinante = m[1];
+			if ((m = re.exec(state.assinante)) != null) {
+				state.assinante = m[1];
 			}
-			$scope.clearError($scope.state.codigo);
+			$scope.clearError(state.codigo);
 			if (progress.active)
-				$scope.gravarAssinatura(progress);
+				$scope.gravarAssinatura(state, progress);
 		}).error(function(data, status, headers, config) {
 			progress.step();
-			$scope.reportErrorAndResume($scope.state.codigo, "assinando", data, status);
+			$scope.reportErrorAndResume(state.codigo, "assinando", data, status);
 			$scope.executar(progress);
 		});
 	}
 
-	$scope.gravarAssinatura = function(progress) {
-		progress.step($scope.state.nome + ": Gravando assinatura...");
+	$scope.gravarAssinatura = function(state, progress) {
+		progress.step(state.nome + ": Gravando assinatura...");
 
 		$http({
 			url : $scope.urlBaseAPI + "/save",
 			method : "POST",
 			data : {
-				signature : $scope.state.assinaturaB64,
-				signkey : $scope.state.signkey,
-				time : $scope.state.time,
-				policy : $scope.state.policy,
-				policyversion : $scope.state.policyversion,
-				sha1 : $scope.state.sha1,
-				sha256 : $scope.state.sha256,
-				urlSave : $scope.state.urlPost,
+				signature : state.assinaturaB64,
+				signkey : state.signkey,
+				time : state.time,
+				policy : state.policy,
+				policyversion : state.policyversion,
+				sha1 : state.sha1,
+				sha256 : state.sha256,
+				urlSave : state.urlPost,
 				certificate : $scope.cert.certificate
 			}
 		}).success(function(data, status, headers, config) {
@@ -389,12 +385,12 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				}
 				sts += '</span>';
 			}
-			$('#status' + $scope.state.codigo).html(sts);
-			$scope.disable($scope.state.codigo);
-			$scope.clearError($scope.state.codigo);
+			$('#status' + state.codigo).html(sts);
+			$scope.disable(state.codigo);
+			$scope.clearError(state.codigo);
 			$scope.executar(progress);
 		}).error(function(data, status, headers, config) {
-			$scope.reportErrorAndResume($scope.state.codigo, "gravando assinatura", data, status);
+			$scope.reportErrorAndResume(state.codigo, "gravando assinatura", data, status);
 			$scope.executar(progress);
 		});
 	}
@@ -423,8 +419,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		$scope.errorDetails[codigo].hideAlert = true;
 
 		// $('#status' + state.codigo).goTo();
-		$('#status' + $scope.state.codigo).html('<span class="status-error">' + msg + '</span>');
-		$('#details' + $scope.state.codigo).html('<span>' + msg + '</span>');
+		$('#status' + codigo).html('<span class="status-error">' + msg + '</span>');
+		$('#details' + codigo).html('<span>' + msg + '</span>');
 	}
 
 	$scope.presentError = function(id) {
