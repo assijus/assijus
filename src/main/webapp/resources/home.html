@@ -43,7 +43,13 @@
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
 						necessária uma instalação prévia, conforme as orientações abaixo:</p>
 					<ol>
-						<li>Instale o driver do token para acessar seu certificado.</li>
+						<li>Caso o equipamento nunca tenha sido utilizado para
+							assinar documentos, pode ser necessário instalar o driver do
+							token e a cadeia de certificados da autoridade certificadora. O
+							procedimento de instalação é mesmo que consta da <a
+							href="http://siga.jfrj.jus.br">página de acesso externo do
+								SIGA</a>.
+						</li>
 						<li>Instale o programa <a
 							href="signer/windows/{{assijusexe}}"><u>{{assijusexe}}</u></a> em
 							seu PC/Windows. Este programa depende do <a
@@ -85,8 +91,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="row margin-bottom-30"
-			ng-show="zeroDocumentosCarregados()">
+		<div class="row margin-bottom-30" ng-show="zeroDocumentosCarregados()">
 			<div class="col-md-12" ng-show="zeroDocumentosCarregados()">
 				<p style="font-size: 120%;">Dr. {{assinante()}}, não localizamos
 					nenhum documento pendente de assinatura.</p>
