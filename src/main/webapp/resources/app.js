@@ -52,7 +52,7 @@ app.controller('ctrlSugerir', function($scope, $http, $templateCache, $interval,
 
 });
 
-app.controller('ctrl', function($scope, $http, $templateCache, $interval, $window, $location) {
+app.controller('ctrl', function($scope, $http, $templateCache, $interval, $window, $location, $filter) {
 
 	var querystring = $location.search();
 	if (querystring.hasOwnProperty('urlsigner')) {
@@ -94,7 +94,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		},
 		step : function(caption, skip) {
 			this.isteps += 1 + (skip||0);
-			console.log(this.csteps + " - " + this.isteps);
 			$scope.progressbarWidth = 100 * (this.isteps / this.csteps);
 			$scope.progressbarShow = true;
 			$scope.progressbarCaption = caption;
@@ -145,10 +144,16 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.zeroDocumentosCarregados = function() {
 		return $scope.hasOwnProperty("documentos") && $scope.documentos.length == 0;
 	}
+	
+	$scope.docs = function() {
+		var docs = $filter('filter')($scope.documentos, $scope.filtro);
+		return docs;
+	}
 
 	$scope.marcarTodos = function() {
-		for (var i = 0; i < $scope.documentos.length; i++) {
-			var doc = $scope.documentos[i];
+		var docs = $scope.docs();
+		for (var i = 0; i < docs.length; i++) {
+			var doc = docs[i];
 			if (!doc.disabled)
 				doc.checked = $scope.checkall;
 		}
@@ -156,8 +161,10 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	
 	$scope.contarChecked = function() {
 		var c = 0;
-		for (var i = 0; i < $scope.documentos.length; i++) {
-			if ($scope.documentos[i].checked)
+		var docs = $scope.docs();
+		for (var i = 0; i < docs.length; i++) {
+			var doc = docs[i];
+			if (docs[i].checked)
 				c++;
 		}
 		return c;
@@ -177,9 +184,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 
 	$scope.identificarOperacoes = function() {
 		$scope.operacoes = [];
-
-		for (var i = 0; i < $scope.documentos.length; i++) {
-			var doc = $scope.documentos[i];
+		var docs = $scope.docs();
+		for (var i = 0; i < docs.length; i++) {
+			var doc = docs[i];
 			if (doc.checked) {
 				var operacao = {
 					codigo: doc.id,
@@ -238,8 +245,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.assinarDocumento = function(id) {
 		$scope.operacoes = [];
 
-		for (var i = 0; i < $scope.documentos.length; i++) {
-			var doc = $scope.documentos[i];
+		var docs = $scope.docs();
+		for (var i = 0; i < docs.length; i++) {
+			var doc = docs[i];
 			if (doc.id == id) {
 				var operacao = {
 					codigo: doc.id,
@@ -627,11 +635,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 
 	$scope.forceRefresh = function() {
 		$scope.progress.start("Inicializando", 12);
-		$scope.documentos = [ {
-			id : "1",
-			code : "2",
-			descr : "test"
-		} ];
 		$scope.documentos = [];
 		$scope.testarSigner($scope.progress);
 	}

@@ -98,13 +98,21 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-8" ng-show="documentosCarregados()">
+			<div class="col-md-7" ng-show="documentosCarregados()">
 				<p style="font-size: 120%;"
 					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">Dr.
 					{{assinante()}}, por favor, verifique os documentos abaixo e clique
 					em "Assinar".</p>
 			</div>
-			<div class="col-md-4" ng-show="documentosCarregados()">
+			<div class="col-md-3" ng-show="documentosCarregados()">
+				<div class="input-group">
+					<div class="input-group-addon">&#128269;</div>
+					<input type="text" class="form-control" placeholder="Filtrar"
+						ng-model="filtro">
+
+				</div>
+			</div>
+			<div class="col-md-2" ng-show="documentosCarregados()">
 				<button id="reload" class="btn btn-primary pull-right"
 					data-style="expand-left" ng-click="assinarDocumentos(progress)">
 					Assinar&nbsp;&nbsp;<span class="badge">{{contarChecked()}}</span>
@@ -134,7 +142,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in documentos | orderBy:'code'">
+						<tr ng-repeat="doc in documentos | orderBy:'code' | filter:filtro">
 							<td style="text-align: center">
 								<!--
 										 Checkbox para selecionar o documento 
