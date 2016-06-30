@@ -136,7 +136,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in documentos">
+						<tr ng-repeat="doc in documentos | orderBy:'code'>
 							<td style="text-align: center">
 								<!--
 										 Checkbox para selecionar o documento 
