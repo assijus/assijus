@@ -92,11 +92,14 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			this.active = true;
 			this.csteps = steps;
 		},
-		step : function(caption, description) {
-			this.isteps++;
-			$scope.progressbarWidth = 100 * ((this.isteps - 1) / this.csteps);
+		step : function(caption, skip) {
+			this.isteps += 1 + (skip||0);
+			console.log(this.csteps + " - " + this.isteps);
+			$scope.progressbarWidth = 100 * (this.isteps / this.csteps);
 			$scope.progressbarShow = true;
 			$scope.progressbarCaption = caption;
+			if (this.isteps == this.csteps)
+				this.stop();
 		},
 		stop : function() {
 			$scope.progressbarTitle = '';
@@ -196,7 +199,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	// View
 	//
 	$scope.view = function(doc) {
-		$scope.progress.start("Preparando Visualização", 2);
+		$scope.progress.start("Preparando Visualização", 4);
 		$scope.obterToken($scope.progress, function(progress) {
 			progress.stop();
 			var form = document.createElement('form');
@@ -247,7 +250,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		$scope.operacoes = [ operacao ];
 		$scope.iOperacao = -1;
 
-		$scope.progress.start("Processando Assinatura Digital", 3 + 2);
+		$scope.progress.start("Processando Assinatura Digital", 6 + 4);
 		$scope.obterToken($scope.progress, $scope.executar);
 	}
 
@@ -259,7 +262,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		if (tipo == 0)
 			return;
 
-		progress.start("Processando Assinaturas Digitais", $scope.operacoes.length * 3 + 2);
+		progress.start("Processando Assinaturas Digitais", $scope.operacoes.length * 6 + 4);
 		$scope.obterToken(progress, $scope.executar);
 	}
 
@@ -283,7 +286,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			}, 10);
 			return;
 		}
-		$scope.progress.stop();
+		// $scope.progress.stop();
 	}
 
 	$scope.assinar = function(state, progress) {
@@ -303,6 +306,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				token : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
+			progress.step(state.nome + ": Encontrado...");
 			state.policy = data.policy;
 			state.policyversion = data.policyversion;
 			state.time = data.time;
@@ -316,8 +320,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			if (progress.active)
 				$scope.produzirAssinatura(state, progress);
 		}).error(function(data, status, headers, config) {
-			progress.step();
-			progress.step();
+			progress.step(state.nome + ": Não encontrado...", 4);
 			$scope.reportErrorAndResume(state.codigo, "obtendo o hash", data, status);
 			$scope.executar(progress);
 		});
@@ -336,6 +339,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				subject : $scope.cert.subject
 			}
 		}).success(function(data, status, headers, config) {
+			progress.step(state.nome + ": Assinado.");
 			if (data.sign != "")
 				state.assinaturaB64 = data.sign;
 			if (data.signkey != "")
@@ -347,10 +351,12 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				state.assinante = m[1];
 			}
 			$scope.clearError(state.codigo);
-			if (progress.active)
+			if (progress.active) {
+				$scope.executar(progress);
 				$scope.gravarAssinatura(state, progress);
+			}
 		}).error(function(data, status, headers, config) {
-			progress.step();
+			progress.step(state.nome + ": Não assinado.", 2);
 			$scope.reportErrorAndResume(state.codigo, "assinando", data, status);
 			$scope.executar(progress);
 		});
@@ -374,6 +380,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				certificate : $scope.cert.certificate
 			}
 		}).success(function(data, status, headers, config) {
+			progress.step(state.nome + ": Assinatura gravada.");
 			// $('#status' + state.codigo).goTo();
 			var sts = '<span class="status-ok">&#10003;</span>';
 			if (data.hasOwnProperty('warning')) {
@@ -388,10 +395,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			$('#status' + state.codigo).html(sts);
 			$scope.disable(state.codigo);
 			$scope.clearError(state.codigo);
-			$scope.executar(progress);
 		}).error(function(data, status, headers, config) {
+			progress.step(state.nome + ": Assinatura não gravada.");
 			$scope.reportErrorAndResume(state.codigo, "gravando assinatura", data, status);
-			$scope.executar(progress);
 		});
 	}
 
@@ -433,7 +439,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 
 	$scope.list = function(progress) {
-		progress.step("Listando documentos", "Solicitando ao site do Assijus a lista de documentos que podem ser assinados por este usuário.");
+		progress.step("Listando documentos...");
 		$http({
 			url : $scope.urlBaseAPI + '/list',
 			method : "POST",
@@ -459,6 +465,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			}
 			if (progress.active)
 				$scope.update(data.list);
+			progress.step("Lista de documentos recebida.");
 			progress.stop();
 		}).error(function(data, status, headers, config) {
 			progress.stop();
@@ -498,7 +505,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.obterToken = function(progress, cont) {
-		progress.step("Obtendo senha de autenticação", "Solicitando ao site do Assijus uma contra-senha para comprovar a identidade do usuário.");
+		progress.step("Obtendo senha de autenticação...");
 		$http({
 			url : $scope.urlBaseAPI + '/token',
 			method : "POST",
@@ -506,8 +513,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				"certificate" : $scope.cert.certificate
 			}
 		}).success(function(data, status, headers, config) {
+			progress.step("Senha de autenticação preparada.");
 			var token = data.token;
-			progress.step("Autenticando usuário", "Assinando a contra-senha para comprovar a identidade do usuário.");
+			progress.step("Autenticando usuário");
 			$http({
 				url : $scope.urlBluCRESTSigner + '/token',
 				method : "POST",
@@ -518,6 +526,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 					"policy" : "AD-RB"
 				}
 			}).success(function(data, status, headers, config) {
+				progress.step("Usuário autenticado.");
 				$scope.token = data.token + ";" + data.sign;
 				cont(progress);
 			}).error(function(data, status, headers, config) {
@@ -531,22 +540,23 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.buscarCertificado = function(progress) {
-		progress.step("Buscando certificado corrente", "Tentando obter o único certificado instalado ou o certificado previamente escolhido.");
+		progress.step("Buscando certificado corrente...");
 		$http({
 			// url : '/api/bluc-rest-signer/cert.json',
 			url : $scope.urlBluCRESTSigner + '/currentcert',
 			method : "GET"
 		}).success(function(data, status, headers, config) {
+			progress.step("Certificado corrente localizado.", 2);
 			if (data.subject !== null) {
 				$scope.cert = data;
-				progress.step();
 				$scope.obterToken(progress, $scope.list);
 			} else {
-				progress.step("Selecionando certificado", "Selecionando o único certificado instalado ou a escolha do usuário.");
+				progress.step("Selecionando certificado...");
 				$http({
 					url : $scope.urlBluCRESTSigner + '/cert',
 					method : "GET"
 				}).success(function(data, status, headers, config) {
+					progress.step("Certificado selecionado.");
 					if (data.hasOwnProperty('errormsg') && data.errormsg != null) {
 						progress.stop();
 						$scope.errorDetails.geral = {
@@ -566,12 +576,13 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.testarSigner = function(progress) {
-		progress.step("Testando Assijus.exe", "Detectando e testando a versão do componente de assinaturas digitais Assijus.exe.");
+		progress.step("Testando Assijus.exe");
 		$http({
 			// url : '/api/bluc-rest-signer/test.json',
 			url : $scope.urlBluCRESTSigner + '/test',
 			method : "GET"
 		}).success(function(data, status, headers, config) {
+			progress.step("Assijus.exe está ativo.");
 			if (data.status == "OK") {
 				$scope.instalarBluC = false;
 				$scope.buscarCertificado(progress);
@@ -598,7 +609,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.forceRefresh = function() {
-		$scope.progress.start("Inicializando", 6);
+		$scope.progress.start("Inicializando", 12);
 		$scope.documentos = [ {
 			id : "1",
 			code : "2",
