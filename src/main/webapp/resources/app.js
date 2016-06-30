@@ -408,6 +408,11 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		chk.prop('checked', false);
 	}
 
+	$scope.isDisabled = function(id) {
+		var chk = $("#ad_chk_" + id);
+		return chk.prop('disabled');
+	}
+
 	$scope.clearError = function(codigo) {
 		delete $scope.errorDetails[codigo];
 	}
@@ -494,6 +499,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}
 		for (var i = 0; i < $scope.documentos.length; i++) {
 			if (!next.hasOwnProperty($scope.documentos[i].id)) {
+				if ($scope.isDisabled($scope.documentos[i].id))
+					continue;
 				// remove
 				$scope.documentos[i].checked = false;
 				var sts = '<span class="status-removed">&#10007;</span>';
