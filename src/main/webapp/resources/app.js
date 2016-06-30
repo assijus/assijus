@@ -147,12 +147,20 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.marcarTodos = function() {
-		var checked = $scope.checkall;
-		$("input:checkbox.chk-assinar").each(function() {
-			if (!$(this).prop('disabled')) {
-				$(this).prop('checked', checked);
-			}
-		});
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			var doc = $scope.documentos[i];
+			if (!doc.disabled)
+				doc.checked = $scope.checkall;
+		}
+	}
+	
+	$scope.contarChecked = function() {
+		var c = 0;
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			if ($scope.documentos[i].checked)
+				c++;
+		}
+		return c;
 	}
 
 	// 0 - Nenhuma, 1 = digital
@@ -170,27 +178,17 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.identificarOperacoes = function() {
 		$scope.operacoes = [];
 
-		var NodeList = document.getElementsByTagName("INPUT");
-		for (var i = 0, len = NodeList.length; i < len; i++) {
-			var Elem = NodeList[i];
-			if (Elem.name.substr(0, 9) == "ad_descr_") {
-				var operacao = {};
-
-				operacao.codigo = Elem.name.substr(9);
-				operacao.nome = document.getElementsByName("ad_descr_" + operacao.codigo)[0].value;
-				operacao.urlPdf = document.getElementsByName("ad_url_pdf_" + operacao.codigo)[0].value;
-				operacao.urlPost = document.getElementsByName("ad_url_post_" + operacao.codigo)[0].value;
-				operacao.urlPostPassword = document.getElementsByName("ad_url_post_password_" + operacao.codigo)[0].value;
-				operacao.usePassword = false;
-
-				var oChk = document.getElementsByName("ad_chk_" + operacao.codigo)[0];
-				if (oChk == null) {
-					operacao.enabled = true;
-				} else {
-					operacao.enabled = oChk.checked;
-				}
-				if (operacao.enabled)
-					$scope.operacoes.push(operacao);
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			var doc = $scope.documentos[i];
+			if (doc.checked) {
+				var operacao = {
+					codigo: doc.id,
+					nome: doc.code,
+					urlPdf: doc.urlHash,
+					urlPost: doc.urlSave,
+					enabled: true,
+				};
+				$scope.operacoes.push(operacao);
 			}
 		}
 	}
@@ -238,16 +236,22 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 
 	$scope.assinarDocumento = function(id) {
-		var operacao = {};
+		$scope.operacoes = [];
 
-		operacao.codigo = id;
-		operacao.nome = document.getElementsByName("ad_descr_" + operacao.codigo)[0].value;
-		operacao.urlPdf = document.getElementsByName("ad_url_pdf_" + operacao.codigo)[0].value;
-		operacao.urlPost = document.getElementsByName("ad_url_post_" + operacao.codigo)[0].value;
-		operacao.urlPostPassword = document.getElementsByName("ad_url_post_password_" + operacao.codigo)[0].value;
-		operacao.usePassword = false;
-		operacao.enabled = true;
-		$scope.operacoes = [ operacao ];
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			var doc = $scope.documentos[i];
+			if (doc.id == id) {
+				var operacao = {
+					codigo: doc.id,
+					nome: doc.code,
+					urlPdf: doc.urlHash,
+					urlPost: doc.urlSave,
+					enabled: true,
+				};
+				$scope.operacoes.push(operacao);
+				break;
+			}
+		}
 		$scope.iOperacao = -1;
 
 		$scope.progress.start("Processando Assinatura Digital", 6 + 4);
@@ -402,15 +406,22 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.disable = function(id) {
-		var chk = $("#ad_chk_" + id);
-		chk.attr('disabled', 'disabled');
-		chk.attr('readonly', 'readonly');
-		chk.prop('checked', false);
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			var doc = $scope.documentos[i];
+			if (doc.id == id) {
+				doc.disabled = true;
+				doc.checked = false;
+			}
+		}
 	}
 
 	$scope.isDisabled = function(id) {
-		var chk = $("#ad_chk_" + id);
-		return chk.prop('disabled');
+		for (var i = 0; i < $scope.documentos.length; i++) {
+			var doc = $scope.documentos[i];
+			if (doc.id == id)
+				return doc.disabled;
+		}
+		return true;
 	}
 
 	$scope.clearError = function(codigo) {
@@ -479,7 +490,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.update = function(l) {
-		var checked = $("#progress_checkall").prop('checked');
 		$scope.lastUpdate = new Date();
 		var d = $scope.lastUpdate;
 		$scope.lastUpdateFormatted = "Última atualização: " + ("0" + d.getDate()).substr(-2) + "/" + ("0" + (d.getMonth() + 1)).substr(-2) + "/" + d.getFullYear() + " " + ("0" + d.getHours()).substr(-2) + ":" + ("0" + d.getMinutes()).substr(-2) + ":" + ("0" + d.getSeconds()).substr(-2);
@@ -492,7 +502,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			next[l[i].id] = l[i];
 			if (!prev.hasOwnProperty(l[i].id)) {
 				// insert
-				l[i].checked = checked;
+				l[i].checked = $scope.checkall;
 				$scope.documentos.push(l[i])
 				prev[l[i].id] = l[i];
 			}

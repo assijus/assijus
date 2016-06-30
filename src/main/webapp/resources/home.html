@@ -102,14 +102,12 @@
 				<p style="font-size: 120%;"
 					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">Dr.
 					{{assinante()}}, por favor, verifique os documentos abaixo e clique
-					em "Assinar Documentos Marcados".</p>
+					em "Assinar".</p>
 			</div>
 			<div class="col-md-4" ng-show="documentosCarregados()">
 				<button id="reload" class="btn btn-primary pull-right"
 					data-style="expand-left" ng-click="assinarDocumentos(progress)">
-					<span class="ladda-label">Assinar Documentos Marcados</span><span
-						class="ladda-spinner"></span>
-					<div class="ladda-progress" style="width: 0px;"></div>
+					Assinar&nbsp;&nbsp;<span class="badge">{{contarChecked()}}</span>
 				</button>
 			</div>
 			<div class="col-md-12" ng-show="documentosCarregados()">
@@ -136,13 +134,13 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in documentos | orderBy:'code'>
+						<tr ng-repeat="doc in documentos | orderBy:'code'">
 							<td style="text-align: center">
 								<!--
 										 Checkbox para selecionar o documento 
 										 --> <input type="checkbox" id="ad_chk_{{doc.id}}"
 								name="ad_chk_{{doc.id}}" value="true" ng-model="doc.checked"
-								class="chk-assinar" /> <!--
+								ng-disabled="doc.disabled" class="chk-assinar" /> <!--
 										 Sigla do documento 
 										 --> <input type="hidden" name="ad_descr_{{doc.id}}"
 								value="{{doc.code}}" /> <!--
