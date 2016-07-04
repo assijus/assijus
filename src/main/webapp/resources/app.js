@@ -571,8 +571,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			url : $scope.urlBluCRESTSigner + '/currentcert',
 			method : "GET"
 		}).success(function(data, status, headers, config) {
-			progress.step("Certificado corrente localizado.", 2);
 			if (data.subject !== null) {
+				progress.step("Certificado corrente localizado.", 2);
 				$scope.cert = data;
 				$scope.obterToken(progress, $scope.list);
 			} else {
