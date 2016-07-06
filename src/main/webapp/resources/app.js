@@ -493,6 +493,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			progress.step("Lista de documentos recebida.");
 			progress.stop();
 		}).error(function(data, status, headers, config) {
+			$scope.documentos = [];
 			progress.stop();
 			$scope.errorDetails.geral = data;
 		});
