@@ -472,6 +472,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				"token" : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
+			delete $scope.errorDetails.geral;
 			for ( var property in data) {
 				if (data.hasOwnProperty(property)) {
 					if (property.indexOf("status-") == 0) {
