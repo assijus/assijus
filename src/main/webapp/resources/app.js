@@ -73,10 +73,69 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	};
 	$scope.promise = null;
 	$scope.checkall = true;
-	$scope.instalarBluC = false;
-	$scope.documentos = [];
 
 	$scope.errorDetails = {};
+	$scope.errorMsgMissingSigner = "Assijus.exe não encontrado.";
+	$scope.errorMsgMissingCertificate = "Nenhum certificado encontrado.";
+	
+	$scope.clearError = function(codigo) {
+		delete $scope.errorDetails[codigo];
+	}
+
+	$scope.reportErrorAndResume = function(codigo, context, data, status) {
+		var msg = "Erro " + context + ': ' + status;
+		try {
+			if (data.hasOwnProperty("error"))
+				msg = data.error;
+		} catch (err) {
+
+		}
+
+		$scope.errorDetails[codigo] = data;
+		$scope.errorDetails[codigo].hideAlert = true;
+
+		// $('#status' + state.codigo).goTo();
+		$('#status' + codigo).html('<span class="status-error">' + msg + '</span>');
+		$('#details' + codigo).html('<span>' + msg + '</span>');
+	}
+
+	$scope.presentError = function(id) {
+		$scope.showErrorDetails = true;
+		$scope.currentErrorId = id;
+	}
+	
+	$scope.setError = function(data) {
+		if (data === undefined) {
+			delete $scope.errorDetails.geral;
+			return;
+		}
+		if (typeof data === 'string')
+			data = {error: data};
+		if (data.error.lastIndexOf("O conjunto de chaves não", 0) === 0)
+			data.error = $scope.errorMsgMissingCertificate;
+		$scope.errorDetails.geral = data;
+	}
+	
+	$scope.setCert = function(data) {
+		if (data === undefined) {
+			delete $scope.cert;
+			delete $scope.documentos;
+			return;
+		}
+		if (data.subject != ($scope.cert||{}).subject)
+			delete $scope.documentos;
+		$scope.cert = data;
+		var cn = '';
+		if ($scope.assinanteIdentificado()) {
+			cn = $scope.cert.subject;
+			cn = cn.split(",")[0];
+			cn = cn.split(":")[0];
+			cn = cn.replace("CN=", "");
+		}
+		$scope.assinante = cn;
+	}
+
+
 
 	$scope.progress = {
 		active : false,
@@ -127,16 +186,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		return $scope.hasOwnProperty("cert");
 	}
 
-	$scope.assinante = function() {
-		if ($scope.assinanteIdentificado()) {
-			var cn = $scope.cert.subject;
-			cn = cn.split(",")[0];
-			cn = cn.split(":")[0];
-			cn = cn.replace("CN=", "");
-			return cn;
-		}
-	}
-
 	$scope.documentosCarregados = function() {
 		return $scope.hasOwnProperty("documentos") && $scope.documentos.length != 0;
 	}
@@ -146,7 +195,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 	
 	$scope.docs = function() {
-		var docs = $filter('filter')($scope.documentos, $scope.filtro);
+		var docs = $filter('filter')($scope.documentos||[], $scope.filtro);
 		return docs;
 	}
 
@@ -432,32 +481,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		return true;
 	}
 
-	$scope.clearError = function(codigo) {
-		delete $scope.errorDetails[codigo];
-	}
-
-	$scope.reportErrorAndResume = function(codigo, context, data, status) {
-		var msg = "Erro " + context + ': ' + status;
-		try {
-			if (data.hasOwnProperty("error"))
-				msg = data.error;
-		} catch (err) {
-
-		}
-
-		$scope.errorDetails[codigo] = data;
-		$scope.errorDetails[codigo].hideAlert = true;
-
-		// $('#status' + state.codigo).goTo();
-		$('#status' + codigo).html('<span class="status-error">' + msg + '</span>');
-		$('#details' + codigo).html('<span>' + msg + '</span>');
-	}
-
-	$scope.presentError = function(id) {
-		$scope.showErrorDetails = true;
-		$scope.currentErrorId = id;
-	}
-
 	//
 	// Initialize
 	//
@@ -472,7 +495,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				"token" : $scope.token
 			}
 		}).success(function(data, status, headers, config) {
-			delete $scope.errorDetails.geral;
+			$scope.setError();
 			for ( var property in data) {
 				if (data.hasOwnProperty(property)) {
 					if (property.indexOf("status-") == 0) {
@@ -493,9 +516,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			progress.step("Lista de documentos recebida.");
 			progress.stop();
 		}).error(function(data, status, headers, config) {
-			$scope.documentos = [];
+			delete $scope.documentos;
 			progress.stop();
-			$scope.errorDetails.geral = data;
+			$scope.setError(data);
 		});
 	}
 
@@ -504,6 +527,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		var d = $scope.lastUpdate;
 		$scope.lastUpdateFormatted = "Última atualização: " + ("0" + d.getDate()).substr(-2) + "/" + ("0" + (d.getMonth() + 1)).substr(-2) + "/" + d.getFullYear() + " " + ("0" + d.getHours()).substr(-2) + ":" + ("0" + d.getMinutes()).substr(-2) + ":" + ("0" + d.getSeconds()).substr(-2);
 		var prev = {};
+		if ($scope.documentos == undefined)
+			$scope.documentos = [];
 		for (var i = 0; i < $scope.documentos.length; i++) {
 			prev[$scope.documentos[i].id] = $scope.documentos[i];
 		}
@@ -557,12 +582,14 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.token = data.token + ";" + data.sign;
 				cont(progress);
 			}).error(function(data, status, headers, config) {
+				delete $scope.documentos;
 				progress.stop();
-				$scope.errorDetails.geral = data;
+				$scope.setError(data);
 			});
 		}).error(function(data, status, headers, config) {
+			delete $scope.documentos;
 			progress.stop();
-			$scope.errorDetails.geral = data;
+			$scope.setError(data);
 		});
 	}
 
@@ -575,7 +602,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}).success(function(data, status, headers, config) {
 			if (data.subject !== null) {
 				progress.step("Certificado corrente localizado.", 2);
-				$scope.cert = data;
+				$scope.setCert(data);
 				$scope.obterToken(progress, $scope.list);
 			} else {
 				progress.step("Selecionando certificado...");
@@ -585,19 +612,22 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				}).success(function(data, status, headers, config) {
 					progress.step("Certificado selecionado.");
 					if (data.hasOwnProperty('errormsg') && data.errormsg != null) {
+						delete $scope.documentos;
 						progress.stop();
-						$scope.errorDetails.geral = {
+						$scope.setError({
 							error : data.errormsg
-						};
+						});
 						return;
 					}
-					$scope.cert = data;
+					$scope.setCert(data);
 					$scope.obterToken(progress, $scope.list);
 				}).error(function(data, status, headers, config) {
+					delete $scope.documentos;
 					progress.stop();
 				});
 			}
 		}).error(function(data, status, headers, config) {
+			delete $scope.documentos;
 			progress.stop();
 		});
 	}
@@ -611,19 +641,18 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}).success(function(data, status, headers, config) {
 			progress.step("Assijus.exe está ativo.");
 			if (data.status == "OK") {
-				$scope.instalarBluC = false;
 				$scope.buscarCertificado(progress);
 			} else {
 				progress.stop();
-				$scope.instalarBluC = true;
-				$scope.blucrestsignerInativo = "";
+				$scope.setError($scope.errorMsgMissingSigner)
 			}
 		}).error(function(data, status, headers, config) {
+			delete $scope.documentos;
 			progress.stop();
 			if (typeof data === 'object' && data != null && data.hasOwnProperty('error')) {
-				$scope.errorDetails.geral = data;
+				$scope.setError(data);
 			} else {
-				$scope.instalarBluC = true;
+				$scope.setError($scope.errorMsgMissingSigner)
 			}
 		});
 	}
@@ -631,13 +660,13 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.autoRefresh = function() {
 		// $scope.progress.start("AutoRefresh", 6);
 		// $scope.testarSigner($scope.progress);
-		if (!$scope.progress.active)
+		if (!$scope.progress.active && !$scope.noProgress.active)
 			$scope.testarSigner($scope.noProgress);
 	}
 
 	$scope.forceRefresh = function() {
 		$scope.progress.start("Inicializando", 12);
-		$scope.documentos = [];
+		delete $scope.documentos;
 		$scope.testarSigner($scope.progress);
 	}
 

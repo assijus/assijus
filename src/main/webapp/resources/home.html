@@ -38,7 +38,8 @@
 					<strong>{{w.title}}</strong> {{w.description}}
 				</div>
 
-				<div class="alert alert-danger fade in" ng-show="instalarBluC">
+				<div class="alert alert-danger fade in"
+					ng-show="errorDetails.geral.error == errorMsgMissingSigner">
 					<p>Não foi possível detectar o programa assijus.exe.</p>
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
 						necessária uma instalação prévia, conforme as orientações abaixo:</p>
@@ -63,7 +64,7 @@
 				</div>
 
 				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.geral.error == 'Nenhum certificado encontrado.'">
+					ng-show="errorDetails.geral.error == errorMsgMissingCertificate">
 					<p>Não foi possível detectar nenhum token contendo certificado
 						digital válido.</p>
 					<p>
@@ -78,7 +79,7 @@
 
 				<div ng-repeat="(key, value) in errorDetails">
 					<div class="alert alert-danger fade in"
-						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && errorDetails.geral.error == 'Nenhum certificado encontrado.')">
+						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.error == errorMsgMissingCertificate || errorDetails.geral.error == errorMsgMissingSigner))">
 						<p>
 							<strong>Problema - {{key}}:</strong> {{value.error}}<span
 								ng-click="presentError(key)">&nbsp;&#128269;</span>
@@ -91,20 +92,27 @@
 				</div>
 			</div>
 		</div>
-		<div class="row margin-bottom-30" ng-show="zeroDocumentosCarregados()">
-			<div class="col-md-12" ng-show="zeroDocumentosCarregados()">
-				<p style="font-size: 120%;">Dr. {{assinante()}}, não localizamos
+		<div class="row margin-bottom-30"
+			ng-show="zeroDocumentosCarregados() && assinanteIdentificado()">
+			<div class="col-md-12">
+				<p style="font-size: 120%;">Dr(a). {{assinante}}, não localizamos
 					nenhum documento pendente de assinatura.</p>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-md-7" ng-show="documentosCarregados()">
+		<div class="row" ng-show="documentosCarregados()">
+			<div class="col-md-7">
+				<div class="input-group">
+					<div class="input-group-addon">&#128273;</div>
+					<input type="text" class="form-control" readonly="yes"
+						ng-model="assinante">
+				</div>
+				<!-- 
 				<p style="font-size: 120%;"
 					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">Dr.
-					{{assinante()}}, por favor, verifique os documentos abaixo e clique
-					em "Assinar".</p>
+					{{assinante}}, por favor, verifique os documentos abaixo e clique
+					em "Assinar".</p> -->
 			</div>
-			<div class="col-md-3" ng-show="documentosCarregados()">
+			<div class="col-md-3">
 				<div class="input-group">
 					<div class="input-group-addon">&#128269;</div>
 					<input type="text" class="form-control" placeholder="Filtrar"
@@ -112,13 +120,13 @@
 
 				</div>
 			</div>
-			<div class="col-md-2" ng-show="documentosCarregados()">
-				<button id="reload" class="btn btn-primary pull-right"
+			<div class="col-md-2">
+				<button id="reload" class="btn btn-primary" style="width: 100%"
 					data-style="expand-left" ng-click="assinarDocumentos(progress)">
 					Assinar&nbsp;&nbsp;<span class="badge">{{contarChecked()}}</span>
 				</button>
 			</div>
-			<div class="col-md-12" ng-show="documentosCarregados()">
+			<div class="col-md-12" style="padding-top: 1em;">
 				<input type="hidden" name="ad_url_base" value="" /> <input
 					type="hidden" name="ad_url_next" value="" />
 
