@@ -58,10 +58,10 @@ public class ListPost implements IRestAction {
 			try {
 				HttpResponse<JsonNode> futureresponse = map.get(system).get();
 				JSONObject o = futureresponse.getBody().getObject();
-				String error = o.optString("error", null);
+				String error = o.optString("errormsg", null);
 				if (error != null) {
 					resp.put("status-" + context, "Error");
-					resp.put("error-" + context, error);
+					resp.put("errormsg-" + context, error);
 					resp.put("stacktrace-" + context,
 							o.optString("stacktrace", null));
 					continue;
@@ -73,7 +73,7 @@ public class ListPost implements IRestAction {
 				}
 			} catch (Exception ex) {
 				resp.put("status-" + context, "Error");
-				resp.put("error-" + context, RestUtils.messageAsString(ex));
+				resp.put("errormsg-" + context, RestUtils.messageAsString(ex));
 				resp.put("stacktrace-" + context, RestUtils.stackAsString(ex));
 			}
 		}

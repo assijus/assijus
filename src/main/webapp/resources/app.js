@@ -6,10 +6,10 @@ app.config([ '$routeProvider', '$locationProvider', function($routeProvider, $lo
 		controller : 'ctrl'
 	}).when('/sugestoes', {
 		templateUrl : 'resources/sugestoes.html',
-		controller : 'ctrlSugerir'
+		controller : 'ctrl2'
 	}).when('/sobre', {
 		templateUrl : 'resources/sobre.html',
-		controller : 'ctrlSugerir'
+		controller : 'ctrl2'
 	}).otherwise({
 		redirectTo : '/home'
 	});
@@ -18,39 +18,10 @@ app.config([ '$routeProvider', '$locationProvider', function($routeProvider, $lo
 } ]);
 
 app.controller('routerCtrl', function($scope, $http, $templateCache) {
-	$scope.assijusexe = "assijus-v0-91.exe";
+	$scope.assijusexe = "assijus-v0-9-3.exe";
 });
 
-app.controller('ctrlSugerir', function($scope, $http, $templateCache, $interval, $window) {
-
-	// Sugestoes
-
-	$scope.fdSugerir = function() {
-		var obj = {
-			nome : $scope.sugestao.nome,
-			email : $scope.sugestao.email,
-			mensagem : $scope.sugestao.mensagem
-		};
-		return formdata(obj);
-	}
-
-	$scope.sugerir = function() {
-		$http({
-			url : '/app/sugerir',
-			method : "POST",
-			data : $scope.fdSugerir(),
-			headers : {
-				'Content-Type' : 'application/x-www-form-urlencoded'
-			}
-		}).success(function(data, status, headers, config) {
-			alert("Sua mensagem foi enviada. Muito obrigado!");
-			$scope.sugestao = {};
-		}).error(function(data, status, headers, config) {
-			alert(data.errorMessage.error);
-		});
-	}
-
-});
+app.controller('ctrl2', function($scope, $http, $templateCache, $interval, $window) {});
 
 app.controller('ctrl', function($scope, $http, $templateCache, $interval, $window, $location, $filter) {
 
@@ -82,16 +53,16 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		delete $scope.errorDetails[codigo];
 	}
 
-	$scope.reportErrorAndResume = function(codigo, context, data, status) {
-		var msg = "Erro " + context + ': ' + status;
+	$scope.reportErrorAndResume = function(codigo, context, response) {
+		var msg = "Erro " + context + ': ' + response.statusText;
 		try {
-			if (data.hasOwnProperty("error"))
-				msg = data.error;
+			if (response.data.hasOwnProperty("errormsg"))
+				msg = response.data.errormsg;
 		} catch (err) {
 
 		}
 
-		$scope.errorDetails[codigo] = data;
+		$scope.errorDetails[codigo] = response.data;
 		$scope.errorDetails[codigo].hideAlert = true;
 
 		// $('#status' + state.codigo).goTo();
@@ -104,15 +75,23 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		$scope.currentErrorId = id;
 	}
 	
-	$scope.setError = function(data) {
-		if (data === undefined) {
+	$scope.setError = function(response) {
+		if (response === undefined) {
 			delete $scope.errorDetails.geral;
 			return;
 		}
-		if (typeof data === 'string')
-			data = {error: data};
-		if (data.error.lastIndexOf("O conjunto de chaves não", 0) === 0)
-			data.error = $scope.errorMsgMissingCertificate;
+		var data;
+		if (typeof response === 'string')
+			data = {errormsg: response};
+		else {
+			data = response.data;
+			if (response.data == null && typeof response.statusText === 'string' && response.statusText != '')
+				data = {errormsg: response.statusText};
+			else if (response.data == null && typeof response.status === 'number')
+				data = {errormsg: "http status " + response.status};
+			else if (data != null && (typeof data.errormsg == 'string') && data.errormsg.lastIndexOf("O conjunto de chaves não", 0) === 0)
+				data.errormsg = $scope.errorMsgMissingCertificate;
+		}
 		$scope.errorDetails.geral = data;
 	}
 	
@@ -366,8 +345,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				certificate : $scope.cert.certificate,
 				token : $scope.token
 			}
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
 			progress.step(state.nome + ": Encontrado...");
+			var data = response.data;
 			state.policy = data.policy;
 			state.policyversion = data.policyversion;
 			state.time = data.time;
@@ -380,9 +360,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			$scope.clearError(state.codigo);
 			if (progress.active)
 				$scope.produzirAssinatura(state, progress);
-		}).error(function(data, status, headers, config) {
+		},function errorCallback(response) {
 			progress.step(state.nome + ": Não encontrado...", 4);
-			$scope.reportErrorAndResume(state.codigo, "obtendo o hash", data, status);
+			$scope.reportErrorAndResume(state.codigo, "obtendo o hash", response);
 			$scope.executar(progress);
 		});
 	}
@@ -399,7 +379,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject
 			}
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
+			var data = response.data;
 			progress.step(state.nome + ": Assinado.");
 			if (data.sign != "")
 				state.assinaturaB64 = data.sign;
@@ -416,9 +397,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.executar(progress);
 				$scope.gravarAssinatura(state, progress);
 			}
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
 			progress.step(state.nome + ": Não assinado.", 2);
-			$scope.reportErrorAndResume(state.codigo, "assinando", data, status);
+			$scope.reportErrorAndResume(state.codigo, "assinando", response);
 			$scope.executar(progress);
 		});
 	}
@@ -440,7 +421,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				urlSave : state.urlPost,
 				certificate : $scope.cert.certificate
 			}
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
+			var data = response.data;
 			progress.step(state.nome + ": Assinatura gravada.");
 			// $('#status' + state.codigo).goTo();
 			var sts = '<span class="status-ok">&#10003;</span>';
@@ -456,9 +438,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			$('#status' + state.codigo).html(sts);
 			$scope.disable(state.codigo);
 			$scope.clearError(state.codigo);
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
 			progress.step(state.nome + ": Assinatura não gravada.");
-			$scope.reportErrorAndResume(state.codigo, "gravando assinatura", data, status);
+			$scope.reportErrorAndResume(state.codigo, "gravando assinatura", response);
 		});
 	}
 
@@ -494,7 +476,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				"certificate" : $scope.cert.certificate,
 				"token" : $scope.token
 			}
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
+			var data = response.data;
 			$scope.setError();
 			for ( var property in data) {
 				if (data.hasOwnProperty(property)) {
@@ -504,7 +487,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 							delete $scope.errorDetails[system];
 						} else if (data[property] == "Error") {
 							$scope.errorDetails[system] = {
-								"error" : data["error-" + system],
+								"errormsg" : data["errormsg-" + system],
 								"error-details" : data["stacktrace-" + system]
 							};
 						}
@@ -515,10 +498,10 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.update(data.list);
 			progress.step("Lista de documentos recebida.");
 			progress.stop();
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
 			delete $scope.documentos;
 			progress.stop();
-			$scope.setError(data);
+			$scope.setError(response);
 		});
 	}
 
@@ -564,7 +547,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			data : {
 				"certificate" : $scope.cert.certificate
 			}
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
+			var data = response.data;
 			progress.step("Senha de autenticação preparada.");
 			var token = data.token;
 			progress.step("Autenticando usuário");
@@ -577,19 +561,20 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 					"subject" : $scope.cert.subject,
 					"policy" : "AD-RB"
 				}
-			}).success(function(data, status, headers, config) {
+			}).then(function successCallback(response) {
+				var data = response.data;
 				progress.step("Usuário autenticado.");
 				$scope.token = data.token + ";" + data.sign;
 				cont(progress);
-			}).error(function(data, status, headers, config) {
+			}, function errorCallback(response) {
 				delete $scope.documentos;
 				progress.stop();
-				$scope.setError(data);
+				$scope.setError(response);
 			});
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
 			delete $scope.documentos;
 			progress.stop();
-			$scope.setError(data);
+			$scope.setError(response);
 		});
 	}
 
@@ -599,7 +584,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			// url : '/api/bluc-rest-signer/cert.json',
 			url : $scope.urlBluCRESTSigner + '/currentcert',
 			method : "GET"
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
+			var data = response.data;
 			if (data.subject !== null) {
 				progress.step("Certificado corrente localizado.", 2);
 				$scope.setCert(data);
@@ -609,26 +595,27 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$http({
 					url : $scope.urlBluCRESTSigner + '/cert',
 					method : "GET"
-				}).success(function(data, status, headers, config) {
+				}).then(function successCallback(response) {
+					var data = response.data;
 					progress.step("Certificado selecionado.");
 					if (data.hasOwnProperty('errormsg') && data.errormsg != null) {
 						delete $scope.documentos;
 						progress.stop();
-						$scope.setError({
-							error : data.errormsg
-						});
+						$scope.setError(response);
 						return;
 					}
 					$scope.setCert(data);
 					$scope.obterToken(progress, $scope.list);
-				}).error(function(data, status, headers, config) {
+				}, function errorCallback(response) {
 					delete $scope.documentos;
 					progress.stop();
+					$scope.setError(response);
 				});
 			}
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
 			delete $scope.documentos;
 			progress.stop();
+			$scope.setError(response);
 		});
 	}
 
@@ -638,19 +625,20 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			// url : '/api/bluc-rest-signer/test.json',
 			url : $scope.urlBluCRESTSigner + '/test',
 			method : "GET"
-		}).success(function(data, status, headers, config) {
+		}).then(function successCallback(response) {
 			progress.step("Assijus.exe está ativo.");
-			if (data.status == "OK") {
+			if (response.data.status == "OK") {
 				$scope.buscarCertificado(progress);
 			} else {
 				progress.stop();
 				$scope.setError($scope.errorMsgMissingSigner)
 			}
-		}).error(function(data, status, headers, config) {
+		}, function errorCallback(response) {
+			var data = response.data;
 			delete $scope.documentos;
 			progress.stop();
-			if (typeof data === 'object' && data != null && data.hasOwnProperty('error')) {
-				$scope.setError(data);
+			if (typeof data === 'object' && data != null && data.hasOwnProperty('errormsg')) {
+				$scope.setError(response);
 			} else {
 				$scope.setError($scope.errorMsgMissingSigner)
 			}
@@ -667,6 +655,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.forceRefresh = function() {
 		$scope.progress.start("Inicializando", 12);
 		delete $scope.documentos;
+		delete $scope.lastUpdateFormatted;
 		$scope.testarSigner($scope.progress);
 	}
 

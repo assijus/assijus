@@ -9,7 +9,7 @@
 				<modal title="Detalhamento de Problema" visible="showErrorDetails">
 				<div id="error-detail">
 					<div class="headline">
-						<h4>{{errorDetails[currentErrorId].error}}</h4>
+						<h4>{{errorDetails[currentErrorId].errormsg}}</h4>
 					</div>
 					<div class="error-details-code">
 						<code>{{errorDetails[currentErrorId]}}</code>
@@ -39,7 +39,7 @@
 				</div>
 
 				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.geral.error == errorMsgMissingSigner">
+					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
 					<p>Não foi possível detectar o programa assijus.exe.</p>
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
 						necessária uma instalação prévia, conforme as orientações abaixo:</p>
@@ -64,7 +64,7 @@
 				</div>
 
 				<div class="alert alert-danger fade in"
-					ng-show="errorDetails.geral.error == errorMsgMissingCertificate">
+					ng-show="errorDetails.geral.errormsg == errorMsgMissingCertificate">
 					<p>Não foi possível detectar nenhum token contendo certificado
 						digital válido.</p>
 					<p>
@@ -79,9 +79,9 @@
 
 				<div ng-repeat="(key, value) in errorDetails">
 					<div class="alert alert-danger fade in"
-						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.error == errorMsgMissingCertificate || errorDetails.geral.error == errorMsgMissingSigner))">
+						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>
-							<strong>Problema - {{key}}:</strong> {{value.error}}<span
+							<strong>Problema - {{key}}:</strong> {{value.errormsg}}<span
 								ng-click="presentError(key)">&nbsp;&#128269;</span>
 						</p>
 						<p>
