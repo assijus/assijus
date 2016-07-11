@@ -128,6 +128,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.progress.active = false;
 			}
 			this.active = true;
+			this.isteps = 0;
 			this.csteps = steps;
 		},
 		step : function(caption, skip) {
