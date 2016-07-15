@@ -6,14 +6,18 @@
 		<div class="row">
 			<div class="col-md-12">
 
-				<modal title="Detalhamento de Problema" visible="showErrorDetails">
+				<modal title="Detalhamento de Problema"
+					on-hide="showErrorDetails = false" visible="showErrorDetails">
 				<div id="error-detail">
 					<div class="headline">
 						<h4>{{errorDetails[currentErrorId].errormsg}}</h4>
 					</div>
-					<div class="error-details-code">
-						<code>{{errorDetails[currentErrorId]}}</code>
-					</div>
+					<ol>
+						<li ng-repeat="ed in errorDetails[currentErrorId].errordetails">
+							{{ed.service}} ({{ed.context}}) <br /> <pre
+								class="error-details-code">{{ed.stacktrace}}</pre>
+						</li>
+					</ol>
 				</div>
 				</modal>
 
@@ -51,7 +55,9 @@
 							href="http://siga.jfrj.jus.br">página de acesso externo do
 								SIGA</a>.
 						</li>
-						<li>Instale o programa <a
+						<li>Instale a versão auto-atualizável do <a
+							href="signer/clickonce/publish.htm"><u>Assijus</u></a> em seu
+							PC/Windows, ou instale o programa <a
 							href="signer/windows/{{assijusexe}}"><u>{{assijusexe}}</u></a> em
 							seu PC/Windows. Este programa depende do <a
 							href="http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe"><u>Microsoft
@@ -81,8 +87,8 @@
 					<div class="alert alert-danger fade in"
 						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>
-							<strong>Problema - {{key}}:</strong> {{value.errormsg}}<span
-								ng-click="presentError(key)">&nbsp;&#128269;</span>
+							<strong>Problema - {{key}}:</strong>
+							{{composeErrorMessage(value)}}<span ng-click="presentError(key)">&nbsp;&#128269;</span>
 						</p>
 						<p>
 							Para tentar novamente, <a href="javascript:location.reload();"><u>recarregue</u></a>
@@ -95,8 +101,8 @@
 		<div class="row margin-bottom-30"
 			ng-show="zeroDocumentosCarregados() && assinanteIdentificado()">
 			<div class="col-md-12">
-				<p style="font-size: 120%;">Dr(a). {{assinante}}, não localizamos
-					nenhum documento pendente de assinatura.</p>
+				<p style="font-size: 120%;">Dr(a). {{assinante}}, não
+					localizamos nenhum documento pendente de assinatura.</p>
 			</div>
 		</div>
 		<div class="row" ng-show="documentosCarregados()">
@@ -180,7 +186,8 @@
 							<td>{{doc.kind}}</td>
 							<td>{{doc.origin}}</td>
 							<td class="status-td"><span id="status{{doc.id}}"><span
-									class="status-pending"><a
+									class="status-pending" data-toggle="tooltip"
+									title="Assinar só este documento."><a
 										ng-click="assinarDocumento(doc.id)">&#9997;</a></span></span><span
 								ng-show="errorDetails.hasOwnProperty(doc.id)"
 								ng-click="presentError(doc.id)">&nbsp;&#128269;</span></td>

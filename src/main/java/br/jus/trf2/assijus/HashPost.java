@@ -6,6 +6,7 @@ import java.util.Date;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
+import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class HashPost implements IRestAction {
@@ -21,7 +22,7 @@ public class HashPost implements IRestAction {
 		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
 		if (Utils.cacheRetrieve(cpf + "-" + urlHash) == null)
-			throw new Exception("CPF não autorizado.");
+			throw new PresentableException("CPF não autorizado.");
 
 		urlHash = Utils.fixUrl(urlHash);
 		String time = Utils.format(new Date());

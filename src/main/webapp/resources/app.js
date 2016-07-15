@@ -56,8 +56,15 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.reportErrorAndResume = function(codigo, context, response) {
 		var msg = "Erro " + context + ': ' + response.statusText;
 		try {
-			if (response.data.hasOwnProperty("errormsg"))
+			var detail = {presentable:false, logged:false};
+			if (response.data.hasOwnProperty("errordetails") && response.data.errordetails.length > 0) {
+				detail = response.data.errordetails[response.data.errordetails.length-1];
+				msg = "Não foi possível " + detail.context;
+			}
+			if (response.data.hasOwnProperty("errormsg") &&  detail.presentable)
 				msg = response.data.errormsg;
+			if (detail.logged)
+				msg += ", a TI já foi notificada.";
 		} catch (err) {
 
 		}
@@ -68,6 +75,28 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		// $('#status' + state.codigo).goTo();
 		$('#status' + codigo).html('<span class="status-error">' + msg + '</span>');
 		$('#details' + codigo).html('<span>' + msg + '</span>');
+	}
+	
+	$scope.composeErrorMessage = function(errordata) {
+		var msg = "Erro.";
+		try {
+			if (errordata.hasOwnProperty("errordetails")) {
+				var detail = {presentable:false, logged:false};
+				if (errordata.hasOwnProperty("errordetails") && errordata.errordetails.length > 0) {
+					detail = errordata.errordetails[errordata.errordetails.length-1];
+					msg = "Não foi possível " + detail.context;
+				}
+				if (errordata.hasOwnProperty("errormsg") &&  detail.presentable)
+					msg = errordata.errormsg;
+				if (detail.logged)
+					msg += ", a TI já foi notificada.";
+			} else if (errordata.hasOwnProperty("errormsg")) {
+				msg = errormsg;
+			}
+		} catch (err) {
+
+		}
+		return msg;
 	}
 
 	$scope.presentError = function(id) {
@@ -426,13 +455,13 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			var data = response.data;
 			progress.step(state.nome + ": Assinatura gravada.");
 			// $('#status' + state.codigo).goTo();
-			var sts = '<span class="status-ok">&#10003;</span>';
+			var sts = '<span class="status-ok" data-toggle="tooltip" title="Assinado, OK!">&#10003;</span>';
 			if (data.hasOwnProperty('warning')) {
 				sts += ' <span class="status-warning">'
 				for (var i = 0, len = data.warning.length; i < len; i++) {
 					if (i != 0)
 						sts += ',';
-					sts += data.warning[i].label;
+					sts += '<span data-toggle="tooltip" title="' + data.warning[i].description + '">' + data.warning[i].label + '</span>';
 				}
 				sts += '</span>';
 			}
@@ -488,8 +517,11 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 							delete $scope.errorDetails[system];
 						} else if (data[property] == "Error") {
 							$scope.errorDetails[system] = {
-								"errormsg" : data["errormsg-" + system],
-								"error-details" : data["stacktrace-" + system]
+								errormsg : data["errormsg-" + system],
+								errordetails : [{
+								stacktrace : data["stacktrace-" + system],
+								context: "listar documentos",
+								service: system}]
 							};
 						}
 					}
@@ -532,7 +564,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 					continue;
 				// remove
 				$scope.documentos[i].checked = false;
-				var sts = '<span class="status-removed">&#10007;</span>';
+				var sts = '<span class="status-removed" data-toggle="tooltip" title="Não está mais disponível para ser assinado.">&#10007;</span>';
 				$('#status' + $scope.documentos[i].id).html(sts);
 				$scope.disable($scope.documentos[i].id);
 			}

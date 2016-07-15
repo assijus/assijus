@@ -3,6 +3,7 @@ package br.jus.trf2.assijus;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
+import com.crivano.restservlet.PresentableException;
 
 public class RetrievePost implements IRestAction {
 
@@ -15,7 +16,7 @@ public class RetrievePost implements IRestAction {
 
 		if (Utils.getRetrievePassword() != null)
 			if (!Utils.getRetrievePassword().equals(password))
-				throw new Exception("acesso negado");
+				throw new PresentableException("acesso negado");
 
 		// Call
 		String payload = Utils.dbRetrieve(key, remove);

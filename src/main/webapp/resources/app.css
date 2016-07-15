@@ -16,6 +16,7 @@
 	font-family: monospace;
 	font-size: 70%;
 	overflow: scroll;
+	max-height: 10em;
 }
 
 .navbar {

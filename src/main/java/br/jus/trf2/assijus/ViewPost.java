@@ -3,6 +3,7 @@ package br.jus.trf2.assijus;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
+import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class ViewPost implements IRestAction {
@@ -16,7 +17,7 @@ public class ViewPost implements IRestAction {
 		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
 		if (Utils.cacheRetrieve(cpf + "-" + urlView) == null)
-			throw new Exception("CPF não autorizado.");
+			throw new PresentableException("CPF não autorizado.");
 
 		urlView = Utils.fixUrl(urlView);
 
