@@ -16,6 +16,7 @@ public class HashPost implements IRestAction {
 		// Parse request
 		String certificate = req.getString("certificate");
 		String urlHash = req.getString("urlHash");
+		String system = Utils.chooseSystem(urlHash);
 		String password = Utils.choosePassword(urlHash);
 
 		String token = req.getString("token");
@@ -28,8 +29,13 @@ public class HashPost implements IRestAction {
 		String time = Utils.format(new Date());
 
 		// Call document repository hash webservice
-		JSONObject gedresp = RestUtils.getJsonObject("ged-hash", urlHash,
-				"password", password, "cpf", cpf);
+		JSONObject gedresp = null;
+		if ("sigadocsigner".equals(system))
+			gedresp = RestUtils.restGet("ged-hash", password, urlHash, "cpf",
+					cpf, "password", password);
+		else
+			gedresp = RestUtils.restGet("ged-hash", password, urlHash, "cpf",
+					cpf);
 
 		// Produce response
 
@@ -50,8 +56,8 @@ public class HashPost implements IRestAction {
 			blucreq.put("crl", true);
 
 			// Call bluc-server hash webservice
-			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-					Utils.getUrlBluCServer() + "/hash"), blucreq, "bluc-hash");
+			JSONObject blucresp = RestUtils.restPost("bluc-hash", null,
+					Utils.getUrlBluCServer() + "/hash", blucreq);
 
 			String hash = blucresp.getString("hash");
 			String hashPolicyVersion = blucresp.getString("policyversion");

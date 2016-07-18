@@ -80,6 +80,16 @@ public class Utils {
 		return null;
 	}
 
+	public static String chooseSystem(String url) {
+		for (String system : getSystems()) {
+			if (url.startsWith(system.replace("signer", "") + "/")
+					|| url.startsWith(system + "/")) {
+				return system;
+			}
+		}
+		return null;
+	}
+
 	public static String assertValidToken(String token, String urlblucserver)
 			throws Exception {
 		byte[] cached = cacheRetrieve(token);
@@ -106,8 +116,8 @@ public class Utils {
 		blucreq.put("crl", true);
 
 		// Call bluc-server hash webservice
-		JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-				urlblucserver + "/validate"), blucreq, "bluc-validate");
+		JSONObject blucresp = RestUtils.restPost("bluc-validate", null,
+				urlblucserver + "/validate", blucreq);
 
 		String cpf = null;
 		cpf = blucresp.getJSONObject("certdetails").getString("cpf0");

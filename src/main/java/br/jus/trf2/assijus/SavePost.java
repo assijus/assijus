@@ -15,6 +15,7 @@ public class SavePost implements IRestAction {
 		// Parse request
 
 		String urlSave = req.getString("urlSave");
+		String system = Utils.chooseSystem(urlSave);
 		String password = Utils.choosePassword(urlSave);
 		urlSave = Utils.fixUrl(urlSave);
 
@@ -35,13 +36,11 @@ public class SavePost implements IRestAction {
 			JSONObject kvreq = new JSONObject();
 			kvreq.put("key", signkey);
 			kvreq.put("remove", true);
-			if (Utils.getKeyValuePassword() != null)
-				kvreq.put("password", Utils.getKeyValuePassword());
 
 			// Call bluc-server hash webservice
-			JSONObject kvresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-					Utils.getKeyValueServer() + "/retrieve"), kvreq,
-					"sign-retrieve");
+			JSONObject kvresp = RestUtils.restPost("sign-retrieve",
+					Utils.getKeyValuePassword(), Utils.getKeyValueServer()
+							+ "/retrieve", kvreq);
 			signature = kvresp.optString("payload", null);
 		}
 
@@ -53,9 +52,8 @@ public class SavePost implements IRestAction {
 		blucreq2.put("certificate", certificate);
 
 		// Call bluc-server hash webservice
-		JSONObject blucresp2 = RestUtils.getJsonObjectFromJsonPost(new URL(
-				Utils.getUrlBluCServer() + "/certificate"), blucreq2,
-				"bluc-certificate");
+		JSONObject blucresp2 = RestUtils.restPost("bluc-certificate", null,
+				Utils.getUrlBluCServer() + "/certificate", blucreq2);
 
 		String subject = blucresp2.getString("subject");
 		String cn = blucresp2.getString("cn");
@@ -73,9 +71,8 @@ public class SavePost implements IRestAction {
 		if (!"PKCS7".equals(policy)) {
 			blucreq.put("signature", signature);
 			// Call bluc-server hash webservice
-			JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-					Utils.getUrlBluCServer() + "/envelope"), blucreq,
-					"bluc-envelope");
+			JSONObject blucresp = RestUtils.restPost("bluc-envelope", null,
+					Utils.getUrlBluCServer() + "/envelope", blucreq);
 
 			envelope = blucresp.getString("envelope");
 
@@ -89,9 +86,8 @@ public class SavePost implements IRestAction {
 
 		// Call bluc-server validate webservice. If there is an error,
 		// Utils will throw an exception.
-		JSONObject blucvalidateresp = RestUtils.getJsonObjectFromJsonPost(
-				new URL(Utils.getUrlBluCServer() + "/validate"), blucreq,
-				"bluc-validate");
+		JSONObject blucvalidateresp = RestUtils.restPost("bluc-validate", null,
+				Utils.getUrlBluCServer() + "/validate", blucreq);
 
 		// Call
 		JSONObject sigareq = new JSONObject();
@@ -104,11 +100,12 @@ public class SavePost implements IRestAction {
 		sigareq.put("cpf", cpf);
 		sigareq.put("sha1", sha1);
 		sigareq.put("sha256", sha256);
-		sigareq.put("password", password);
+		if ("sigadocsigner".equals("system"))
+			sigareq.put("password", password);
 
 		// Call document repository hash webservice
-		JSONObject sigaresp = RestUtils.getJsonObjectFromJsonPut(new URL(
-				urlSave), sigareq, "save-signature");
+		JSONObject sigaresp = RestUtils.restPut("save-signature", password,
+				urlSave, sigareq);
 
 		// Produce response
 		JSONArray warning = sigaresp.optJSONArray("warning");

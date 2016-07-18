@@ -10,9 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
+import com.crivano.restservlet.RestAsyncResponse;
 import com.crivano.restservlet.RestUtils;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 
 public class ListPost implements IRestAction {
 
@@ -36,7 +35,7 @@ public class ListPost implements IRestAction {
 		String[] systems = Utils.getSystems();
 
 		final CountDownLatch responseWaiter = new CountDownLatch(systems.length);
-		Map<String, Future<HttpResponse<JsonNode>>> map = new HashMap<>();
+		Map<String, Future<RestAsyncResponse>> map = new HashMap<>();
 
 		// Call Each System
 		for (String system : systems) {
@@ -45,19 +44,19 @@ public class ListPost implements IRestAction {
 			JSONObject reqsys = new JSONObject();
 			reqsys.put("cpf", cpf);
 			reqsys.put("urlapi", urlsys);
-			reqsys.put("password", Utils.getPassword(system));
-			Future<HttpResponse<JsonNode>> future = RestUtils
-					.getJsonObjectFromJsonGetAsync(
-							new URL(urlsys + "/doc/list"), reqsys, system
-									+ "-list");
+			if (system.equals("sigadocsigner"))
+				reqsys.put("password", Utils.getPassword(system));
+			Future<RestAsyncResponse> future = RestUtils.restGetAsync(system
+					+ "-list", Utils.getPassword(system), urlsys + "/doc/list",
+					reqsys);
 			map.put(system, future);
 		}
 
 		for (String system : systems) {
 			final String context = system.replace("signer", "");
 			try {
-				HttpResponse<JsonNode> futureresponse = map.get(system).get();
-				JSONObject o = futureresponse.getBody().getObject();
+				RestAsyncResponse futureresponse = map.get(system).get();
+				JSONObject o = futureresponse.getJSONObject();
 				String error = o.optString("errormsg", null);
 				if (error != null) {
 					resp.put("status-" + context, "Error");

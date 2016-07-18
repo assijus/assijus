@@ -22,8 +22,8 @@ public class ViewPost implements IRestAction {
 		urlView = Utils.fixUrl(urlView);
 
 		// Call document repository hash webservice
-		JSONObject gedresp = RestUtils.getJsonObject("ged-view", urlView,
-				"password", password, "cpf", cpf);
+		JSONObject gedresp = RestUtils.restGet("ged-view", password, urlView,
+				"cpf", cpf);
 
 		// Produce response
 		String doc = gedresp.getString("doc");
