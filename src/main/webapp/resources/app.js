@@ -161,6 +161,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			this.csteps = steps;
 		},
 		step : function(caption, skip) {
+			if (!this.active)
+				return;
 			this.isteps += 1 + (skip||0);
 			$scope.progressbarWidth = 100 * (this.isteps / this.csteps);
 			$scope.progressbarShow = true;
@@ -697,7 +699,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$interval($scope.autoRefresh, 3 * 60 * 1000);
 });
 
-app.directive('modal', function() {
+app.directive('modal', function($parse) {
 	return {
 		template : '<div class="modal fade">' + '<div class="modal-dialog">' + '<div class="modal-content">' + '<div class="modal-header">' + '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + '<h4 class="modal-title">{{ title }}</h4>' + '</div>' + '<div class="modal-body" ng-transclude></div>' + '<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button></div>' + '</div>' + '</div>' + '</div>',
 		restrict : 'E',
@@ -733,8 +735,11 @@ app.directive('modal', function() {
 				scope.onSown({});
 			});
 
-			$(element).on('hide.bs.modal', function() {
+			$(element).on('hide.bs.modal', function() { 
 				scope.onHide({});
+				$parse(attrs.visible).assign(scope.$parent, false);
+                if (!scope.$parent.$$phase && !scope.$root.$$phase)
+                    scope.$parent.$apply();
 			});
 		}
 	};
