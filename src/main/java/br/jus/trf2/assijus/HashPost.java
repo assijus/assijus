@@ -1,6 +1,5 @@
 package br.jus.trf2.assijus;
 
-import java.net.URL;
 import java.util.Date;
 
 import org.json.JSONObject;

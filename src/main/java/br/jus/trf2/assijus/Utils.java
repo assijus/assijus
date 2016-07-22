@@ -1,6 +1,5 @@
 package br.jus.trf2.assijus;
 
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -9,14 +8,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
 import com.crivano.restservlet.RestUtils;
 
 public class Utils {
-	private static final Logger log = Logger.getLogger(Utils.class.getName());
 
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
@@ -197,9 +194,4 @@ public class Utils {
 
 		return s;
 	}
-
-	public static void logsevere(String s) {
-		log.severe(s);
-	}
-
 }

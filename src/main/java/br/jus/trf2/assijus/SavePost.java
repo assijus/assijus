@@ -1,19 +1,21 @@
 package br.jus.trf2.assijus;
 
-import java.net.URL;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestUtils;
 
 public class SavePost implements IRestAction {
+	private static final Logger log = LoggerFactory.getLogger(RestUtils.class);
 
 	@Override
 	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 
+		String code = req.getString("code");
 		String urlSave = req.getString("urlSave");
 		String system = Utils.chooseSystem(urlSave);
 		String password = Utils.choosePassword(urlSave);
@@ -36,11 +38,11 @@ public class SavePost implements IRestAction {
 			JSONObject kvreq = new JSONObject();
 			kvreq.put("key", signkey);
 			kvreq.put("remove", true);
+			kvreq.put("password", Utils.getKeyValuePassword());
 
 			// Call bluc-server hash webservice
-			JSONObject kvresp = RestUtils.restPost("sign-retrieve",
-					Utils.getKeyValuePassword(), Utils.getKeyValueServer()
-							+ "/retrieve", kvreq);
+			JSONObject kvresp = RestUtils.restPost("sign-retrieve", null,
+					Utils.getKeyValueServer() + "/retrieve", kvreq);
 			signature = kvresp.optString("payload", null);
 		}
 
@@ -100,7 +102,7 @@ public class SavePost implements IRestAction {
 		sigareq.put("cpf", cpf);
 		sigareq.put("sha1", sha1);
 		sigareq.put("sha256", sha256);
-		if ("sigadocsigner".equals("system"))
+		if ("sigadocsigner".equals(system))
 			sigareq.put("password", password);
 
 		// Call document repository hash webservice
@@ -121,7 +123,11 @@ public class SavePost implements IRestAction {
 		if (warning != null)
 			resp.put("warning", warning);
 
-		resp.put("status", sigaresp.optString("status", null));
+		String status = sigaresp.optString("status", null);
+		resp.put("status", status);
+
+		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", "
+				+ status);
 	}
 
 	@Override

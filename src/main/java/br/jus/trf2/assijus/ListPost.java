@@ -58,6 +58,8 @@ public class ListPost implements IRestAction {
 				RestAsyncResponse futureresponse = map.get(system).get();
 				JSONObject o = futureresponse.getJSONObject();
 				String error = o.optString("errormsg", null);
+				if (error == null) //Nato: Remover isso quando a nova versão do Siga-Doc for para a produção
+					error = o.optString("error", null);
 				if (error != null) {
 					resp.put("status-" + context, "Error");
 					resp.put("errormsg-" + context, error);

@@ -451,7 +451,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				sha1 : state.sha1,
 				sha256 : state.sha256,
 				urlSave : state.urlPost,
-				certificate : $scope.cert.certificate
+				certificate : $scope.cert.certificate,
+				code: state.nome
 			}
 		}).then(function successCallback(response) {
 			var data = response.data;
