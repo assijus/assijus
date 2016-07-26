@@ -29,6 +29,8 @@ public class SavePost implements IRestAction {
 		String sha1 = req.getString("sha1");
 		String sha256 = req.getString("sha256");
 
+		String extra = req.optString("extra", null);
+
 		if (signature == null && signkey != null)
 			signature = Utils.dbRetrieve(signkey, true);
 
@@ -101,6 +103,8 @@ public class SavePost implements IRestAction {
 		sigareq.put("cpf", cpf);
 		sigareq.put("sha1", sha1);
 		sigareq.put("sha256", sha256);
+		if (extra != null)
+			sigareq.put("extra", extra);
 		if ("sigadocsigner".equals(system))
 			sigareq.put("password", password);
 
