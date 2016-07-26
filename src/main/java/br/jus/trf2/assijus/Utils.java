@@ -67,16 +67,6 @@ public class Utils {
 		return url;
 	}
 
-	public static String choosePassword(String url) {
-		for (String system : getSystems()) {
-			if (url.startsWith(system.replace("signer", "") + "/")
-					|| url.startsWith(system + "/")) {
-				return Utils.getPassword(system);
-			}
-		}
-		return null;
-	}
-
 	public static String chooseSystem(String url) {
 		for (String system : getSystems()) {
 			if (url.startsWith(system.replace("signer", "") + "/")

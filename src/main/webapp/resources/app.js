@@ -249,10 +249,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			var doc = docs[i];
 			if (doc.checked) {
 				var operacao = {
+					system: doc.system,
 					codigo: doc.id,
 					nome: doc.code,
-					urlPdf: doc.urlHash,
-					urlPost: doc.urlSave,
 					enabled: true,
 				};
 				$scope.operacoes.push(operacao);
@@ -277,18 +276,30 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			token.type = 'text';
 			token.name = 'token';
 			token.value = $scope.token;
+			
+			var subject = document.createElement('input');
+			subject.type = 'text';
+			subject.name = 'subject';
+			subject.value = $scope.cert.subject;
 
-			var urlView = document.createElement('input');
-			urlView.type = 'text';
-			urlView.name = 'urlView';
-			urlView.value = doc.urlView;
+			var system = document.createElement('input');
+			system.type = 'text';
+			system.name = 'system';
+			system.value = doc.system;
+
+			var docid = document.createElement('input');
+			docid.type = 'text';
+			docid.name = 'id';
+			docid.value = doc.id;
 
 			var submit = document.createElement('input');
 			submit.type = 'submit';
 			submit.id = 'submitView';
 
 			form.appendChild(token);
-			form.appendChild(urlView);
+			form.appendChild(subject);
+			form.appendChild(system);
+			form.appendChild(docid);
 			form.appendChild(submit);
 			document.body.appendChild(form);
 
@@ -310,10 +321,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			var doc = docs[i];
 			if (doc.id == id) {
 				var operacao = {
+					system: doc.system,
 					codigo: doc.id,
 					nome: doc.code,
-					urlPdf: doc.urlHash,
-					urlPost: doc.urlSave,
 					enabled: true,
 				};
 				$scope.operacoes.push(operacao);
@@ -352,8 +362,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				$scope.assinar({
 					nome : o.nome,
 					codigo : o.codigo,
-					urlPost : o.urlPost,
-					urlHash : o.urlPdf
+					system : o.system
 				}, progress);
 			}, 10);
 			return;
@@ -373,8 +382,10 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			url : $scope.urlBaseAPI + "/hash",
 			method : "POST",
 			data : {
-				urlHash : state.urlHash,
+				system : state.system,
+				id : state.codigo,
 				certificate : $scope.cert.certificate,
+				subject : $scope.cert.subject,
 				token : $scope.token
 			}
 		}).then(function successCallback(response) {
@@ -387,8 +398,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			state.sha1 = data.sha1;
 			state.sha256 = data.sha256;
 			state.hash = data.hash;
-			if (data.hasOwnProperty('urlSave'))
-				state.urlPost = data.urlSave;
+			if (data.hasOwnProperty('extra'))
+				state.extra = data.extra;
 			$scope.clearError(state.codigo);
 			if (progress.active)
 				$scope.produzirAssinatura(state, progress);
@@ -406,6 +417,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			url : $scope.urlBluCRESTSigner + "/sign",
 			method : "POST",
 			data : {
+				system : state.system,
+				id : state.codigo,
+				code : state.nome,
 				policy : state.policy,
 				payload : state.hash,
 				certificate : $scope.cert.certificate,
@@ -443,6 +457,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			url : $scope.urlBaseAPI + "/save",
 			method : "POST",
 			data : {
+				system : state.system,
+				id : state.codigo,
 				signature : state.assinaturaB64,
 				signkey : state.signkey,
 				time : state.time,
@@ -450,7 +466,6 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				policyversion : state.policyversion,
 				sha1 : state.sha1,
 				sha256 : state.sha256,
-				urlSave : state.urlPost,
 				certificate : $scope.cert.certificate,
 				code: state.nome
 			}
@@ -506,8 +521,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			url : $scope.urlBaseAPI + '/list',
 			method : "POST",
 			data : {
-				"certificate" : $scope.cert.certificate,
-				"token" : $scope.token
+				certificate : $scope.cert.certificate,
+				subject : $scope.cert.subject,
+				token : $scope.token
 			}
 		}).then(function successCallback(response) {
 			var data = response.data;

@@ -174,12 +174,7 @@
 										 --> <input type="hidden"
 								name="ad_url_post_password_{{doc.id}}" value="{{doc.code}}" />
 							</td>
-							<td><span
-								ng-show="doc.urlView != undefined && doc.urlView.lastIndexOf('http', 0) === 0"><a
-									href="{{doc.urlView}}" target="_blank">{{doc.code}}</a></span><span
-								ng-show="doc.urlView != undefined && doc.urlView.lastIndexOf('http', 0) !== 0"><a
-									ng-click="view(doc)">{{doc.code}}</a></span><span
-								ng-show="doc.urlView == undefined">{{doc.code}}</span></td>
+							<td><a ng-click="view(doc)">{{doc.code}}</a></td>
 							<td>{{doc.descr}}</td>
 							<td>{{doc.kind}}</td>
 							<td>{{doc.origin}}</td>

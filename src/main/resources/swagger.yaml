@@ -1,4 +1,4 @@
-swagger: '2.0'
+﻿swagger: '2.0'
 
 info:
   version: "1.0.0"
@@ -63,12 +63,16 @@ paths:
       tags: [view]
       parameters:
         - $ref: "#/parameters/token"
-        - name: urlView
+        - name: id
           in: formData
-          description: URL que deve ser chamada no webservice destino para obter o PDF, ou a própria URL do PDF
+          description: Identificador do documento
           required: true
           type: string
-          format: byte
+        - name: system
+          in: formData
+          description: Identificador do systema integrado
+          required: true
+          type: string
       responses:
         200:
           description: Successful response
@@ -86,12 +90,16 @@ paths:
       parameters:
         - $ref: "#/parameters/token"
         - $ref: "#/parameters/certificate"
-        - name: urlHash
+        - name: id
           in: formData
-          description: URL que deve ser chamada no webservice destino para objer o hash do documento
+          description: Identificador do documento
           required: true
           type: string
-          format: byte
+        - name: system
+          in: formData
+          description: Identificador do systema integrado
+          required: true
+          type: string
         
       responses:
         200:
@@ -108,7 +116,17 @@ paths:
       description: Gravar a assinatura do documento
       tags: [sign]
       parameters:
-        - $ref: "#/parameters/certificate" 
+        - $ref: "#/parameters/certificate"
+        - name: id
+          in: formData
+          description: Identificador do documento
+          required: true
+          type: string
+        - name: system
+          in: formData
+          description: Identificador do systema integrado
+          required: true
+          type: string
         - name: signature
           in: formData
           description: Envelope da assinatura digital em base64

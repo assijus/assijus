@@ -10,17 +10,17 @@ public class ViewPost implements IRestAction {
 
 	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
-		String urlView = req.getString("urlView");
-		String password = Utils.choosePassword(urlView);
+		String system = req.getString("system");
+		String id = req.getString("id");
+		String password = Utils.getPassword(system);
 
 		String token = req.getString("token");
 		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
-		if (Utils.cacheRetrieve(cpf + "-" + urlView) == null)
+		if (Utils.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");
 
-		urlView = Utils.fixUrl(urlView);
-
+		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";
 		// Call document repository hash webservice
 		JSONObject gedresp = RestUtils.restGet("ged-view", password, urlView,
 				"cpf", cpf);

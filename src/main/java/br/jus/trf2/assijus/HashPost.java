@@ -14,17 +14,17 @@ public class HashPost implements IRestAction {
 	public void run(JSONObject req, final JSONObject resp) throws Exception {
 		// Parse request
 		String certificate = req.getString("certificate");
-		String urlHash = req.getString("urlHash");
-		String system = Utils.chooseSystem(urlHash);
-		String password = Utils.choosePassword(urlHash);
+		String system = req.getString("system");
+		String password = Utils.getPassword(system);
+		String id = req.getString("id");
 
 		String token = req.getString("token");
 		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
 
-		if (Utils.cacheRetrieve(cpf + "-" + urlHash) == null)
+		if (Utils.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");
 
-		urlHash = Utils.fixUrl(urlHash);
+		String urlHash = Utils.getUrl(system) + "/doc/" + id + "/hash";
 		String time = Utils.format(new Date());
 
 		// Call document repository hash webservice
@@ -80,10 +80,9 @@ public class HashPost implements IRestAction {
 			resp.put("sha256", sha256);
 		}
 
-		String urlSave = gedresp.optString("urlSave", null);
-		if (urlSave != null) {
-			resp.put("urlSave", urlSave);
-			Utils.cacheStore(cpf + "-" + urlSave, new byte[] { 1 });
+		String extra = gedresp.optString("extra", null);
+		if (extra != null) {
+			resp.put("extra", extra);
 		}
 
 	}

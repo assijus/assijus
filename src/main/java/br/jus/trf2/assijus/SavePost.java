@@ -16,10 +16,9 @@ public class SavePost implements IRestAction {
 		// Parse request
 
 		String code = req.getString("code");
-		String urlSave = req.getString("urlSave");
-		String system = Utils.chooseSystem(urlSave);
-		String password = Utils.choosePassword(urlSave);
-		urlSave = Utils.fixUrl(urlSave);
+		String system = req.getString("system");
+		String id = req.getString("id");
+		String password = Utils.getPassword(system);
 
 		String certificate = req.getString("certificate");
 		String signature = req.optString("signature", null);
@@ -106,6 +105,7 @@ public class SavePost implements IRestAction {
 			sigareq.put("password", password);
 
 		// Call document repository hash webservice
+		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";
 		JSONObject sigaresp = RestUtils.restPut("save-signature", password,
 				urlSave, sigareq);
 

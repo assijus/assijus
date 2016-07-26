@@ -58,7 +58,8 @@ public class ListPost implements IRestAction {
 				RestAsyncResponse futureresponse = map.get(system).get();
 				JSONObject o = futureresponse.getJSONObject();
 				String error = o.optString("errormsg", null);
-				if (error == null) //Nato: Remover isso quando a nova versão do Siga-Doc for para a produção
+				if (error == null) // Nato: Remover isso quando a nova versão do
+									// Siga-Doc for para a produção
 					error = o.optString("error", null);
 				if (error != null) {
 					resp.put("status-" + context, "Error");
@@ -70,6 +71,7 @@ public class ListPost implements IRestAction {
 				resp.put("status-" + context, "OK");
 				for (int i = 0; i < o.getJSONArray("list").length(); i++) {
 					JSONObject doc = o.getJSONArray("list").getJSONObject(i);
+					doc.put("system", system);
 					arrtmp.put(doc);
 				}
 			} catch (Exception ex) {
@@ -100,34 +102,27 @@ public class ListPost implements IRestAction {
 			String code = o.getString("code");
 			String descr = o.optString("descr", "<nenhuma>");
 			String kind = o.optString("kind");
+			String system = o.getString("system");
 			String origin = o.optString("origin");
-			String urlView = o.optString("urlView", null);
-			String urlHash = o.getString("urlHash");
-			String urlSave = o.optString("urlSave", null);
 			String status = o.optString("status", null);
+			String extra = o.optString("extra", null);
 
 			JSONObject doc = new JSONObject();
 			doc.put("id", id);
 			doc.put("code", code);
 			doc.put("descr", descr);
 			doc.put("kind", kind);
+			doc.put("system", system);
 			doc.put("origin", origin);
-			if (urlView != null) {
-				doc.put("urlView", urlView);
-				// Acrescenta essa informação na tabela para permitir a
-				// posterior visualização.
-				Utils.cacheStore(cpf + "-" + urlView, new byte[] { 1 });
-			}
-			doc.put("urlHash", urlHash);
-			Utils.cacheStore(cpf + "-" + urlHash, new byte[] { 1 });
-			if (urlSave != null) {
-				doc.put("urlSave", urlSave);
-				Utils.cacheStore(cpf + "-" + urlSave, new byte[] { 1 });
+			// Acrescenta essa informação na tabela para permitir a
+			// posterior visualização.
+			Utils.cacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
+			if (extra != null) {
+				doc.put("extra", extra);
 			}
 			doc.put("status", status);
 			// for (int j = 0; j < 50; j++)
 			arr.put(doc);
-
 		}
 	}
 
