@@ -1,4 +1,4 @@
-var app = angular.module('app', [ 'ngAnimate', 'ngRoute', 'cgBusy' ]);
+var app = angular.module('app', [ 'ngAnimate', 'ngRoute', 'cgBusy', 'angular-websocket' ]);
 
 app.config([ '$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/home', {
@@ -17,26 +17,128 @@ app.config([ '$routeProvider', '$locationProvider', function($routeProvider, $lo
 	$locationProvider.html5Mode(false);
 } ]);
 
-app.controller('routerCtrl', function($scope, $http, $templateCache) {
+
+// Acrescentar o websocket funcionando como se fosse uma factory
+app.factory('remote', function($websocket, $location) {
+  // Open a WebSocket connection
+	var dataStream = $websocket(($location.protocol() == "http" ? 'ws://' : 'wss://') + $location.host() + ":" + $location.port() + '/assijus/websocket/server');
+
+  var collection = [];
+
+  dataStream.onMessage(function(message) {
+    collection.push(JSON.parse(message.data));
+  });
+
+  var methods = {
+    collection: collection,
+    hello: function(certificate) {
+        dataStream.send(JSON.stringify({ kind:"HELLO", certificate: certificate, app: 'browser' }));
+      },
+    start: function(key, list) {
+      dataStream.send(JSON.stringify({ kind:"START", key: key, list: list }));
+    },
+    ping: function() {
+    	dataStream.send(JSON.stringify({ kind:"PING"}));
+    }
+  };
+
+  return methods;
+})
+
+app.controller('routerCtrl', function($scope, $http, $templateCache, $window, $location) {
 	$scope.assijusexe = "assijus-v0-9-3.exe";
+	
+	$scope.parseLocation = function(location) {
+	    var pairs = location.substring(1).split("&");
+	    var obj = {};
+	    var pair;
+	    var i;
+
+	    for ( i in pairs ) {
+	      if ( pairs[i] === "" ) continue;
+
+	      pair = pairs[i].split("=");
+	      obj[ decodeURIComponent( pair[0] ) ] = decodeURIComponent( pair[1] );
+	    }
+
+	    return obj;
+	  };
+	  
+	  $scope.querystring = $scope.parseLocation($window.location.search);
+	
+	if ($scope.querystring.hasOwnProperty('authkey')) {
+		$scope.starttokenkey = $scope.querystring.authkey;
+		$location.path('/home');
+	}
+
+//	var s = $window.location.search;
+//	if (s.indexOf('?authkey=') == 0) {
+//		$scope.starttokenkey = s.substring(9);
+//		$location.path('/home');
+//	}
 });
 
 app.controller('ctrl2', function($scope, $http, $templateCache, $interval, $window) {});
 
-app.controller('ctrl', function($scope, $http, $templateCache, $interval, $window, $location, $filter) {
+app.controller('ctrl', function($scope, $http, $templateCache, $interval, $window, $location, $filter, remote) {
+	
+	$scope.PROCESSING = "Processando Assinaturas Digitais";
+	
+	$scope.remote = remote;
+	
+	$scope.$watch('remote.collection', function(value) {
+		if (value === undefined)
+			return;
+		for (; value.length > 0; ) {
+			var obj = value.splice(0,1)[0];
+			console.log("recebido: " + JSON.stringify(obj));
+			if (obj.kind == "HELLO_RESP") {
+				$scope.cert.cpf = obj.cpf;
+			} else if (obj.kind == "PONG") {
+				delete $scope.lastPing;
+			} else if (obj.kind == "STARTED") {
+				$scope.progress.startperc($scope.PROCESSING, "Assinando...");
+			} else if (obj.kind == "PROGRESS") {
+				$scope.progress.perc(obj.msg, obj.percentage);
+			} else if (obj.kind == "SIGNED") {
+				if (obj.hasOwnProperty("response")) {
+					if (obj.response.hasOwnProperty("errormsg")) {
+						$scope.reportErrorAndResume(obj.id, "assinar", {data: obj.response})
+					} else {
+						$scope.reportSuccess(obj.id, {data: obj.response});
+					}
+				} else {
+					$scope.reportErrorAndResume(obj.id, "assinar", {data: {errormsg: 'nenhuma resposta'}});
+				}
+			} else if (obj.kind == "FAILED") {
+				if (obj.hasOwnProperty("response")) {
+					if (obj.response.hasOwnProperty("errormsg")) {
+						$scope.errorDetails.geral = obj.response;
+					}
+					$scope.progress.stop();
+				} else {
+					$scope.reportErrorAndResume(obj.id, "iniciar assinaturas", {data: {errormsg: 'falha.'}});
+				}
+			} else if (obj.kind == "FINISHED") {
+				$scope.progress.stop();
+			} 
+		}
+	}, true);
 
-	var querystring = $location.search();
-	if (querystring.hasOwnProperty('urlsigner')) {
-		$scope.urlBluCRESTSigner = querystring.urlsigner;
+	if ($scope.$parent.querystring.hasOwnProperty('urlsigner')) {
+		$scope.urlBluCRESTSigner = $scope.$parent.querystring.urlsigner;
 	} else {
 		$scope.urlBluCRESTSigner = "http://localhost:8612";
 	}
-
-	if ($location.host() == 'localhost') {
-		$scope.urlBaseAPI = "/assijus/api/v1";
-	} else {
-		$scope.urlBaseAPI = "/assijus/api/v1"
+	if ($scope.$parent.querystring.hasOwnProperty('endpointlist') || $scope.$parent.querystring.hasOwnProperty('endpointlistkey')) {
+		$scope.endpoint = {};
+		if ($scope.$parent.querystring.hasOwnProperty('endpointlistkey')) 
+			$scope.endpoint.listkey = $scope.$parent.querystring.endpointlistkey;
+		else
+			$scope.endpoint.list = JSON.parse($scope.$parent.querystring.endpointlist);
+		$scope.endpoint.callback = $scope.$parent.querystring.endpointcallback;
 	}
+	$scope.urlBaseAPI = "/assijus/api/v1";
 
 	$scope.showErrorDetails = false;
 	$scope.filterErrorDetails = function(v) {
@@ -51,6 +153,23 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	
 	$scope.clearError = function(codigo) {
 		delete $scope.errorDetails[codigo];
+	}
+	
+	$scope.reportSuccess = function(codigo, data) {
+		// $('#status' + state.codigo).goTo();
+		var sts = '<span class="status-ok" data-toggle="tooltip" title="Assinado, OK!">&#10003;</span>';
+		if (data.hasOwnProperty('warning')) {
+			sts += ' <span class="status-warning">'
+			for (var i = 0, len = data.warning.length; i < len; i++) {
+				if (i != 0)
+					sts += ',';
+				sts += '<span data-toggle="tooltip" title="' + data.warning[i].description + '">' + data.warning[i].label + '</span>';
+			}
+			sts += '</span>';
+		}
+		$('#status' + codigo).html(sts);
+		$scope.disable(codigo);
+		$scope.clearError(codigo);
 	}
 
 	$scope.reportErrorAndResume = function(codigo, context, response) {
@@ -141,6 +260,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			cn = cn.replace("CN=", "");
 		}
 		$scope.assinante = cn;
+		$scope.remote.hello($scope.cert.certificate);
 	}
 
 
@@ -152,6 +272,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		start : function(title, steps) {
 			$scope.noProgress.stop(); // disable pending updates
 			$scope.progressbarTitle = title;
+			$scope.progressbarWidth = 0;
 			$scope.progressbarShow = true;
 			$scope.progressbarHide = function() {
 				$scope.progress.active = false;
@@ -169,6 +290,17 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			$scope.progressbarCaption = caption;
 			if (this.isteps == this.csteps)
 				this.stop();
+		},
+		startperc : function(title, caption) {
+			this.start(title, 100);
+			$scope.progressbarCaption = caption;
+		},
+		perc : function(caption, percentage) {
+			if (!this.active)
+				return;
+			$scope.progressbarWidth = percentage;
+			$scope.progressbarShow = true;
+			$scope.progressbarCaption = caption;
 		},
 		stop : function() {
 			$scope.progressbarTitle = '';
@@ -275,7 +407,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			var token = document.createElement('input');
 			token.type = 'text';
 			token.name = 'token';
-			token.value = $scope.token;
+			token.value = $scope.getToken();
 			
 			var subject = document.createElement('input');
 			subject.type = 'text';
@@ -314,6 +446,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 
 	$scope.assinarDocumento = function(id) {
+		if ($scope.hasStartTokenKey()) {
+			return $scope.assinarDocumentoPorWebsocket(id);
+		}
 		$scope.operacoes = [];
 
 		var docs = $scope.docs();
@@ -337,6 +472,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.assinarDocumentos = function(progress) {
+		if ($scope.hasStartTokenKey()) {
+			return $scope.assinarDocumentosPorWebsocket();
+		}
 		$scope.identificarOperacoes();
 		$scope.iOperacao = -1;
 
@@ -344,8 +482,64 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		if (tipo == 0)
 			return;
 
-		progress.start("Processando Assinaturas Digitais", $scope.operacoes.length * 6 + 4);
+		progress.start($scope.PROCESSING, $scope.operacoes.length * 6 + 4);
 		$scope.obterToken(progress, $scope.executar);
+	}
+	
+	$scope.assinarDocumentoPorWebsocket = function(id) {
+		var list = [];
+		var docs = $scope.docs();
+		for (var i = 0; i < docs.length; i++) {
+			var doc = docs[i];
+			if (doc.id == id) {
+				list.push(doc);
+				break;
+			}
+		}
+		
+		$scope.iniciarLotePorWebsocket(list);
+	}
+	
+	$scope.iniciarLotePorWebsocket = function(list) {
+		$scope.progress.startperc($scope.PROCESSING, "Registrando o lote de documentos...");
+		$http({
+			url : $scope.urlBaseAPI + "/store",
+			method : "POST",
+			data : {
+				payload: JSON.stringify({list:list})
+			}
+		}).then(function successCallback(response) {
+			var data = response.data;
+			$scope.progress.startperc($scope.PROCESSING, "Aguardando Assijus.Exe...");
+			$scope.remote.start(data.key);
+		},function errorCallback(response) {
+			progress.stop();
+			$scope.setError(response);
+		});
+	}
+		
+	$scope.assinarDocumentosPorWebsocket = function() {
+		$scope.identificarOperacoes();
+		$scope.iOperacao = -1;
+
+		var tipo = $scope.verificarTipoDeAssinatura();
+		if (tipo == 0)
+			return;
+
+		var list = [];
+		for (i = 0; i < $scope.operacoes.length; i++) {
+			var o = $scope.operacoes[i];
+			list.push({
+				id : o.codigo,
+				system : o.system,
+				code : o.nome,
+				//descr
+				//origin
+				//kind
+			});
+		}
+
+		$scope.iniciarLotePorWebsocket(list);
 	}
 
 	$scope.executar = function(progress) {
@@ -386,7 +580,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				id : state.codigo,
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject,
-				token : $scope.token
+				token : $scope.getToken()
 			}
 		}).then(function successCallback(response) {
 			progress.step(state.nome + ": Encontrado...");
@@ -473,20 +667,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}).then(function successCallback(response) {
 			var data = response.data;
 			progress.step(state.nome + ": Assinatura gravada.");
-			// $('#status' + state.codigo).goTo();
-			var sts = '<span class="status-ok" data-toggle="tooltip" title="Assinado, OK!">&#10003;</span>';
-			if (data.hasOwnProperty('warning')) {
-				sts += ' <span class="status-warning">'
-				for (var i = 0, len = data.warning.length; i < len; i++) {
-					if (i != 0)
-						sts += ',';
-					sts += '<span data-toggle="tooltip" title="' + data.warning[i].description + '">' + data.warning[i].label + '</span>';
-				}
-				sts += '</span>';
-			}
-			$('#status' + state.codigo).html(sts);
-			$scope.disable(state.codigo);
-			$scope.clearError(state.codigo);
+			$scope.reportSuccess(state.codigo, data);
 		}, function errorCallback(response) {
 			progress.step(state.nome + ": Assinatura não gravada.");
 			$scope.reportErrorAndResume(state.codigo, "gravando assinatura", response);
@@ -515,8 +696,37 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 	// Initialize
 	//
+	$scope.hasStartTokenKey = function() {
+		return $scope.$parent.hasOwnProperty('starttokenkey');
+	}
+	
+	$scope.getStartTokenKey = function() {
+		if ($scope.hasStartTokenKey()) {
+			return $scope.$parent.starttokenkey;
+		}
+	}
+
+	$scope.hasStartToken = function() {
+		return $scope.$parent.hasOwnProperty('starttoken');
+	}
+	
+	$scope.getToken = function() {
+		if ($scope.hasStartToken()) {
+			return $scope.$parent.starttoken;
+		}
+		return $scope.token;
+	}
+
+	$scope.setToken = function(token) {
+		$scope.token = token;
+	}
 
 	$scope.list = function(progress) {
+		if ($scope.hasOwnProperty('endpoint') && $scope.endpoint.hasOwnProperty('list')) {
+			$scope.update($scope.endpoint.list);
+			progress.stop();
+			return;
+		}
 		progress.step("Listando documentos...");
 		$http({
 			url : $scope.urlBaseAPI + '/list',
@@ -524,7 +734,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			data : {
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject,
-				token : $scope.token
+				token : $scope.getToken(),
+				key : $scope.hasOwnProperty('endpoint') ? $scope.endpoint.listkey : undefined
 			}
 		}).then(function successCallback(response) {
 			var data = response.data;
@@ -594,6 +805,11 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 
 	$scope.obterToken = function(progress, cont) {
 		progress.step("Obtendo senha de autenticação...");
+		if ($scope.hasStartToken()) {
+			cont(progress);
+			return;
+		}
+			
 		$http({
 			url : $scope.urlBaseAPI + '/token',
 			method : "POST",
@@ -617,7 +833,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			}).then(function successCallback(response) {
 				var data = response.data;
 				progress.step("Usuário autenticado.");
-				$scope.token = data.token + ";" + data.sign;
+				$scope.setToken(data.token + ";" + data.sign);
 				cont(progress);
 			}, function errorCallback(response) {
 				delete $scope.documentos;
@@ -698,23 +914,75 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		});
 	}
 
+	$scope.authenticate = function(progress) {
+		if ($scope.hasOwnProperty('token')) {
+			progress.step("Token ativo...", 1);
+			$scope.list(progress);
+			return;
+		}
+		progress.step("Testando token...");
+		$http({
+			url : $scope.urlBaseAPI + '/auth',
+			method : "POST",
+			data : {
+				authkey : $scope.getStartTokenKey()
+			}
+		}).then(function successCallback(response) {
+			var data = response.data;
+			progress.step("Token válido.");
+			$scope.setCert({certificate: data.certificate, subject: data.name});
+			$scope.setToken(data.token);
+			$scope.list(progress);
+		}, function errorCallback(response) {
+			delete $scope.documentos;
+			progress.stop();
+			$scope.setError(response);
+		});
+	}
+	
+	$scope.testConnection = function() {
+		if ($scope.hasOwnProperty('lastPing'))
+			$scope.errorDetails.assijusexe = {errormsg: "Não foi possível se conectar ao Assijus.Exe. Por favor, verifique se a Internet está funcionando e lance novamente o aplicativo Assijus.Exe. Se o problema persistir, tente reiniciar o computador"};
+		else
+			delete $scope.errorDetails.assijusexe;
+		
+		$scope.remote.ping();
+		$scope.lastPing = new Date();
+	}
+	
 	$scope.autoRefresh = function() {
-		// $scope.progress.start("AutoRefresh", 6);
-		// $scope.testarSigner($scope.progress);
-		if (!$scope.progress.active && !$scope.noProgress.active)
-			$scope.testarSigner($scope.noProgress);
+		if (!$scope.progress.active && !$scope.noProgress.active) {
+			if ($scope.hasStartTokenKey()) {
+				//$scope.noProgress.start("Autenticando", 4);
+				$scope.authenticate($scope.noProgress);
+			} else {
+				//$scope.noProgress.start("Inicializando", 12);
+				$scope.testarSigner($scope.noProgress);
+			}
+		}
 	}
 
 	$scope.forceRefresh = function() {
-		$scope.progress.start("Inicializando", 12);
 		delete $scope.documentos;
 		delete $scope.lastUpdateFormatted;
-		$scope.testarSigner($scope.progress);
+		if ($scope.hasStartTokenKey()) {
+			$scope.progress.start("Autenticando", 4);
+			$scope.authenticate($scope.progress);
+		} else {
+			$scope.progress.start("Inicializando", 12);
+			$scope.testarSigner($scope.progress);
+		}
 	}
 
 	$scope.forceRefresh();
-
-	$interval($scope.autoRefresh, 3 * 60 * 1000);
+	
+	if (!$scope.hasOwnProperty('endpoint')) {
+		$interval($scope.autoRefresh, 3 * 60 * 1000);
+	}
+	
+	if ($scope.hasStartTokenKey()) {
+		$interval($scope.testConnection, 1 * 10 * 1000);
+	}
 });
 
 app.directive('modal', function($parse) {

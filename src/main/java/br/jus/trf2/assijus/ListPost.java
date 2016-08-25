@@ -23,74 +23,102 @@ public class ListPost implements IRestAction {
 		blucreq.put("certificate", certificate);
 
 		String token = req.getString("token");
+		String listkey = req.optString("key", null);
 		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
-
-		// Call bluc-server hash webservice
-		// JSONObject blucresp = RestUtils.getJsonObjectFromJsonPost(new URL(
-		// urlblucserver + "/certificate"), blucreq, "bluc-certificate");
-		// String cpf = blucresp.getString("cpf");
 
 		final JSONArray arrtmp = new JSONArray();
 
-		String[] systems = Utils.getSystems();
+		if (listkey != null) {
+			// Read list from cache
+			String payload = null;
+			if (listkey != null)
+				payload = Utils.dbRetrieve(listkey, false);
 
-		final CountDownLatch responseWaiter = new CountDownLatch(systems.length);
-		Map<String, Future<RestAsyncResponse>> map = new HashMap<>();
+			if (payload == null && Utils.getKeyValueServer() != null) {
+				// Parse certificate
+				JSONObject kvreq = new JSONObject();
+				kvreq.put("key", listkey);
+				kvreq.put("remove", false);
+				kvreq.put("password", Utils.getKeyValuePassword());
 
-		// Call Each System
-		for (String system : systems) {
-			final String context = system.replace("signer", "");
-			String urlsys = Utils.getUrl(system);
-			JSONObject reqsys = new JSONObject();
-			reqsys.put("cpf", cpf);
-			reqsys.put("urlapi", urlsys);
-			if (system.equals("sigadocsigner"))
-				reqsys.put("password", Utils.getPassword(system));
-			Future<RestAsyncResponse> future = RestUtils.restGetAsync(system
-					+ "-list", Utils.getPassword(system), urlsys + "/doc/list",
-					reqsys);
-			map.put(system, future);
-		}
-
-		for (String system : systems) {
-			final String context = system.replace("signer", "");
-			try {
-				RestAsyncResponse futureresponse = map.get(system).get();
-				JSONObject o = futureresponse.getJSONObject();
-				String error = o.optString("errormsg", null);
-				if (error == null) // Nato: Remover isso quando a nova versão do
-									// Siga-Doc for para a produção
-					error = o.optString("error", null);
-				if (error != null) {
-					resp.put("status-" + context, "Error");
-					resp.put("errormsg-" + context, error);
-					resp.put("stacktrace-" + context,
-							o.optString("stacktrace", null));
-					continue;
-				}
-				resp.put("status-" + context, "OK");
-				for (int i = 0; i < o.getJSONArray("list").length(); i++) {
-					JSONObject doc = o.getJSONArray("list").getJSONObject(i);
-					doc.put("system", system);
-					arrtmp.put(doc);
-				}
-			} catch (Exception ex) {
-				resp.put("status-" + context, "Error");
-				resp.put("errormsg-" + context, RestUtils.messageAsString(ex));
-				resp.put("stacktrace-" + context, RestUtils.stackAsString(ex));
+				// Call bluc-server hash webservice
+				JSONObject kvresp = RestUtils.restPost("list-retrieve", null,
+						Utils.getKeyValueServer() + "/retrieve", kvreq);
+				payload = kvresp.optString("payload", null);
 			}
-		}
 
-		// for (int i = 0; i < 25; i++) {
-		// responseWaiter.await(1, TimeUnit.SECONDS);
-		// boolean completed = true;
-		// for (String system : systems) {
-		// if (!map.get(system).isDone())
-		// completed = false;
-		// }
-		// if (completed)
-		// break;
-		// }
+			JSONObject o = new JSONObject(payload);
+			for (int i = 0; i < o.getJSONArray("list").length(); i++) {
+				JSONObject doc = o.getJSONArray("list").getJSONObject(i);
+				arrtmp.put(doc);
+			}
+		} else {
+			// Read list from connected systems
+			String[] systems = Utils.getSystems();
+
+			final CountDownLatch responseWaiter = new CountDownLatch(
+					systems.length);
+			Map<String, Future<RestAsyncResponse>> map = new HashMap<>();
+
+			// Call Each System
+			for (String system : systems) {
+				final String context = system.replace("signer", "");
+				String urlsys = Utils.getUrl(system);
+				JSONObject reqsys = new JSONObject();
+				reqsys.put("cpf", cpf);
+				reqsys.put("urlapi", urlsys);
+				if (system.equals("sigadocsigner"))
+					reqsys.put("password", Utils.getPassword(system));
+				Future<RestAsyncResponse> future = RestUtils.restGetAsync(
+						system + "-list", Utils.getPassword(system), urlsys
+								+ "/doc/list", reqsys);
+				map.put(system, future);
+			}
+
+			for (String system : systems) {
+				final String context = system.replace("signer", "");
+				try {
+					RestAsyncResponse futureresponse = map.get(system).get();
+					JSONObject o = futureresponse.getJSONObject();
+					String error = o.optString("errormsg", null);
+					if (error == null) // Nato: Remover isso quando a nova
+										// versão do
+										// Siga-Doc for para a produção
+						error = o.optString("error", null);
+					if (error != null) {
+						resp.put("status-" + context, "Error");
+						resp.put("errormsg-" + context, error);
+						resp.put("stacktrace-" + context,
+								o.optString("stacktrace", null));
+						continue;
+					}
+					resp.put("status-" + context, "OK");
+					for (int i = 0; i < o.getJSONArray("list").length(); i++) {
+						JSONObject doc = o.getJSONArray("list")
+								.getJSONObject(i);
+						doc.put("system", system);
+						arrtmp.put(doc);
+					}
+				} catch (Exception ex) {
+					resp.put("status-" + context, "Error");
+					resp.put("errormsg-" + context,
+							RestUtils.messageAsString(ex));
+					resp.put("stacktrace-" + context,
+							RestUtils.stackAsString(ex));
+				}
+			}
+
+			// for (int i = 0; i < 25; i++) {
+			// responseWaiter.await(1, TimeUnit.SECONDS);
+			// boolean completed = true;
+			// for (String system : systems) {
+			// if (!map.get(system).isDone())
+			// completed = false;
+			// }
+			// if (completed)
+			// break;
+			// }
+		}
 
 		// Produce response
 		JSONArray arr = new JSONArray();

@@ -9,11 +9,18 @@
 	<name>Assijus Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 
-	<dependencies> 
+	<dependencies>
 		<dependency>
 			<groupId>com.crivano</groupId>
 			<artifactId>swaggerservlet</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.spec.javax.websocket</groupId>
+			<artifactId>jboss-websocket-api_1.0_spec</artifactId>
+			<version>1.0.0.Final</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

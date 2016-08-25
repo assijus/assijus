@@ -77,11 +77,8 @@ public class Utils {
 		return null;
 	}
 
-	public static String assertValidToken(String token, String urlblucserver)
+	public static JSONObject validateToken(String token, String urlblucserver)
 			throws Exception {
-		byte[] cached = cacheRetrieve(token);
-		if (cached != null)
-			return new String(cached);
 		String tokenAsString = token.split(";")[0];
 		if (!tokenAsString.startsWith("TOKEN-"))
 			throw new Exception("Token não está no formato correto.");
@@ -105,6 +102,17 @@ public class Utils {
 		// Call bluc-server hash webservice
 		JSONObject blucresp = RestUtils.restPost("bluc-validate", null,
 				urlblucserver + "/validate", blucreq);
+		return blucresp;
+	}
+
+	public static String assertValidToken(String token, String urlblucserver)
+			throws Exception {
+		byte[] cached = cacheRetrieve(token);
+		if (cached != null)
+			return new String(cached);
+
+		// Call bluc-server hash webservice
+		JSONObject blucresp = validateToken(token, urlblucserver);
 
 		String cpf = null;
 		cpf = blucresp.getJSONObject("certdetails").getString("cpf0");

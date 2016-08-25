@@ -35,6 +35,21 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
+  /auth:
+    post:
+      description: Verifica a validade de um token e retorna o nome do usuário e o certificado
+      tags: [view,sign]
+      parameters: []
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/authResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+
   /list:
     post:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
@@ -278,6 +293,16 @@ definitions:
       urlView: apolo/view/00489623760_2_67631650_1460490840000_0_0
       urlHash: apolo/hash/00489623760_2_67631650_1460490840000_0_0
       urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
+
+  authResponse:
+    type: object
+    properties:
+      certificate:
+        type: string
+        description: Certificado do usuário em Base64
+      cn:
+        type: string
+        description: Nome do usuário
 
   tokenResponse:
     type: object
