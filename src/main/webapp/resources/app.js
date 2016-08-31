@@ -282,9 +282,12 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			this.csteps = steps;
 		},
 		step : function(caption, skip) {
-			if (!this.active)
+			if (!this.active) {
+				console.log(this.isteps + "/" + this.csteps + ": [SKIPPED] " + caption);
 				return;
+			}
 			this.isteps += 1 + (skip||0);
+			console.log(this.isteps + "/" + this.csteps + ": " + caption);
 			$scope.progressbarWidth = 100 * (this.isteps / this.csteps);
 			$scope.progressbarShow = true;
 			$scope.progressbarCaption = caption;
@@ -364,14 +367,14 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 
 	// 0 - Nenhuma, 1 = digital
 	$scope.verificarTipoDeAssinatura = function() {
-		var useToken = false;
+		var usehw = false;
 
 		for (var i = 0, len = $scope.operacoes.length; i < len; i++) {
 			if ($scope.operacoes[i].enabled) {
-				useToken = true;
+				usehw = true;
 			}
 		}
-		return (useToken ? 1 : 0);
+		return (usehw ? 1 : 0);
 	}
 
 	$scope.identificarOperacoes = function() {
@@ -404,10 +407,10 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			form.target = '_blank';
 			form.style.display = 'none';
 
-			var token = document.createElement('input');
-			token.type = 'text';
-			token.name = 'token';
-			token.value = $scope.getToken();
+			var authkey = document.createElement('input');
+			authkey.type = 'text';
+			authkey.name = 'authkey';
+			authkey.value = $scope.getAuthKey();
 			
 			var subject = document.createElement('input');
 			subject.type = 'text';
@@ -428,7 +431,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			submit.type = 'submit';
 			submit.id = 'submitView';
 
-			form.appendChild(token);
+			form.appendChild(authkey);
 			form.appendChild(subject);
 			form.appendChild(system);
 			form.appendChild(docid);
@@ -446,7 +449,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	//
 
 	$scope.assinarDocumento = function(id) {
-		if ($scope.hasStartTokenKey()) {
+		if ($scope.isSecure()) {
 			return $scope.assinarDocumentoPorWebsocket(id);
 		}
 		$scope.operacoes = [];
@@ -472,7 +475,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	}
 
 	$scope.assinarDocumentos = function(progress) {
-		if ($scope.hasStartTokenKey()) {
+		if ($scope.isSecure()) {
 			return $scope.assinarDocumentosPorWebsocket();
 		}
 		$scope.identificarOperacoes();
@@ -580,7 +583,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 				id : state.codigo,
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject,
-				token : $scope.getToken()
+				authkey : $scope.getAuthKey()
 			}
 		}).then(function successCallback(response) {
 			progress.step(state.nome + ": Encontrado...");
@@ -710,17 +713,22 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		return $scope.$parent.hasOwnProperty('starttoken');
 	}
 	
-	$scope.getToken = function() {
-		if ($scope.hasStartToken()) {
-			return $scope.$parent.starttoken;
-		}
-		return $scope.token;
+	$scope.getAuthKey = function() {
+//		if ($scope.hasStartToken()) {
+//			return $scope.$parent.starttoken;
+//		}
+		return $scope.authkey;
 	}
 
-	$scope.setToken = function(token) {
-		$scope.token = token;
+	$scope.setAuthKey = function(authkey) {
+		$scope.authkey = authkey;
 	}
 
+	$scope.hasAuthKey = function() {
+		return $scope.hasOwnProperty('authkey');
+	}
+
+	// 2 steps
 	$scope.list = function(progress) {
 		if ($scope.hasOwnProperty('endpoint') && $scope.endpoint.hasOwnProperty('list')) {
 			$scope.update($scope.endpoint.list);
@@ -734,7 +742,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			data : {
 				certificate : $scope.cert.certificate,
 				subject : $scope.cert.subject,
-				token : $scope.getToken(),
+				authkey : $scope.getAuthKey(),
 				key : $scope.hasOwnProperty('endpoint') ? $scope.endpoint.listkey : undefined
 			}
 		}).then(function successCallback(response) {
@@ -802,14 +810,29 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		}
 
 	}
+	
+	$scope.isSecure = function() {
+		return $location.protocol() == "https";
+	}
 
+	// 4 steps
 	$scope.obterToken = function(progress, cont) {
-		progress.step("Obtendo senha de autenticação...");
-		if ($scope.hasStartToken()) {
+		if ($scope.hasAuthKey()) {
+			progress.step("Utilizando senha de autenticação...", 3);
 			cont(progress);
 			return;
 		}
+		
+		if ($scope.isSecure()) {
+			// Tentar autenticar usando o client-cert
+			var url = window.location.href;
+			url = url.replace("/assijus", "/assijus/auth-client-cert");
+			alert("tentando client-cert em: " + url);
+			window.location = url;
+			return;
 			
+		}
+		// Obter string para ser assinada
 		$http({
 			url : $scope.urlBaseAPI + '/token',
 			method : "POST",
@@ -821,6 +844,8 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			progress.step("Senha de autenticação preparada.");
 			var token = data.token;
 			progress.step("Autenticando usuário");
+			
+			// Assinar string para formar o token
 			$http({
 				url : $scope.urlBluCRESTSigner + '/token',
 				method : "POST",
@@ -833,8 +858,25 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			}).then(function successCallback(response) {
 				var data = response.data;
 				progress.step("Usuário autenticado.");
-				$scope.setToken(data.token + ";" + data.sign);
-				cont(progress);
+				var token = data.token + ";" + data.sign;
+				
+				// Armazenar o token e obter a authkey
+				$http({
+					url : $scope.urlBaseAPI + '/auth',
+					method : "POST",
+					data : {
+						"token" : token
+					}
+				}).then(function successCallback(response) {
+					var data = response.data;
+					progress.step("Chave de autenticação obtida.");
+					$scope.setAuthKey(data.authkey);
+					cont(progress);
+				}, function errorCallback(response) {
+					delete $scope.documentos;
+					progress.stop();
+					$scope.setError(response);
+				});
 			}, function errorCallback(response) {
 				delete $scope.documentos;
 				progress.stop();
@@ -847,6 +889,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		});
 	}
 
+	// 3 steps
 	$scope.buscarCertificado = function(progress) {
 		progress.step("Buscando certificado corrente...");
 		$http({
@@ -888,6 +931,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		});
 	}
 
+	// 2 steps
 	$scope.testarSigner = function(progress) {
 		progress.step("Testando Assijus.exe");
 		$http({
@@ -914,13 +958,14 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 		});
 	}
 
-	$scope.authenticate = function(progress) {
-		if ($scope.hasOwnProperty('token')) {
-			progress.step("Token ativo...", 1);
+	// 2 steps
+	$scope.useStartTokenKey = function(progress) {
+		if ($scope.hasOwnProperty('authkey')) {
+			progress.step("Chave de autenticação ativa...", 1);
 			$scope.list(progress);
 			return;
 		}
-		progress.step("Testando token...");
+		progress.step("Testando chave de autenticação...");
 		$http({
 			url : $scope.urlBaseAPI + '/auth',
 			method : "POST",
@@ -929,9 +974,9 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 			}
 		}).then(function successCallback(response) {
 			var data = response.data;
-			progress.step("Token válido.");
+			progress.step("Chave de autenticação válida.");
 			$scope.setCert({certificate: data.certificate, subject: data.name});
-			$scope.setToken(data.token);
+			$scope.setAuthKey($scope.getStartTokenKey());
 			$scope.list(progress);
 		}, function errorCallback(response) {
 			delete $scope.documentos;
@@ -952,7 +997,7 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	
 	$scope.autoRefresh = function() {
 		if (!$scope.progress.active && !$scope.noProgress.active) {
-			if ($scope.hasStartTokenKey()) {
+			if ($scope.isSecure()) {
 				//$scope.noProgress.start("Autenticando", 4);
 				$scope.authenticate($scope.noProgress);
 			} else {
@@ -965,9 +1010,14 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 	$scope.forceRefresh = function() {
 		delete $scope.documentos;
 		delete $scope.lastUpdateFormatted;
-		if ($scope.hasStartTokenKey()) {
-			$scope.progress.start("Autenticando", 4);
-			$scope.authenticate($scope.progress);
+		if ($scope.isSecure()) {
+			if ($scope.hasStartTokenKey()) {
+				$scope.progress.start("Autenticando", 4);
+				$scope.useStartTokenKey($scope.progress);
+			} else {
+				$scope.progress.start("Recarregando a lista", 4);
+				$scope.obterToken($scope.progress, $scope.list);
+			}
 		} else {
 			$scope.progress.start("Inicializando", 12);
 			$scope.testarSigner($scope.progress);
@@ -976,11 +1026,11 @@ app.controller('ctrl', function($scope, $http, $templateCache, $interval, $windo
 
 	$scope.forceRefresh();
 	
-	if (!$scope.hasOwnProperty('endpoint')) {
-		$interval($scope.autoRefresh, 3 * 60 * 1000);
-	}
+//	if (!$scope.hasOwnProperty('endpoint')) {
+//		$interval($scope.autoRefresh, 3 * 60 * 1000);
+//	}
 	
-	if ($scope.hasStartTokenKey()) {
+	if ($scope.isSecure()) {
 		$interval($scope.testConnection, 1 * 10 * 1000);
 	}
 });

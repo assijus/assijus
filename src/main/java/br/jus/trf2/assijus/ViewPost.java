@@ -14,8 +14,8 @@ public class ViewPost implements IRestAction {
 		String id = req.getString("id");
 		String password = Utils.getPassword(system);
 
-		String token = req.getString("token");
-		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
+		String authkey = req.getString("authkey");
+		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
 		if (Utils.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");

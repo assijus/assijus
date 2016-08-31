@@ -22,9 +22,10 @@ public class ListPost implements IRestAction {
 		JSONObject blucreq = new JSONObject();
 		blucreq.put("certificate", certificate);
 
-		String token = req.getString("token");
 		String listkey = req.optString("key", null);
-		String cpf = Utils.assertValidToken(token, Utils.getUrlBluCServer());
+		
+		String authkey = req.getString("authkey");
+		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
 		final JSONArray arrtmp = new JSONArray();
 

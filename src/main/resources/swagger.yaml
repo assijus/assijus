@@ -55,7 +55,7 @@ paths:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
       tags: [view,sign]
       parameters:
-        - $ref: "#/parameters/token"
+        - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/certificate"
       responses:
         200:
@@ -77,7 +77,7 @@ paths:
       description: Obter o PDF de um documento para visualização
       tags: [view]
       parameters:
-        - $ref: "#/parameters/token"
+        - $ref: "#/parameters/authkey"
         - name: id
           in: formData
           description: Identificador do documento
@@ -103,7 +103,7 @@ paths:
       description: Obter o hash de um documento
       tags: [sign]
       parameters:
-        - $ref: "#/parameters/token"
+        - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/certificate"
         - name: id
           in: formData
@@ -261,6 +261,12 @@ parameters:
     required: true
     type: string
     format: byte
+  authkey:
+    name: authkey
+    in: formData
+    description: Chave para o registro que comprova a identidade do usuário
+    required: true
+    type: string
 
             
 definitions:

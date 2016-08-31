@@ -41,9 +41,10 @@ public class ClientCertServlet extends HttpServlet {
 			String name = blucresp2.getString("name");
 			String cpf = blucresp2.getString("cpf");
 			
-			sessionData.put("cpf", cpf);
-			sessionData.put("name", name);
 			sessionData.put("certificate", cert);
+			sessionData.put("name", name);
+			sessionData.put("cpf", cpf);
+			sessionData.put("kind", "client-cert");
 			sessionData.put("password", Utils.getRetrievePassword());
 			
 			String payload = sessionData.toString();

@@ -49,11 +49,19 @@ public class AuthPost implements IRestAction {
 
 		if (token != null) {
 			JSONObject json = Utils.validateToken(token, Utils.getUrlBluCServer());
+			String cpf = null;
+			cpf = json.getJSONObject("certdetails").getString("cpf0");
+			
 			// Produce response
 			resp.put("certificate", json.get("certificate"));
 			resp.put("name", json.get("cn"));
+			resp.put("cpf", cpf);
 			resp.put("token", token);
 			resp.put("kind", "signed-token");
+			
+			String stored = resp.toString();
+			String key = Utils.dbStore(stored);
+			resp.put("authkey", key);
 			return;
 		}
 		

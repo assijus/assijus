@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.json.JSONObject;
 
+import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class Utils {
@@ -105,7 +106,59 @@ public class Utils {
 		return blucresp;
 	}
 
-	public static String assertValidToken(String token, String urlblucserver)
+	public static JSONObject validateAuthKey(String authkey,
+			String urlblucserver) throws Exception {
+		String payload = Utils.dbRetrieve(authkey, false);
+
+		if (payload == null && Utils.getKeyValueServer() != null) {
+			// Parse certificate
+			JSONObject kvreq = new JSONObject();
+			kvreq.put("key", authkey);
+			kvreq.put("remove", false);
+			kvreq.put("password", Utils.getKeyValuePassword());
+
+			// Call bluc-server hash webservice
+			JSONObject kvresp = RestUtils.restPost("sign-retrieve", null,
+					Utils.getKeyValueServer() + "/retrieve", kvreq);
+			payload = kvresp.optString("payload", null);
+		}
+
+		if (payload == null) {
+			throw new PresentableException(
+					"Não foi possível recuperar dados de autenticação a partir da chave informada.");
+		}
+
+		JSONObject json = new JSONObject(payload);
+		String kind = json.getString("kind");
+		if ("client-cert".equals(kind)) {
+			if (getRetrievePassword() != null)
+				if (!getRetrievePassword().equals(json.get("password")))
+					throw new Exception(
+							"Senha inválida na autenticação com client-cert");
+		} else if ("signed-token".equals(kind)) {
+			JSONObject blucresp = validateToken(json.getString("token"),  urlblucserver);
+			String cpf = null;
+			cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
+			if (!cpf.equals(json.getString("cpf")))
+				throw new Exception("cpf não confere");
+		}
+		return json;
+	}
+
+	public static String assertValidAuthKey(String authkey, String urlblucserver)
+			throws Exception {
+		byte[] cached = cacheRetrieve("valid-" + authkey);
+		if (cached != null)
+			return new String(cached);
+		
+		JSONObject json = validateAuthKey( authkey, urlblucserver);
+
+		String cpf = json.getString("cpf");
+		cacheStore("valid-" + authkey, cpf.getBytes());
+		return cpf;
+	}
+
+	public static String assertValidTokenOld(String token, String urlblucserver)
 			throws Exception {
 		byte[] cached = cacheRetrieve(token);
 		if (cached != null)
