@@ -1,5 +1,4 @@
-var app = angular.module('app', [ 'ngAnimate', 'ngRoute', 'cgBusy',
-		'angular-websocket', 'angularPaho' ]);
+var app = angular.module('app', [ 'ngAnimate', 'ngRoute', 'cgBusy' ]);
 
 app.config([ '$routeProvider', '$locationProvider',
 		function($routeProvider, $locationProvider) {
@@ -19,144 +18,7 @@ app.config([ '$routeProvider', '$locationProvider',
 			$locationProvider.html5Mode(false);
 		} ]);
 
-// Acrescentar o websocket funcionando como se fosse uma factory
-app.factory('remote', function($websocket, $location) {
-	// Open a WebSocket connection
-	var dataStream = $websocket(($location.protocol() == "http" ? 'ws://'
-			: 'wss://')
-			+ $location.host()
-			+ ":"
-			+ $location.port()
-			+ '/assijus/websocket/server');
-
-	var collection = [];
-
-	dataStream.onMessage(function(message) {
-		collection.push(JSON.parse(message.data));
-	});
-
-	var methods = {
-		collection : collection,
-		connect : function(scp, cpf) {
-		},
-		registerScope : function(scp) {
-		},
-		hello : function(certificate) {
-			dataStream.send(JSON.stringify({
-				kind : "HELLO",
-				certificate : certificate,
-				app : 'browser'
-			}));
-		},
-		start : function(key, list) {
-			dataStream.send(JSON.stringify({
-				kind : "START",
-				key : key,
-				list : list
-			}));
-		},
-		ping : function() {
-			dataStream.send(JSON.stringify({
-				kind : "PING"
-			}));
-		}
-	};
-
-	return methods;
-});
-
-// Acrescentar o mqtt funcionando como se fosse uma factory
-app.factory('remotemqtt', function(MqttClient, $timeout) {
-	var connected = false;
-
-	var guid = function() {
-		function s4() {
-			return Math.floor((1 + Math.random()) * 0x10000).toString(16)
-					.substring(1);
-		}
-		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4()
-				+ s4() + s4();
-	};
-
-	// MqttClient._client.onMessageArrived = function(message) {
-	// console.log("MQTT message arrived:"+message.payloadString);
-	// collection.push(JSON.parse(message.payloadString));
-	// };
-
-	var collectionToSend = [];
-	var collection = [];
-	var scope = undefined;
-	var path = undefined;
-
-	var sendNew = function(obj) {
-		var message = new Paho.MQTT.Message(JSON.stringify(obj))
-		message.destinationName = "/" + path + "/browser";
-		collectionToSend.push(message);
-		send();
-	}
-
-	var send = function() {
-		if (!connected) {
-			$timeout(send, 1000);
-			return;
-		}
-		if (collectionToSend.length == 0)
-			return;
-		var message = collectionToSend.shift();
-		MqttClient.send(message);
-	}
-
-	var methods = {
-		collection : collection,
-		connect : function(scp, cpf) {
-			if (connected)
-				return;
-			scope = scp;
-			path = cpf;
-			MqttClient.init("m12.cloudmqtt.com", 35388, guid());
-			MqttClient.connect({
-				userName : "etggebbm",
-				password : "gBK3s8AdE0t5",
-				useSSL : true,
-				onSuccess : function() {
-					connected = true;
-					MqttClient.subscribe('/' + path + '/signer');
-				}
-			});
-			MqttClient.setCallback(function(message) {
-				console.log("MQTT message arrived:" + message.payloadString);
-				collection.push(JSON.parse(message.payloadString));
-				if (scope !== undefined)
-					scope.$digest();
-			});
-		},
-		registerScope : function(scp) {
-		},
-		hello : function(certificate) {
-			sendNew({
-				kind : "HELLO",
-				certificate : certificate,
-				app : 'browser'
-			});
-		},
-		start : function(key, list) {
-			sendNew({
-				kind : "START",
-				key : key,
-				list : list
-			});
-		},
-		ping : function() {
-			sendNew({
-				kind : "PING"
-			});
-		}
-	};
-
-	return methods;
-});
-
-app.controller('routerCtrl', function($scope, $http, $templateCache, $window,
+app.controller('routerCtrl', function($scope, $http, $window,
 		$location) {
 	$scope.assijusexe = "assijus-v0-9-3.exe";
 
@@ -178,28 +40,17 @@ app.controller('routerCtrl', function($scope, $http, $templateCache, $window,
 	};
 
 	$scope.querystring = $scope.parseLocation($window.location.search);
-
-	if ($scope.querystring.hasOwnProperty('authkey')) {
-		$scope.starttokenkey = $scope.querystring.authkey;
-		$location.path('/home');
-	}
-
-	// var s = $window.location.search;
-	// if (s.indexOf('?authkey=') == 0) {
-	// $scope.starttokenkey = s.substring(9);
-	// $location.path('/home');
-	// }
 });
 
-app.controller('ctrl2', function($scope, $http, $templateCache, $interval,
+app.controller('ctrl2', function($scope, $http, $interval,
 		$window) {
 });
 
 app
 		.controller(
 				'ctrl',
-				function($scope, $http, $templateCache, $interval, $window,
-						$location, $filter, remote, $q, $timeout) {
+				function($scope, $http, $interval, $window,
+						$location, $filter, $q, $timeout) {
 					
 					$scope.isChromeExtensionActive = function() {
 						return document.getElementById("chrome-extension-active").value == "1";
@@ -208,7 +59,9 @@ app
 					$scope.myhttp = function(conf) {
 						if ($scope.isChromeExtensionActive()) {
 							// The ID of the extension we want to talk to.
-							var editorExtensionId = "damnhaajjhhnkmmphdkgpiocpfcmdekn";
+							var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
+//							if ($location.absUrl().indexOf("//localhost/") !== -1)
+//								editorExtensionId = "lnifncldepnkbfaedkdkcmbfbbfhhchm";
 							var deferred = $q.defer()
 
 							// Make a simple request:
@@ -227,68 +80,6 @@ app
 					}
 
 					$scope.PROCESSING = "Processando Assinaturas Digitais";
-
-					$scope.remote = remote;
-					remote.registerScope($scope);
-
-					$scope.$watch('remote.collection', function(value) {
-						if (value === undefined)
-							return;
-						for (; value.length > 0;) {
-							var obj = value.splice(0, 1)[0];
-							$scope.messageArrived(obj);
-						}
-					}, true);
-
-					$scope.messageArrived = function(obj) {
-						console.log("recebido: " + JSON.stringify(obj));
-						if (obj.kind == "HELLO_RESP") {
-							$scope.cert.cpf = obj.cpf;
-						} else if (obj.kind == "PONG") {
-							delete $scope.lastPing;
-						} else if (obj.kind == "STARTED") {
-							$scope.progress.startperc($scope.PROCESSING,
-									"Assinando...");
-						} else if (obj.kind == "PROGRESS") {
-							$scope.progress.perc(obj.msg, obj.percentage);
-						} else if (obj.kind == "SIGNED") {
-							if (obj.hasOwnProperty("response")) {
-								if (obj.response.hasOwnProperty("errormsg")) {
-									$scope.reportErrorAndResume(obj.id,
-											"assinar", {
-												data : obj.response
-											})
-								} else {
-									$scope.reportSuccess(obj.id, {
-										data : obj.response
-									});
-								}
-							} else {
-								$scope.reportErrorAndResume(obj.id, "assinar",
-										{
-											data : {
-												errormsg : 'nenhuma resposta'
-											}
-										});
-							}
-						} else if (obj.kind == "FAILED") {
-							if (obj.hasOwnProperty("response")) {
-								if (obj.response.hasOwnProperty("errormsg")) {
-									$scope.errorDetails.geral = obj.response;
-								}
-								$scope.progress.stop();
-							} else {
-								$scope.reportErrorAndResume(obj.id,
-										"iniciar assinaturas", {
-											data : {
-												errormsg : 'falha.'
-											}
-										});
-							}
-						} else if (obj.kind == "FINISHED") {
-							$scope.progress.stop();
-						}
-					}
 
 					if ($scope.$parent.querystring.hasOwnProperty('urlsigner')) {
 						$scope.urlBluCRESTSigner = $scope.$parent.querystring.urlsigner;
@@ -370,7 +161,6 @@ app
 						$scope.errorDetails[codigo] = response.data;
 						$scope.errorDetails[codigo].hideAlert = true;
 
-						// $('#status' + state.codigo).goTo();
 						$('#status' + codigo)
 								.html(
 										'<span class="status-error">' + msg
@@ -459,7 +249,6 @@ app
 							cn = cn.replace("CN=", "");
 						}
 						$scope.assinante = cn;
-						$scope.remote.hello($scope.cert.certificate);
 					}
 
 					$scope.progress = {
@@ -652,9 +441,6 @@ app
 					//
 
 					$scope.assinarDocumento = function(id) {
-						if ($scope.isSecure()) {
-							return $scope.assinarDocumentoPorWebsocket(id);
-						}
 						$scope.operacoes = [];
 
 						var docs = $scope.docs();
@@ -679,9 +465,6 @@ app
 					}
 
 					$scope.assinarDocumentos = function(progress) {
-						if ($scope.isSecure()) {
-							return $scope.assinarDocumentosPorWebsocket();
-						}
 						$scope.identificarOperacoes();
 						$scope.iOperacao = -1;
 
@@ -692,68 +475,6 @@ app
 						progress.start($scope.PROCESSING,
 								$scope.operacoes.length * 6 + 4);
 						$scope.obterToken(progress, $scope.executar);
-					}
-
-					$scope.assinarDocumentoPorWebsocket = function(id) {
-						var list = [];
-						var docs = $scope.docs();
-						for (var i = 0; i < docs.length; i++) {
-							var doc = docs[i];
-							if (doc.id == id) {
-								list.push(doc);
-								break;
-							}
-						}
-
-						$scope.iniciarLotePorWebsocket(list);
-					}
-
-					$scope.iniciarLotePorWebsocket = function(list) {
-						$scope.progress.startperc($scope.PROCESSING,
-								"Registrando o lote de documentos...");
-						$http({
-							url : $scope.urlBaseAPI + "/store",
-							method : "POST",
-							data : {
-								payload : JSON.stringify({
-									list : list
-								})
-							}
-						}).then(
-								function successCallback(response) {
-									var data = response.data;
-									$scope.progress.startperc(
-											$scope.PROCESSING,
-											"Aguardando Assijus.Exe...");
-									$scope.remote.start(data.key);
-								}, function errorCallback(response) {
-									progress.stop();
-									$scope.setError(response);
-								});
-					}
-
-					$scope.assinarDocumentosPorWebsocket = function() {
-						$scope.identificarOperacoes();
-						$scope.iOperacao = -1;
-
-						var tipo = $scope.verificarTipoDeAssinatura();
-						if (tipo == 0)
-							return;
-
-						var list = [];
-						for (i = 0; i < $scope.operacoes.length; i++) {
-							var o = $scope.operacoes[i];
-							list.push({
-								id : o.codigo,
-								system : o.system,
-								code : o.nome,
-							// descr
-							// origin
-							// kind
-							});
-						}
-
-						$scope.iniciarLotePorWebsocket(list);
 					}
 
 					$scope.executar = function(progress) {
@@ -776,7 +497,6 @@ app
 							}, 10);
 							return;
 						}
-						// $scope.progress.stop();
 					}
 
 					$scope.assinar = function(state, progress) {
@@ -931,24 +651,7 @@ app
 					//
 					// Initialize
 					//
-					$scope.hasStartTokenKey = function() {
-						return $scope.$parent.hasOwnProperty('starttokenkey');
-					}
-
-					$scope.getStartTokenKey = function() {
-						if ($scope.hasStartTokenKey()) {
-							return $scope.$parent.starttokenkey;
-						}
-					}
-
-					$scope.hasStartToken = function() {
-						return $scope.$parent.hasOwnProperty('starttoken');
-					}
-
 					$scope.getAuthKey = function() {
-						// if ($scope.hasStartToken()) {
-						// return $scope.$parent.starttoken;
-						// }
 						return $scope.authkey;
 					}
 
@@ -1063,27 +766,11 @@ app
 					}
 
 					$scope.isSecure = function() {
-						return (!$scope.isChromeExtensionActive()) && ($location.protocol() == "https");
+						return $location.protocol() == "https";
 					}
 
 					// 4 steps
 					$scope.obterToken = function(progress, cont) {
-						if ($scope.hasAuthKey()) {
-							progress.step(
-									"Utilizando senha de autenticação...", 3);
-							cont(progress);
-							return;
-						}
-
-						if ($scope.isSecure()) {
-							// Tentar autenticar usando o client-cert
-							var url = window.location.href;
-							url = url.replace("/assijus",
-									"/assijus/auth-client-cert");
-							window.location = url;
-							return;
-
-						}
 						// Obter string para ser assinada
 						$http({
 							url : $scope.urlBaseAPI + '/token',
@@ -1176,10 +863,7 @@ app
 						progress.step("Buscando certificado corrente...");
 						$scope
 								.myhttp(
-										{
-											// url :
-											// '/api/bluc-rest-signer/cert.json',
-											url : $scope.urlBluCRESTSigner
+										{url : $scope.urlBluCRESTSigner
 													+ '/currentcert',
 											method : "GET"
 										})
@@ -1281,90 +965,21 @@ app
 										});
 					}
 
-					// 2 steps
-					$scope.useStartTokenKey = function(progress) {
-						if ($scope.hasOwnProperty('authkey')) {
-							progress.step("Chave de autenticação ativa...", 1);
-							$scope.list(progress);
-							return;
-						}
-						progress.step("Testando chave de autenticação...");
-						$http({
-							url : $scope.urlBaseAPI + '/auth',
-							method : "POST",
-							data : {
-								authkey : $scope.getStartTokenKey()
-							}
-						}).then(function successCallback(response) {
-							var data = response.data;
-							progress.step("Chave de autenticação válida.");
-							$scope.setCert({
-								certificate : data.certificate,
-								subject : data.name,
-								cpf : data.cpf
-							});
-							$scope.setAuthKey($scope.getStartTokenKey());
-							$scope.remote.connect($scope, data.cpf);
-							$scope.list(progress);
-						}, function errorCallback(response) {
-							delete $scope.documentos;
-							progress.stop();
-							$scope.setError(response);
-						});
-					}
-
-					$scope.testConnection = function() {
-						if ($scope.hasOwnProperty('lastPing'))
-							$scope.errorDetails.assijusexe = {
-								errormsg : "Não foi possível se conectar ao Assijus.Exe. Por favor, verifique se a Internet está funcionando e lance novamente o aplicativo Assijus.Exe. Se o problema persistir, tente reiniciar o computador"
-							};
-						else
-							delete $scope.errorDetails.assijusexe;
-
-						$scope.remote.ping();
-						$scope.lastPing = new Date();
-					}
-
 					$scope.autoRefresh = function() {
-						if (!$scope.progress.active
-								&& !$scope.noProgress.active) {
-							if ($scope.isSecure()) {
-								// $scope.noProgress.start("Autenticando", 4);
-								$scope.authenticate($scope.noProgress);
-							} else {
-								// $scope.noProgress.start("Inicializando", 12);
-								$scope.testarSigner($scope.noProgress);
-							}
+						if (!$scope.progress.active && !$scope.noProgress.active) {
+							// $scope.noProgress.start("Inicializando", 12);
+							$scope.testarSigner($scope.noProgress);
 						}
 					}
 
 					$scope.forceRefresh = function() {
 						delete $scope.documentos;
 						delete $scope.lastUpdateFormatted;
-						if ($scope.isSecure()) {
-							if ($scope.hasStartTokenKey()) {
-								$scope.progress.start("Autenticando", 4);
-								$scope.useStartTokenKey($scope.progress);
-							} else {
-								$scope.progress
-										.start("Recarregando a lista", 4);
-								$scope.obterToken($scope.progress, $scope.list);
-							}
-						} else {
-							$scope.progress.start("Inicializando", 12);
-							$scope.testarSigner($scope.progress);
-						}
+						$scope.progress.start("Inicializando", 12);
+						$scope.testarSigner($scope.progress);
 					}
 
 					$timeout($scope.forceRefresh, 10);
-
-					// if (!$scope.hasOwnProperty('endpoint')) {
-					// $interval($scope.autoRefresh, 3 * 60 * 1000);
-					// }
-
-					if ($scope.isSecure()) {
-						$interval($scope.testConnection, 1 * 10 * 1000);
-					}
 				});
 
 app

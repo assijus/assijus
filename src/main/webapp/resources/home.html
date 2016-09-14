@@ -44,7 +44,8 @@
 
 				<div class="alert alert-danger fade in"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
-					<p>Não foi possível detectar o programa assijus.exe.</p>
+					<p>Não foi possível detectar a extensão do Chrome que é
+						utilizada para produzir as assinaturas digitais.</p>
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
 						necessária uma instalação prévia, conforme as orientações abaixo:</p>
 					<ol>
@@ -55,15 +56,19 @@
 							href="http://siga.jfrj.jus.br">página de acesso externo do
 								SIGA</a>.
 						</li>
-						<li>Instale o programa <a href="signer/clickonce/setup.exe"><u>Assijus</u></a>
-							em seu PC/Windows. Quando da instalação deste, será realizada uma
-							verificação para garantir que o <a
+						<li>Instale <a
 							href="http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe"><u>Microsoft
-									.NET Framework 4.5.1</u></a> está presente. Caso não esteja, será
-							iniciado automaticamente seu download e instalação.
+									.NET Framework 4.5.1</u></a>.
+						</li>
+						<li>Instale o programa <a
+							href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a>.
 						</li>
 						<li><a href="javascript:location.reload();"><u>Recarregue</u></a>
 							esta página.</li>
+						<li>Caso a extensão não seja detectada, verifique se está instalada acessando a página da <a
+							href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka"><u>Chrome Web Store</u></a>. Também verifique na <a
+							href="chrome://extensions/"><u>Lista de Extensões</u> se o Assijus Signer está presente e ativo.</a>
+						</li>
 					</ol>
 				</div>
 
