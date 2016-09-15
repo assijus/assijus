@@ -23,9 +23,10 @@ public class ListPost implements IRestAction {
 		blucreq.put("certificate", certificate);
 
 		String listkey = req.optString("key", null);
-		
+
 		String authkey = req.getString("authkey");
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
+		String cpf = Utils
+				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
 		final JSONArray arrtmp = new JSONArray();
 
@@ -34,19 +35,6 @@ public class ListPost implements IRestAction {
 			String payload = null;
 			if (listkey != null)
 				payload = Utils.dbRetrieve(listkey, false);
-
-			if (payload == null && Utils.getKeyValueServer() != null) {
-				// Parse certificate
-				JSONObject kvreq = new JSONObject();
-				kvreq.put("key", listkey);
-				kvreq.put("remove", false);
-				kvreq.put("password", Utils.getKeyValuePassword());
-
-				// Call bluc-server hash webservice
-				JSONObject kvresp = RestUtils.restPost("list-retrieve", null,
-						Utils.getKeyValueServer() + "/retrieve", kvreq);
-				payload = kvresp.optString("payload", null);
-			}
 
 			JSONObject o = new JSONObject(payload);
 			for (int i = 0; i < o.getJSONArray("list").length(); i++) {

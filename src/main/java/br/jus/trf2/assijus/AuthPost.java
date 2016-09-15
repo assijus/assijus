@@ -13,32 +13,16 @@ public class AuthPost implements IRestAction {
 		String authkey = req.optString("authkey", null);
 		String token = req.optString("token", null);
 		String payload = null;
-	
+
 		if (authkey != null) {
 			payload = Utils.dbRetrieve(authkey, false);
 
-			if (payload == null && Utils.getKeyValueServer() != null) {
-				// Parse certificate
-				JSONObject kvreq = new JSONObject();
-				kvreq.put("key", authkey);
-				kvreq.put("remove", false);
-				kvreq.put("password", Utils.getKeyValuePassword());
-
-				// Call bluc-server hash webservice
-				JSONObject kvresp = RestUtils.restPost("sign-retrieve", null,
-						Utils.getKeyValueServer() + "/retrieve", kvreq);
-				payload = kvresp.optString("payload", null);
-			}
-			
 			if (payload.startsWith("TOKEN-"))
 				// A token is stored
 				token = payload;
 			else if (payload.startsWith("{")) {
 				// A client-cert authentication is stored
 				JSONObject json = new JSONObject(payload);
-				if (Utils.getRetrievePassword() != null)
-					if (!Utils.getRetrievePassword().equals(json.get("password")))
-						throw new Exception("Senha inválida na autenticação com client-cert");
 				resp.put("certificate", json.get("certificate"));
 				resp.put("name", json.get("name"));
 				resp.put("cpf", json.get("cpf"));
@@ -48,25 +32,26 @@ public class AuthPost implements IRestAction {
 		}
 
 		if (token != null) {
-			JSONObject json = Utils.validateToken(token, Utils.getUrlBluCServer());
+			JSONObject json = Utils.validateToken(token,
+					Utils.getUrlBluCServer());
 			String cpf = null;
 			cpf = json.getJSONObject("certdetails").getString("cpf0");
-			
+
 			// Produce response
 			resp.put("certificate", json.get("certificate"));
 			resp.put("name", json.get("cn"));
 			resp.put("cpf", cpf);
 			resp.put("token", token);
 			resp.put("kind", "signed-token");
-			
+
 			String stored = resp.toString();
 			String key = Utils.dbStore(stored);
 			resp.put("authkey", key);
 			return;
 		}
-		
+
 		throw new PresentableException(
-					"Não foi possível realizar a autenticação. Por favor, lance novamente o aplicativo Assijus.Exe. Se o problema persistir, tente reiniciar o computador");
+				"Não foi possível realizar a autenticação. Por favor, lance novamente o aplicativo Assijus.Exe. Se o problema persistir, tente reiniciar o computador");
 	}
 
 	@Override

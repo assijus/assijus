@@ -24,11 +24,10 @@ import com.crivano.restservlet.RestUtils;
 public class Utils {
 	static JedisPool pool = new JedisPool(new JedisPoolConfig(),
 			RestUtils.getProperty("redis.servername", "localhost"),
-			Integer.parseInt(RestUtils
-					.getProperty("redis.port", "6379")),
-			Protocol.DEFAULT_TIMEOUT, RestUtils.getProperty(
-					"redis.password", null), Integer.parseInt(RestUtils
-					.getProperty("redis.database", "10")));
+			Integer.parseInt(RestUtils.getProperty("redis.port", "6379")),
+			Protocol.DEFAULT_TIMEOUT, RestUtils.getProperty("redis.password",
+					null), Integer.parseInt(RestUtils.getProperty(
+					"redis.database", "10")));
 
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
@@ -47,19 +46,6 @@ public class Utils {
 	public static String getUrlBluCServer() {
 		return RestUtils.getProperty("blucservice.url",
 				"http://localhost:8080/blucservice/api/v1");
-	}
-
-	public static String getKeyValueServer() {
-		return RestUtils.getProperty("assijus.keyvalue.url",
-				"http://localhost:8080/assijus/api/v1");
-	}
-
-	public static String getKeyValuePassword() {
-		return RestUtils.getProperty("assijus.keyvalue.password", null);
-	}
-
-	public static String getRetrievePassword() {
-		return RestUtils.getProperty("assijus.retrieve.password", null);
 	}
 
 	public static String[] getSystems() {
@@ -122,19 +108,6 @@ public class Utils {
 			String urlblucserver) throws Exception {
 		String payload = Utils.dbRetrieve(authkey, false);
 
-		if (payload == null && Utils.getKeyValueServer() != null) {
-			// Parse certificate
-			JSONObject kvreq = new JSONObject();
-			kvreq.put("key", authkey);
-			kvreq.put("remove", false);
-			kvreq.put("password", Utils.getKeyValuePassword());
-
-			// Call bluc-server hash webservice
-			JSONObject kvresp = RestUtils.restPost("sign-retrieve", null,
-					Utils.getKeyValueServer() + "/retrieve", kvreq);
-			payload = kvresp.optString("payload", null);
-		}
-
 		if (payload == null) {
 			throw new PresentableException(
 					"Não foi possível recuperar dados de autenticação a partir da chave informada.");
@@ -142,19 +115,12 @@ public class Utils {
 
 		JSONObject json = new JSONObject(payload);
 		String kind = json.getString("kind");
-		if ("client-cert".equals(kind)) {
-			if (getRetrievePassword() != null)
-				if (!getRetrievePassword().equals(json.get("password")))
-					throw new Exception(
-							"Senha inválida na autenticação com client-cert");
-		} else if ("signed-token".equals(kind)) {
-			JSONObject blucresp = validateToken(json.getString("token"),
-					urlblucserver);
-			String cpf = null;
-			cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
-			if (!cpf.equals(json.getString("cpf")))
-				throw new Exception("cpf não confere");
-		}
+		JSONObject blucresp = validateToken(json.getString("token"),
+				urlblucserver);
+		String cpf = null;
+		cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
+		if (!cpf.equals(json.getString("cpf")))
+			throw new Exception("cpf não confere");
 		return json;
 	}
 

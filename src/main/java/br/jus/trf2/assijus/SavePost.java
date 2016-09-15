@@ -34,19 +34,6 @@ public class SavePost implements IRestAction {
 		if (signature == null && signkey != null)
 			signature = Utils.dbRetrieve(signkey, true);
 
-		if (signature == null && Utils.getKeyValueServer() != null) {
-			// Parse certificate
-			JSONObject kvreq = new JSONObject();
-			kvreq.put("key", signkey);
-			kvreq.put("remove", true);
-			kvreq.put("password", Utils.getKeyValuePassword());
-
-			// Call bluc-server hash webservice
-			JSONObject kvresp = RestUtils.restPost("sign-retrieve", null,
-					Utils.getKeyValueServer() + "/retrieve", kvreq);
-			signature = kvresp.optString("payload", null);
-		}
-
 		if (signature == null)
 			throw new Exception("Não foi possível obter o parâmetro signature.");
 
