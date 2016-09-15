@@ -191,60 +191,6 @@ paths:
           description: Error ocurred
           schema:
             $ref: "#/definitions/error"
-
-  /store:
-    post:
-      description: Armazenar temporariamente a assinatura digital produzida pelo assijus.exe para aumentar a segurança
-      tags: [store]
-      parameters:
-        - name: payload
-          in: formData
-          description: Array de bytes em base64 que será armazenado
-          required: true
-          type: string
-          format: byte
-      responses:
-        200:
-          description: Successful response
-          schema:
-            $ref: "#/definitions/saveResponse"
-        500:
-          description: Error ocurred
-          schema:
-            $ref: "#/definitions/error"
-
-  /retrieve:
-    post:
-      description: Devolver uma assinatura digital que foi armazenada temporariamente
-      tags: [store]
-      parameters:
-        - name: key
-          in: formData
-          description: Chave para recuperar a assinatura digital previamente armazenada
-          required: true
-          type: string
-          format: byte
-        - name: remove
-          in: formData
-          description: Chave para recuperar a assinatura digital previamente armazenada
-          required: false
-          type: string
-          format: byte
-        - name: password
-          in: formData
-          description: Senha para acessar o serviço de armazenamento, só deve transitar em HTTPS para garantir a segurança
-          required: false
-          type: string
-          format: byte
-      responses:
-        200:
-          description: Successful response
-          schema:
-            $ref: "#/definitions/saveResponse"
-        500:
-          description: Error ocurred
-          schema:
-            $ref: "#/definitions/error"
             
 parameters:
   certificate:

@@ -18,8 +18,7 @@ app.config([ '$routeProvider', '$locationProvider',
 			$locationProvider.html5Mode(false);
 		} ]);
 
-app.controller('routerCtrl', function($scope, $http, $window,
-		$location) {
+app.controller('routerCtrl', function($scope, $http, $window, $location) {
 	$scope.assijusexe = "assijus-v0-9-3.exe";
 
 	$scope.parseLocation = function(location) {
@@ -42,26 +41,28 @@ app.controller('routerCtrl', function($scope, $http, $window,
 	$scope.querystring = $scope.parseLocation($window.location.search);
 });
 
-app.controller('ctrl2', function($scope, $http, $interval,
-		$window) {
+app.controller('ctrl2', function($scope, $http, $interval, $window) {
 });
 
 app
 		.controller(
 				'ctrl',
-				function($scope, $http, $interval, $window,
-						$location, $filter, $q, $timeout) {
-					
+				function($scope, $http, $interval, $window, $location, $filter,
+						$q, $timeout) {
+
 					$scope.isChromeExtensionActive = function() {
-						return document.getElementById("chrome-extension-active").value != "0";
+						return document
+								.getElementById("chrome-extension-active").value != "0";
 					}
 
 					$scope.myhttp = function(conf) {
 						if ($scope.isChromeExtensionActive()) {
 							// The ID of the extension we want to talk to.
 							var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
-//							if ($location.absUrl().indexOf("//localhost/") !== -1)
-//								editorExtensionId = "lnifncldepnkbfaedkdkcmbfbbfhhchm";
+							// if ($location.absUrl().indexOf("//localhost/")
+							// !== -1)
+							// editorExtensionId =
+							// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
 							var deferred = $q.defer()
 
 							// Make a simple request:
@@ -390,8 +391,8 @@ app
 					// View
 					//
 					$scope.view = function(doc) {
-						$scope.progress.start("Preparando Visualização", 4);
-						$scope.obterToken($scope.progress, function(progress) {
+						$scope.progress.start("Preparando Visualização", 6);
+						$scope.validarAuthKey($scope.progress, function(progress) {
 							progress.stop();
 							var form = document.createElement('form');
 							form.action = $scope.urlBaseAPI + "/view";
@@ -460,8 +461,8 @@ app
 						$scope.iOperacao = -1;
 
 						$scope.progress.start("Processando Assinatura Digital",
-								6 + 4);
-						$scope.obterToken($scope.progress, $scope.executar);
+								6 + 6);
+						$scope.validarAuthKey($scope.progress, $scope.executar);
 					}
 
 					$scope.assinarDocumentos = function(progress) {
@@ -473,8 +474,8 @@ app
 							return;
 
 						progress.start($scope.PROCESSING,
-								$scope.operacoes.length * 6 + 4);
-						$scope.obterToken(progress, $scope.executar);
+								$scope.operacoes.length * 6 + 6);
+						$scope.validarAuthKey(progress, $scope.executar);
 					}
 
 					$scope.executar = function(progress) {
@@ -858,12 +859,36 @@ app
 										});
 					}
 
+					// 2 steps
+					$scope.validarAuthKey = function(progress, cont) {
+						// Verificar se a authkey existe e é valida
+						if (!$scope.hasAuthKey()) {
+							progress.step("Chave de autenticação inexistente", 1);
+							return $scope.obterToken(progress, cont);
+						}
+						progress.step("Verificando chave de autenticação...");
+						$http({
+							url : $scope.urlBaseAPI + '/auth',
+							method : "POST",
+							data : {
+								"authkey" : $scope.getAuthKey()
+							}
+						}).then(function successCallback(response) {
+							progress.step("Chave de autenticação válida.", 4);
+							cont(progress);
+						}, function errorCallback(response) {
+							progress.step("Chave de autenticação inválida.");
+							$scope.obterToken(progress, cont);
+						});
+					}
+
 					// 3 steps
 					$scope.buscarCertificado = function(progress) {
 						progress.step("Buscando certificado corrente...");
 						$scope
 								.myhttp(
-										{url : $scope.urlBluCRESTSigner
+										{
+											url : $scope.urlBluCRESTSigner
 													+ '/currentcert',
 											method : "GET"
 										})
@@ -876,7 +901,7 @@ app
 																"Certificado corrente localizado.",
 																2);
 												$scope.setCert(data);
-												$scope.obterToken(progress,
+												$scope.validarAuthKey(progress,
 														$scope.list);
 											} else {
 												progress
@@ -907,7 +932,7 @@ app
 																	$scope
 																			.setCert(data);
 																	$scope
-																			.obterToken(
+																			.validarAuthKey(
 																					progress,
 																					$scope.list);
 																},
@@ -966,7 +991,8 @@ app
 					}
 
 					$scope.autoRefresh = function() {
-						if (!$scope.progress.active && !$scope.noProgress.active) {
+						if (!$scope.progress.active
+								&& !$scope.noProgress.active) {
 							// $scope.noProgress.start("Inicializando", 12);
 							$scope.testarSigner($scope.noProgress);
 						}
@@ -975,7 +1001,7 @@ app
 					$scope.forceRefresh = function() {
 						delete $scope.documentos;
 						delete $scope.lastUpdateFormatted;
-						$scope.progress.start("Inicializando", 12);
+						$scope.progress.start("Inicializando", 14);
 						$scope.testarSigner($scope.progress);
 					}
 

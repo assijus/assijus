@@ -7,21 +7,33 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.json.JSONObject;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
+import redis.clients.util.SafeEncoder;
 
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class Utils {
+	static JedisPool pool = new JedisPool(new JedisPoolConfig(),
+			RestUtils.getProperty("redis.servername", "localhost"),
+			Integer.parseInt(RestUtils
+					.getProperty("redis.port", "6379")),
+			Protocol.DEFAULT_TIMEOUT, RestUtils.getProperty(
+					"redis.password", null), Integer.parseInt(RestUtils
+					.getProperty("redis.database", "10")));
 
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 	public static final SimpleDateFormat isoFormatter = new SimpleDateFormat(
 			ISO_FORMAT);
-
-	private static final Map<String, byte[]> cache = new HashMap<String, byte[]>();
 
 	public static String getUrl(String system) {
 		return RestUtils.getProperty(system + ".url", "http://localhost:8080/"
@@ -136,7 +148,8 @@ public class Utils {
 					throw new Exception(
 							"Senha inválida na autenticação com client-cert");
 		} else if ("signed-token".equals(kind)) {
-			JSONObject blucresp = validateToken(json.getString("token"),  urlblucserver);
+			JSONObject blucresp = validateToken(json.getString("token"),
+					urlblucserver);
 			String cpf = null;
 			cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
 			if (!cpf.equals(json.getString("cpf")))
@@ -150,26 +163,11 @@ public class Utils {
 		byte[] cached = cacheRetrieve("valid-" + authkey);
 		if (cached != null)
 			return new String(cached);
-		
-		JSONObject json = validateAuthKey( authkey, urlblucserver);
+
+		JSONObject json = validateAuthKey(authkey, urlblucserver);
 
 		String cpf = json.getString("cpf");
 		cacheStore("valid-" + authkey, cpf.getBytes());
-		return cpf;
-	}
-
-	public static String assertValidTokenOld(String token, String urlblucserver)
-			throws Exception {
-		byte[] cached = cacheRetrieve(token);
-		if (cached != null)
-			return new String(cached);
-
-		// Call bluc-server hash webservice
-		JSONObject blucresp = validateToken(token, urlblucserver);
-
-		String cpf = null;
-		cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
-		cacheStore(token, cpf.getBytes());
 		return cpf;
 	}
 
@@ -204,24 +202,29 @@ public class Utils {
 	}
 
 	public static void cacheStore(String sha1, byte[] ba) {
-		cache.put(sha1, ba);
+		try (Jedis jedis = pool.getResource()) {
+			jedis.set(SafeEncoder.encode(sha1), ba);
+		}
 	}
 
 	public static byte[] cacheRetrieve(String sha1) {
-		if (cache.containsKey(sha1)) {
-			byte[] ba = cache.get(sha1);
+		try (Jedis jedis = pool.getResource()) {
+			byte[] ba = jedis.get(SafeEncoder.encode(sha1));
 			return ba;
+		} catch (Exception e) {
+			return null;
 		}
-		return null;
 	}
 
 	public static byte[] cacheRemove(String sha1) {
-		if (cache.containsKey(sha1)) {
-			byte[] ba = cache.get(sha1);
-			cache.remove(sha1);
+		try (Jedis jedis = pool.getResource()) {
+			byte[] key = SafeEncoder.encode(sha1);
+			byte[] ba = jedis.get(key);
+			jedis.del(key);
 			return ba;
+		} catch (Exception e) {
+			return null;
 		}
-		return null;
 	}
 
 	public static String dbStore(String payload) {
