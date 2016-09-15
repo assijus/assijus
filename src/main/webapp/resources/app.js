@@ -53,7 +53,7 @@ app
 						$location, $filter, $q, $timeout) {
 					
 					$scope.isChromeExtensionActive = function() {
-						return document.getElementById("chrome-extension-active").value == "1";
+						return document.getElementById("chrome-extension-active").value != "0";
 					}
 
 					$scope.myhttp = function(conf) {
