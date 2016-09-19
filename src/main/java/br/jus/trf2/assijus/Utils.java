@@ -5,12 +5,11 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -22,12 +21,24 @@ import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class Utils {
-	static JedisPool pool = new JedisPool(new JedisPoolConfig(),
-			RestUtils.getProperty("redis.servername", "localhost"),
-			Integer.parseInt(RestUtils.getProperty("redis.port", "6379")),
-			Protocol.DEFAULT_TIMEOUT, RestUtils.getProperty("redis.password",
-					null), Integer.parseInt(RestUtils.getProperty(
-					"redis.database", "10")));
+	private static final Logger log = LoggerFactory.getLogger(Utils.class);
+	private static JedisPool pool = redisConfig();
+
+	private static JedisPool redisConfig() {
+		String servername = RestUtils.getProperty("assijus.redis.servername",
+				"localhost");
+		int port = Integer.parseInt(RestUtils.getProperty("assijus.redis.port",
+				"6379"));
+		String password = RestUtils.getProperty("assijus.redis.password", null);
+		int database = Integer.parseInt(RestUtils.getProperty(
+				"assijus.redis.database", "10"));
+
+//		log.info("REDIS: " + servername + ":" + port + " (" + password + ") ["
+//				+ database + "]");
+
+		return new JedisPool(new JedisPoolConfig(), servername, port,
+				Protocol.DEFAULT_TIMEOUT, password, database);
+	}
 
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
