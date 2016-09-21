@@ -32,7 +32,7 @@ public class SavePost implements IRestAction {
 		String extra = req.optString("extra", null);
 
 		if (signature == null && signkey != null)
-			signature = Utils.dbRetrieve(signkey, true);
+			signature = MemCacheRedis.dbRetrieve(signkey, true);
 
 		if (signature == null)
 			throw new Exception("Não foi possível obter o parâmetro signature.");
@@ -92,8 +92,6 @@ public class SavePost implements IRestAction {
 		sigareq.put("sha256", sha256);
 		if (extra != null)
 			sigareq.put("extra", extra);
-		if ("sigadocsigner".equals(system))
-			sigareq.put("password", password);
 
 		// Call document repository hash webservice
 		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";

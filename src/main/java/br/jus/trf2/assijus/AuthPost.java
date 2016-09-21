@@ -15,7 +15,7 @@ public class AuthPost implements IRestAction {
 		String payload = null;
 
 		if (authkey != null) {
-			payload = Utils.dbRetrieve(authkey, false);
+			payload = MemCacheRedis.dbRetrieve(authkey, false);
 
 			if (payload.startsWith("TOKEN-"))
 				// A token is stored
@@ -45,7 +45,7 @@ public class AuthPost implements IRestAction {
 			resp.put("kind", "signed-token");
 
 			String stored = resp.toString();
-			String key = Utils.dbStore(stored);
+			String key = MemCacheRedis.dbStore(stored);
 			resp.put("authkey", key);
 			return;
 		}

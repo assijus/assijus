@@ -18,7 +18,7 @@ app.config([ '$routeProvider', '$locationProvider',
 			$locationProvider.html5Mode(false);
 		} ]);
 
-app.controller('routerCtrl', function($scope, $http, $window, $location) {
+app.controller('routerCtrl', function($scope, $http, $window, $q, $location) {
 	$scope.assijusexe = "assijus-v0-9-3.exe";
 
 	$scope.parseLocation = function(location) {
@@ -31,53 +31,64 @@ app.controller('routerCtrl', function($scope, $http, $window, $location) {
 			if (pairs[i] === "")
 				continue;
 
-			pair = pairs[i].split("=");
-			obj[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+			var idx = pairs[i].indexOf("=");
+			obj[decodeURIComponent(pairs[i].substring(0, idx))] = decodeURIComponent(pairs[i].substring(idx+1));
 		}
 
 		return obj;
 	};
 
 	$scope.querystring = $scope.parseLocation($window.location.search);
+
+	$scope.myhttp = function(conf) {
+		// The ID of the extension we want to talk to.
+		var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
+		// if ($location.absUrl().indexOf("//localhost/")
+		// !== -1)
+		// editorExtensionId =
+		// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
+		var deferred = $q.defer()
+
+		// Make a simple request:
+		chrome.runtime.sendMessage(editorExtensionId, conf, function(response) {
+			if (!response.success) {
+				deferred.reject(response);
+			} else {
+				deferred.resolve(response)
+			}
+		});
+		return deferred.promise
+	}
 });
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
+	$scope.versionAssijus = "1.2.9.0";
+	$scope.versionAssijusChromeExtension = document
+			.getElementById("chrome-extension-active").value;
+	$scope.versionAssijusNativeClient = document
+			.getElementById("native-client-active").value;
+	if ($scope.versionAssijusChromeExtension != "0"
+			&& $scope.versionAssijusNativeClient == "0") {
+		$scope.myhttp({
+			url : $scope.urlBluCRESTSigner + '/test',
+			method : "GET"
+		}).then(function successCallback(response) {
+			$scope.versionAssijusNativeClient = response.data.version;
+		}, function errorCallback(response) {
+			$scope.versionAssijusNativeClient = "-";
+		});
+	}
 });
 
 app
 		.controller(
 				'ctrl',
 				function($scope, $http, $interval, $window, $location, $filter,
-						$q, $timeout) {
+						$timeout) {
 
 					$scope.isChromeExtensionActive = function() {
 						return document
 								.getElementById("chrome-extension-active").value != "0";
-					}
-
-					$scope.myhttp = function(conf) {
-						if ($scope.isChromeExtensionActive()) {
-							// The ID of the extension we want to talk to.
-							var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
-							// if ($location.absUrl().indexOf("//localhost/")
-							// !== -1)
-							// editorExtensionId =
-							// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
-							var deferred = $q.defer()
-
-							// Make a simple request:
-							chrome.runtime.sendMessage(editorExtensionId, conf,
-									function(response) {
-										if (!response.success) {
-											deferred.reject(response);
-										} else {
-											deferred.resolve(response)
-										}
-									});
-							return deferred.promise
-						} else {
-							return $http(conf);
-						}
 					}
 
 					$scope.PROCESSING = "Processando Assinaturas Digitais";
@@ -392,7 +403,8 @@ app
 					//
 					$scope.view = function(doc) {
 						$scope.progress.start("Preparando Visualização", 6);
-						$scope.validarAuthKey($scope.progress, function(progress) {
+						$scope.validarAuthKey($scope.progress, function(
+								progress) {
 							progress.stop();
 							var form = document.createElement('form');
 							form.action = $scope.urlBaseAPI + "/view";
@@ -462,6 +474,9 @@ app
 
 						$scope.progress.start("Processando Assinatura Digital",
 								6 + 6);
+						
+						if ($scope.endpoint)
+							$scope.endpoint.usecallback = false;
 						$scope.validarAuthKey($scope.progress, $scope.executar);
 					}
 
@@ -475,6 +490,8 @@ app
 
 						progress.start($scope.PROCESSING,
 								$scope.operacoes.length * 6 + 6);
+						if ($scope.endpoint && $scope.endpoint.callback)
+							$scope.endpoint.usecallback = true;
 						$scope.validarAuthKey(progress, $scope.executar);
 					}
 
@@ -621,6 +638,10 @@ app
 									progress.step(state.nome
 											+ ": Assinatura gravada.");
 									$scope.reportSuccess(state.codigo, data);
+									if (!progress.active && $scope.endpoint.usecallback && $scope.endpoint.callback) {
+										window.location.href = $scope.endpoint.callback;
+										return;
+									}
 								},
 								function errorCallback(response) {
 									progress.step(state.nome
@@ -863,7 +884,8 @@ app
 					$scope.validarAuthKey = function(progress, cont) {
 						// Verificar se a authkey existe e é valida
 						if (!$scope.hasAuthKey()) {
-							progress.step("Chave de autenticação inexistente", 1);
+							progress.step("Chave de autenticação inexistente",
+									1);
 							return $scope.obterToken(progress, cont);
 						}
 						progress.step("Verificando chave de autenticação...");
@@ -966,6 +988,8 @@ app
 											progress
 													.step("Assijus.exe está ativo.");
 											if (response.data.status == "OK") {
+												document
+														.getElementById("native-client-active").value = response.data.version;
 												$scope
 														.buscarCertificado(progress);
 											} else {

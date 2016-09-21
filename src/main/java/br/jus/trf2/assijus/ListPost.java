@@ -34,7 +34,7 @@ public class ListPost implements IRestAction {
 			// Read list from cache
 			String payload = null;
 			if (listkey != null)
-				payload = Utils.dbRetrieve(listkey, false);
+				payload = MemCacheRedis.dbRetrieve(listkey, false);
 
 			JSONObject o = new JSONObject(payload);
 			for (int i = 0; i < o.getJSONArray("list").length(); i++) {
@@ -56,8 +56,6 @@ public class ListPost implements IRestAction {
 				JSONObject reqsys = new JSONObject();
 				reqsys.put("cpf", cpf);
 				reqsys.put("urlapi", urlsys);
-				if (system.equals("sigadocsigner"))
-					reqsys.put("password", Utils.getPassword(system));
 				Future<RestAsyncResponse> future = RestUtils.restGetAsync(
 						system + "-list", Utils.getPassword(system), urlsys
 								+ "/doc/list", reqsys);
@@ -133,7 +131,7 @@ public class ListPost implements IRestAction {
 			doc.put("origin", origin);
 			// Acrescenta essa informação na tabela para permitir a
 			// posterior visualização.
-			Utils.cacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
+			MemCacheRedis.cacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
 			if (extra != null) {
 				doc.put("extra", extra);
 			}

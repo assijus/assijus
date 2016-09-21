@@ -19,9 +19,10 @@ public class HashPost implements IRestAction {
 		String id = req.getString("id");
 
 		String authkey = req.getString("authkey");
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
+		String cpf = Utils
+				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
-		if (Utils.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
+		if (MemCacheRedis.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");
 
 		String urlHash = Utils.getUrl(system) + "/doc/" + id + "/hash";
@@ -29,12 +30,7 @@ public class HashPost implements IRestAction {
 
 		// Call document repository hash webservice
 		JSONObject gedresp = null;
-		if ("sigadocsigner".equals(system))
-			gedresp = RestUtils.restGet("ged-hash", password, urlHash, "cpf",
-					cpf, "password", password);
-		else
-			gedresp = RestUtils.restGet("ged-hash", password, urlHash, "cpf",
-					cpf);
+		gedresp = RestUtils.restGet("ged-hash", password, urlHash, "cpf", cpf);
 
 		// Produce response
 

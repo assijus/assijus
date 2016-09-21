@@ -13,11 +13,11 @@ produces: [application/json]
 
 tags:
   - name: view
-    description: Listar os documentos a serem assinado e visualizar os PDFs
+    description: Listar documentos a serem assinados e visualizar PDFs
   - name: sign
-    description: Obter o hash e gravar a assinatura digital
+    description: Obter hash e gravar assinatura digital
   - name: store
-    description: Armazenar assinaturas digitais para garantir a segurança da transação
+    description: Armazenar operações de assinatura em lote (modo EndPoint)
 
 paths:
   /token:
@@ -191,6 +191,27 @@ paths:
           description: Error ocurred
           schema:
             $ref: "#/definitions/error"
+            
+  /store:
+    post:
+      description: Armazenar uma lista de documentos para serem assinados digitalmente numa subsequente chamada ao endpoint
+      tags: [store]
+      parameters:
+        - name: payload
+          in: formData
+          description: Array de bytes em base64 que será armazenado
+          required: true
+          type: string
+          format: byte
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/saveResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"            
             
 parameters:
   certificate:

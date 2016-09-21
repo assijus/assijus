@@ -21,25 +21,6 @@ import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
 
 public class Utils {
-	private static final Logger log = LoggerFactory.getLogger(Utils.class);
-	private static JedisPool pool = redisConfig();
-
-	private static JedisPool redisConfig() {
-		String servername = RestUtils.getProperty("assijus.redis.servername",
-				"localhost");
-		int port = Integer.parseInt(RestUtils.getProperty("assijus.redis.port",
-				"6379"));
-		String password = RestUtils.getProperty("assijus.redis.password", null);
-		int database = Integer.parseInt(RestUtils.getProperty(
-				"assijus.redis.database", "10"));
-
-//		log.info("REDIS: " + servername + ":" + port + " (" + password + ") ["
-//				+ database + "]");
-
-		return new JedisPool(new JedisPoolConfig(), servername, port,
-				Protocol.DEFAULT_TIMEOUT, password, database);
-	}
-
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 	public static final SimpleDateFormat isoFormatter = new SimpleDateFormat(
@@ -117,7 +98,7 @@ public class Utils {
 
 	public static JSONObject validateAuthKey(String authkey,
 			String urlblucserver) throws Exception {
-		String payload = Utils.dbRetrieve(authkey, false);
+		String payload = MemCacheRedis.dbRetrieve(authkey, false);
 
 		if (payload == null) {
 			throw new PresentableException(
@@ -137,14 +118,14 @@ public class Utils {
 
 	public static String assertValidAuthKey(String authkey, String urlblucserver)
 			throws Exception {
-		byte[] cached = cacheRetrieve("valid-" + authkey);
+		byte[] cached = MemCacheRedis.cacheRetrieve("valid-" + authkey);
 		if (cached != null)
 			return new String(cached);
 
 		JSONObject json = validateAuthKey(authkey, urlblucserver);
 
 		String cpf = json.getString("cpf");
-		cacheStore("valid-" + authkey, cpf.getBytes());
+		MemCacheRedis.cacheStore("valid-" + authkey, cpf.getBytes());
 		return cpf;
 	}
 
@@ -178,51 +159,4 @@ public class Utils {
 		return output;
 	}
 
-	public static void cacheStore(String sha1, byte[] ba) {
-		try (Jedis jedis = pool.getResource()) {
-			jedis.set(SafeEncoder.encode(sha1), ba);
-		}
-	}
-
-	public static byte[] cacheRetrieve(String sha1) {
-		try (Jedis jedis = pool.getResource()) {
-			byte[] ba = jedis.get(SafeEncoder.encode(sha1));
-			return ba;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static byte[] cacheRemove(String sha1) {
-		try (Jedis jedis = pool.getResource()) {
-			byte[] key = SafeEncoder.encode(sha1);
-			byte[] ba = jedis.get(key);
-			jedis.del(key);
-			return ba;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static String dbStore(String payload) {
-		String id = UUID.randomUUID().toString();
-		cacheStore(id, payload.getBytes());
-		return id;
-	}
-
-	public static String dbRetrieve(String id, boolean remove) {
-		byte[] ba = null;
-		if (remove)
-			ba = cacheRemove(id);
-		else
-			ba = cacheRetrieve(id);
-		if (ba == null)
-			return null;
-		String s = new String(ba);
-
-		if (s == null || s.trim().length() == 0)
-			return null;
-
-		return s;
-	}
 }
