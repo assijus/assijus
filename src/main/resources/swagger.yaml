@@ -1,4 +1,4 @@
-﻿swagger: '2.0'
+swagger: '2.0'
 
 info:
   version: "1.0.0"
@@ -12,10 +12,12 @@ consumes: [application/json]
 produces: [application/json]
 
 tags:
+  - name: auth
+    description: Obter um token de autenticação e autenticar por uma assinatura digital
   - name: view
     description: Listar documentos a serem assinados e visualizar PDFs
   - name: sign
-    description: Obter hash e gravar assinatura digital
+    description: Obter hash, gravar assinatura digital e validar assinatura digital
   - name: store
     description: Armazenar operações de assinatura em lote (modo EndPoint)
 
@@ -23,7 +25,7 @@ paths:
   /token:
     post:
       description: Obter um token que deverá ser assinado para comprovar a identidade do usuário
-      tags: [view,sign]
+      tags: [auth]
       parameters: []
       responses:
         200:
@@ -38,7 +40,7 @@ paths:
   /auth:
     post:
       description: Verifica a validade de um token e retorna o nome do usuário e o certificado
-      tags: [view,sign]
+      tags: [auth]
       parameters: []
       responses:
         200:
@@ -53,7 +55,7 @@ paths:
   /list:
     post:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
-      tags: [view,sign]
+      tags: [view]
       parameters:
         - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/certificate"
@@ -192,6 +194,25 @@ paths:
           schema:
             $ref: "#/definitions/error"
             
+  /validate:
+    post:
+      description: Valida um envelope CMS de assinatura digital
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/envelope"
+        - $ref: "#/parameters/sha1"
+        - $ref: "#/parameters/sha256"
+        - $ref: "#/parameters/time"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: "#/definitions/validateResponse"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
   /store:
     post:
       description: Armazenar uma lista de documentos para serem assinados digitalmente numa subsequente chamada ao endpoint
@@ -221,20 +242,40 @@ parameters:
     required: true
     type: string
     format: byte
-  token:
-    name: token
-    in: formData
-    description: Assinatura em base64 de um token para comprovar a identidade do usuário
-    required: true
-    type: string
-    format: byte
   authkey:
     name: authkey
     in: formData
     description: Chave para o registro que comprova a identidade do usuário
     required: true
     type: string
-
+  envelope:
+    name: envelope
+    in: formData
+    description: Envelope da assinatura digital em base64
+    required: true
+    type: string
+    format: byte
+  time:
+    name: time
+    in: formData
+    description: Data e hora da assinatura digital
+    required: true
+    type: string
+    format: datetime
+  sha1:
+    name: sha1
+    in: formData
+    description: SHA-1 do PDF codificado em base64
+    required: true
+    type: string
+    format: byte
+  sha256:
+    name: sha256
+    in: formData
+    description: SHA-256 do PDF codificado em base64
+    required: true
+    type: string
+    format: byte
             
 definitions:
   document:
@@ -324,6 +365,23 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/warning"
+          
+  validateResponse:
+    type: object
+    properties:
+      policy:
+        $ref: "#/definitions/Policy"
+      policyversion:
+        $ref: "#/definitions/PolicyVersion"
+      policyoid:
+        $ref: "#/definitions/PolicyOID"
+      cn:
+        $ref: "#/definitions/CN"
+      cpf:
+        $ref: "#/definitions/CPF"
+      status:
+        type: string
+        description: Resultado da validação: GOOD ou UNKNOWN são aceitáveis, outros representam erros
 
   warning:
     type: object
@@ -332,6 +390,31 @@ definitions:
         type: string
       description:
         type: string
+        
+  Policy:
+    type: string
+    description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+    example: AD-RB
+    
+  PolicyVersion:
+    description: Número de versão da política usada na assinatura digital
+    type: string      
+    example: 2.1
+    
+  PolicyOID:
+    description: Identificador OID da política
+    type: string
+    example: 2.16.76.1.7.1.1.2.1
+
+  CN:
+    type: string
+    description: Nome do signatário
+    example: RENATO DO AMARAL CRIVANO MACHADO        
+
+  CPF:
+    type: string
+    description: CPF do signatário
+    example: RENATO DO AMARAL CRIVANO MACHADO        
 
   error:
     type: object

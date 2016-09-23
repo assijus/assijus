@@ -5,6 +5,17 @@
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 
+	<filter>
+		<filter-name>CacheControlFilter</filter-name>
+		<filter-class>br.jus.trf2.assijus.CacheControlFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CacheControlFilter</filter-name>
+		<url-pattern>/</url-pattern>
+		<url-pattern>/index.html</url-pattern>
+		<url-pattern>/resources/*</url-pattern>
+	</filter-mapping>
+
 	<servlet>
 		<servlet-name>AssijusServlet</servlet-name>
 		<servlet-class>br.jus.trf2.assijus.AssijusServlet</servlet-class>
