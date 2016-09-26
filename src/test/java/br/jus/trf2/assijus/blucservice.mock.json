@@ -1,0 +1,179 @@
+{
+  "Certificate": {
+    "method": "POST",
+    "path": "/certificate",
+    "request": {
+      "certificate": "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"
+    },
+    "response": {
+      "certdetails": {
+        "aki0": "D4B1C3294997AD4E6636DBE94E004A6AD8C3DAC4",
+        "basicConstraint0": "-1",
+        "birth_date0": "16121968",
+        "certPolOid0": "2.16.76.1.2.3.19",
+        "certPolQualifier0": "http://certificadodigital.caixa.gov.br/documentos/dpcac-caixajus.pdf",
+        "certSha2560": "321A6BF727D304038FBDC2185EC4F7AAFE075783416FA48ED1C68FFD18E910F7",
+        "cert_type0": "ICP-Brasil PF",
+        "cert_usage0": "ICP-Brasil A3",
+        "chain0": "http://certificadodigital.caixa.gov.br/aia/accaixajusv2.p7b",
+        "cpf0": "00489623760",
+        "crlDP0": "http://lcr.caixa.gov.br/accaixajusv2.crl,http://lcr2.caixa.gov.br/accaixajusv2.crl,http://repositorio.icpbrasil.gov.br/lcr/CAIXA/ACCAIXAJUS/accaixajusv2.crl",
+        "eku0": "ekuClientAuth,ekuEmailProt",
+        "eleitor0": "075559170302",
+        "issuer0": "CN=AC CAIXA-JUS v2, OU=Autoridade Certificadora da Justica - AC-JUS, O=ICP-Brasil, C=BR",
+        "key_length0": "2048",
+        "ku0": "digitalSignature,keyEncipherment,nonRepudiation",
+        "notAfter0": "1487537748000",
+        "notBefore0": "1392929748000",
+        "rg0": "000000073576183",
+        "rg_org0": "DIC",
+        "rg_uf0": "RJ",
+        "san_email0": "crivano@jfrj.jus.br",
+        "serial0": "976329738199230308",
+        "subject0": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR",
+        "version0": "3"
+      },
+      "cn": "RENATO DO AMARAL CRIVANO MACHADO:RJ13635",
+      "cpf": "00489623760",
+      "name": "RENATO DO AMARAL CRIVANO MACHADO",
+      "subject": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR"
+    }
+  },
+  "Validate token to authenticate": {
+    "method": "POST",
+    "path": "/validate",
+    "request": {
+      "time": "2016-09-26T11:07:29.828-03:00",
+      "sha256": "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=",
+      "envelope": "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=",
+      "crl": true,
+      "sha1": "BP2vVOAKmbjti/8oB7LCjLFrIqw=",
+      "policy": "PKCS7"
+    },
+    "response": {
+      "certdetails": {
+        "aki0": "D4B1C3294997AD4E6636DBE94E004A6AD8C3DAC4",
+        "basicConstraint0": "-1",
+        "birth_date0": "16121968",
+        "certPolOid0": "2.16.76.1.2.3.19",
+        "certPolQualifier0": "http://certificadodigital.caixa.gov.br/documentos/dpcac-caixajus.pdf",
+        "certSha2560": "321A6BF727D304038FBDC2185EC4F7AAFE075783416FA48ED1C68FFD18E910F7",
+        "cert_type0": "ICP-Brasil PF",
+        "cert_usage0": "ICP-Brasil A3",
+        "chain0": "http://certificadodigital.caixa.gov.br/aia/accaixajusv2.p7b",
+        "cpf0": "00489623760",
+        "crlDP0": "http://lcr.caixa.gov.br/accaixajusv2.crl,http://lcr2.caixa.gov.br/accaixajusv2.crl,http://repositorio.icpbrasil.gov.br/lcr/CAIXA/ACCAIXAJUS/accaixajusv2.crl",
+        "eku0": "ekuClientAuth,ekuEmailProt",
+        "eleitor0": "075559170302",
+        "issuer0": "CN=AC CAIXA-JUS v2, OU=Autoridade Certificadora da Justica - AC-JUS, O=ICP-Brasil, C=BR",
+        "key_length0": "2048",
+        "ku0": "digitalSignature,keyEncipherment,nonRepudiation",
+        "notAfter0": "1487537748000",
+        "notBefore0": "1392929748000",
+        "rg0": "000000073576183",
+        "rg_org0": "DIC",
+        "rg_uf0": "RJ",
+        "san_email0": "crivano@jfrj.jus.br",
+        "serial0": "976329738199230308",
+        "subject0": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR",
+        "version0": "3"
+      },
+      "certificate": "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",
+      "cn": "RENATO DO AMARAL CRIVANO MACHADO",
+      "status": "GOOD"
+    }
+  },
+  "Hash para assinatura com política": {
+    "method": "POST",
+    "path": "/hash",
+    "request": {
+      "policy": "AD-RB",
+      "sha1": "EMjARlRD0W9/lr/y1sp3nZf/uUxwKil03dUiOhvd2DU=",
+      "sha256": "EMjARlRD0W9/lr/y1sp3nZf/uUxwKil03dUiOhvd2DU=",
+      "time": "2015-09-25T15:15:31.000-03:00",
+      "certificate": "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",
+      "crl": "true"
+    },
+    "response": {
+      "certdetails": {
+        "aki0": "D4B1C3294997AD4E6636DBE94E004A6AD8C3DAC4",
+        "basicConstraint0": "-1",
+        "birth_date0": "16121968",
+        "certPolOid0": "2.16.76.1.2.3.19",
+        "certPolQualifier0": "http://certificadodigital.caixa.gov.br/documentos/dpcac-caixajus.pdf",
+        "certSha2560": "321A6BF727D304038FBDC2185EC4F7AAFE075783416FA48ED1C68FFD18E910F7",
+        "cert_type0": "ICP-Brasil PF",
+        "cert_usage0": "ICP-Brasil A3",
+        "chain0": "http://certificadodigital.caixa.gov.br/aia/accaixajusv2.p7b",
+        "cpf0": "00489623760",
+        "crlDP0": "http://lcr.caixa.gov.br/accaixajusv2.crl,http://lcr2.caixa.gov.br/accaixajusv2.crl,http://repositorio.icpbrasil.gov.br/lcr/CAIXA/ACCAIXAJUS/accaixajusv2.crl",
+        "eku0": "ekuClientAuth,ekuEmailProt",
+        "eleitor0": "075559170302",
+        "issuer0": "CN=AC CAIXA-JUS v2, OU=Autoridade Certificadora da Justica - AC-JUS, O=ICP-Brasil, C=BR",
+        "key_length0": "2048",
+        "ku0": "digitalSignature,keyEncipherment,nonRepudiation",
+        "notAfter0": "1487537748000",
+        "notBefore0": "1392929748000",
+        "rg0": "000000073576183",
+        "rg_org0": "DIC",
+        "rg_uf0": "RJ",
+        "san_email0": "crivano@jfrj.jus.br",
+        "serial0": "976329738199230308",
+        "subject0": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR",
+        "version0": "3"
+      },
+      "cn": "RENATO DO AMARAL CRIVANO MACHADO",
+      "hash": "MYIBxDAcBgkqhkiG9w0BCQUxDxcNMTUwOTI1MTgxNTMxWjCBlAYLKoZIhvcNAQkQAg8xgYQwgYEGCGBMAQcBAQIBMC8wCwYJYIZIAWUDBAIBBCDdV8mKQxO8E5jOZUPTgCRYlXz3Fq4ylOxNjCYlEpHmwTBEMEIGCyqGSIb3DQEJEAUBFjNodHRwOi8vcG9saXRpY2FzLmljcGJyYXNpbC5nb3YuYnIvUEFfQURfUkJfdjJfMS5kZXIwgcEGCyqGSIb3DQEJEAIvMYGxMIGuMIGrMIGoBCAyGmv3J9MEA4+9whhexPeq/gdXg0FvpI7Rxo/9GOkQ9zCBgzB3pHUwczELMAkGA1UEBhMCQlIxEzARBgNVBAoTCklDUC1CcmFzaWwxNTAzBgNVBAsTLEF1dG9yaWRhZGUgQ2VydGlmaWNhZG9yYSBkYSBKdXN0aWNhIC0gQUMtSlVTMRgwFgYDVQQDEw9BQyBDQUlYQS1KVVMgdjICCA2MnrldA+dkMC8GCSqGSIb3DQEJBDEiBCAQyMBGVEPRb3+Wv/LWynedl/+5THAqKXTd1SI6G93YNTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB",
+      "policy": "AD-RB",
+      "policyoid": "2.16.76.1.7.1.1.2.1",
+      "policyversion": "2.1"
+    }
+  },
+  "Gerar envelope para assinatura com política": {
+    "method": "POST",
+    "path": "/envelope",
+    "request": {
+      "time": "2016-03-16T19:13:36.428-03:00",
+      "certificate": "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",
+      "sha256": "9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ=",
+      "crl": true,
+      "sha1": "vBpvCtThfEl+PXn6ZpkQEcWEIyw=",
+      "policy": "AD-RB",
+      "signature": "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws="
+    },
+    "response": {
+      "certdetails": {
+        "aki0": "D4B1C3294997AD4E6636DBE94E004A6AD8C3DAC4",
+        "basicConstraint0": "-1",
+        "birth_date0": "16121968",
+        "certPolOid0": "2.16.76.1.2.3.19",
+        "certPolQualifier0": "http://certificadodigital.caixa.gov.br/documentos/dpcac-caixajus.pdf",
+        "certSha2560": "321A6BF727D304038FBDC2185EC4F7AAFE075783416FA48ED1C68FFD18E910F7",
+        "cert_type0": "ICP-Brasil PF",
+        "cert_usage0": "ICP-Brasil A3",
+        "chain0": "http://certificadodigital.caixa.gov.br/aia/accaixajusv2.p7b",
+        "cpf0": "00489623760",
+        "crlDP0": "http://lcr.caixa.gov.br/accaixajusv2.crl,http://lcr2.caixa.gov.br/accaixajusv2.crl,http://repositorio.icpbrasil.gov.br/lcr/CAIXA/ACCAIXAJUS/accaixajusv2.crl",
+        "eku0": "ekuClientAuth,ekuEmailProt",
+        "eleitor0": "075559170302",
+        "issuer0": "CN=AC CAIXA-JUS v2, OU=Autoridade Certificadora da Justica - AC-JUS, O=ICP-Brasil, C=BR",
+        "key_length0": "2048",
+        "ku0": "digitalSignature,keyEncipherment,nonRepudiation",
+        "notAfter0": "1487537748000",
+        "notBefore0": "1392929748000",
+        "rg0": "000000073576183",
+        "rg_org0": "DIC",
+        "rg_uf0": "RJ",
+        "san_email0": "crivano@jfrj.jus.br",
+        "serial0": "976329738199230308",
+        "subject0": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR",
+        "version0": "3"
+      },
+      "cn": "RENATO DO AMARAL CRIVANO MACHADO",
+      "envelope": "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=",
+      "policy": "AD-RB",
+      "policyoid": "2.16.76.1.7.1.1.2.1",
+      "policyversion": "2.1"
+    }
+  }
+}

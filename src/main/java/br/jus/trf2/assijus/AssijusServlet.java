@@ -1,12 +1,14 @@
 package br.jus.trf2.assijus;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.crivano.restservlet.RestUtils;
 import com.crivano.swaggerservlet.Swagger;
 import com.crivano.swaggerservlet.SwaggerServlet;
 
@@ -16,6 +18,8 @@ public class AssijusServlet extends SwaggerServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+
+		RestUtils.setCache(new MemCacheRedis());
 
 		super.setActionPackage("br.jus.trf2.assijus");
 
@@ -30,4 +34,5 @@ public class AssijusServlet extends SwaggerServlet {
 	protected String getService() {
 		return "assijus";
 	}
+
 }

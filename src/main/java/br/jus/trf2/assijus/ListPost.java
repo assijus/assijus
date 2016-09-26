@@ -34,7 +34,7 @@ public class ListPost implements IRestAction {
 			// Read list from cache
 			String payload = null;
 			if (listkey != null)
-				payload = MemCacheRedis.dbRetrieve(listkey, false);
+				payload = RestUtils.dbRetrieve(listkey, false);
 
 			JSONObject o = new JSONObject(payload);
 			for (int i = 0; i < o.getJSONArray("list").length(); i++) {
@@ -131,7 +131,7 @@ public class ListPost implements IRestAction {
 			doc.put("origin", origin);
 			// Acrescenta essa informação na tabela para permitir a
 			// posterior visualização.
-			MemCacheRedis.cacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
+			RestUtils.memCacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
 			if (extra != null) {
 				doc.put("extra", extra);
 			}

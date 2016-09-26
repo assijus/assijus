@@ -32,7 +32,7 @@ public class SavePost implements IRestAction {
 		String extra = req.optString("extra", null);
 
 		if (signature == null && signkey != null)
-			signature = MemCacheRedis.dbRetrieve(signkey, true);
+			signature = RestUtils.dbRetrieve(signkey, true);
 
 		if (signature == null)
 			throw new Exception("Não foi possível obter o parâmetro signature.");

@@ -1,0 +1,67 @@
+{
+  "Listar documentos": {
+    "method": "GET",
+    "path": "/doc/list?&urlapi=http%3A%2F%2Flocalhost%3A8080%2Ftestesigner%2Fapi%2Fv1&cpf=00489623760",
+    "response": {
+      "list": [
+       {
+          "code": "0148053-07.2014.4.02.5151/01",
+          "descr": "Decisão - Decisão",
+          "id": "00489623760_144_46",
+          "kind": "Contrarrazões",
+          "origin": "TNU",
+          "urlHash": "tnu/doc/00489623760_144_46/hash",
+          "urlSave": "tnu/doc/00489623760_144_46/sign",
+          "urlView": "tnu/doc/00489623760_144_46/pdf"
+        },
+        {
+          "code": "0148053-07.2014.4.02.5151/01",
+          "descr": "Juntada  - Petição de Recurso - AGRAVO PREVISTO NO ART. 15, §4º DO R.I. DA TNU - 2016.3002.117273-6",
+          "id": "00489623760_144_49",
+          "kind": "Contrarrazões",
+          "origin": "TNU",
+          "urlHash": "tnu/doc/00489623760_144_49/hash",
+          "urlSave": "tnu/doc/00489623760_144_49/sign",
+          "urlView": "tnu/doc/00489623760_144_49/pdf"
+        },
+        {
+          "code": "0148053-07.2014.4.02.5151/01",
+          "descr": "Certidão de Publicação",
+          "id": "00489623760_144_48",
+          "kind": "Contrarrazões",
+          "origin": "TNU",
+          "urlHash": "tnu/doc/00489623760_144_48/hash",
+          "urlSave": "tnu/doc/00489623760_144_48/sign",
+          "urlView": "tnu/doc/00489623760_144_48/pdf"
+        }
+      ]
+    }
+  },
+  "Gerar hash de PDF": {
+    "method": "GET",
+    "path": "/doc/00489623760_144_46/hash?&cpf=00489623760",
+    "response": {
+      "sha256": "9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d",
+      "sha1": "vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d"
+    }
+  },
+  "Gravar assinatura": {
+    "method": "PUT",
+    "path": "/doc/00489623760_144_46/sign",
+    "request": {
+      "id": "00489623760_144_46",
+      "certificate": "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",
+      "time": "2016-09-26T15:46:07.876-03:00",
+      "sha256": "4K5LmXsdr3r/VIyzWoIVOMdHftvaWWHW05JxGaYwKUw=\r\n",
+      "cn": "RENATO DO AMARAL CRIVANO MACHADO:RJ13635",
+      "subject": "CN=RENATO DO AMARAL CRIVANO MACHADO:RJ13635, OU=SERVIDOR, OU=SECAO JUDICIARIA RIO DE JANEIRO-SJRJ, OU=Autoridade Certificadora da Justica - ACJUS v4, OU=Cert-JUS Institucional - A3, O=ICP-Brasil, C=BR",
+      "envelope": "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=",
+      "name": "RENATO DO AMARAL CRIVANO MACHADO",
+      "cpf": "00489623760",
+      "sha1": "VSc0kcc2jAcO4t5ZJh2dd0A0f0c=\r\n"
+    },
+    "response": {
+      "status": "OK"
+    }
+  }
+}

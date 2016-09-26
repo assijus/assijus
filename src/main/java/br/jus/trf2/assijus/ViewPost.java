@@ -18,7 +18,7 @@ public class ViewPost implements IRestAction {
 		String cpf = Utils
 				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
-		if (MemCacheRedis.cacheRetrieve(cpf + "-" + system + "-" + id) == null)
+		if (RestUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");
 
 		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";

@@ -3,6 +3,7 @@ package br.jus.trf2.assijus;
 import org.json.JSONObject;
 
 import com.crivano.restservlet.IRestAction;
+import com.crivano.restservlet.RestUtils;
 
 public class StorePost implements IRestAction {
 
@@ -12,7 +13,7 @@ public class StorePost implements IRestAction {
 		String payload = req.getString("payload");
 
 		// Call
-		String key = MemCacheRedis.dbStore(payload);
+		String key = RestUtils.dbStore(payload);
 
 		// Produce response
 		resp.put("status", "OK");

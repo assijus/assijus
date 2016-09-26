@@ -1,4 +1,4 @@
-swagger: '2.0'
+﻿swagger: '2.0'
 
 info:
   version: "1.0.0"
@@ -381,7 +381,7 @@ definitions:
         $ref: "#/definitions/CPF"
       status:
         type: string
-        description: Resultado da validação: GOOD ou UNKNOWN são aceitáveis, outros representam erros
+        description: Resultado da validação - GOOD ou UNKNOWN são aceitáveis, outros representam erros
 
   warning:
     type: object

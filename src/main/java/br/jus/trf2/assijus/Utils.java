@@ -98,7 +98,7 @@ public class Utils {
 
 	public static JSONObject validateAuthKey(String authkey,
 			String urlblucserver) throws Exception {
-		String payload = MemCacheRedis.dbRetrieve(authkey, false);
+		String payload = RestUtils.dbRetrieve(authkey, false);
 
 		if (payload == null) {
 			throw new PresentableException(
@@ -118,14 +118,14 @@ public class Utils {
 
 	public static String assertValidAuthKey(String authkey, String urlblucserver)
 			throws Exception {
-		byte[] cached = MemCacheRedis.cacheRetrieve("valid-" + authkey);
+		byte[] cached = RestUtils.memCacheRetrieve("valid-" + authkey);
 		if (cached != null)
 			return new String(cached);
 
 		JSONObject json = validateAuthKey(authkey, urlblucserver);
 
 		String cpf = json.getString("cpf");
-		MemCacheRedis.cacheStore("valid-" + authkey, cpf.getBytes());
+		RestUtils.memCacheStore("valid-" + authkey, cpf.getBytes());
 		return cpf;
 	}
 
