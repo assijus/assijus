@@ -2,16 +2,21 @@ package br.jus.trf2.assijus;
 
 import org.json.JSONObject;
 
-import com.crivano.restservlet.IRestAction;
+import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
+import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
+import br.jus.trf2.assijus.IAssijus.IAuthPost;
+
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
-public class AuthPost implements IRestAction {
+public class AuthPost implements IAuthPost {
 
 	@Override
-	public void run(JSONObject req, JSONObject resp) throws Exception {
-		String authkey = req.optString("authkey", null);
-		String token = req.optString("token", null);
+	public void run(AuthPostRequest req, AuthPostResponse resp)
+			throws Exception {
+		String authkey = req.authkey;
+		String token = req.token;
 		String payload = null;
 
 		if (authkey != null) {
@@ -23,10 +28,11 @@ public class AuthPost implements IRestAction {
 			else if (payload.startsWith("{")) {
 				// A client-cert authentication is stored
 				JSONObject json = new JSONObject(payload);
-				resp.put("certificate", json.get("certificate"));
-				resp.put("name", json.get("name"));
-				resp.put("cpf", json.get("cpf"));
-				resp.put("kind", "client-cert");
+				resp.certificate = SwaggerUtils.base64Decode(json
+						.getString("certificate"));
+				resp.name = json.getString("name");
+				resp.cpf = json.getString("cpf");
+				resp.kind = "client-cert";
 				return;
 			}
 		}
@@ -38,15 +44,15 @@ public class AuthPost implements IRestAction {
 			cpf = json.getJSONObject("certdetails").getString("cpf0");
 
 			// Produce response
-			resp.put("certificate", json.get("certificate"));
-			resp.put("name", json.get("cn"));
-			resp.put("cpf", cpf);
-			resp.put("token", token);
-			resp.put("kind", "signed-token");
+			resp.certificate = SwaggerUtils.base64Decode(json
+					.getString("certificate"));
+			resp.name = json.getString("cn");
+			resp.cpf = cpf;
+			resp.token = token;
+			resp.kind = "signed-token";
 
-			String stored = resp.toString();
-			String key = RestUtils.dbStore(stored);
-			resp.put("authkey", key);
+			String key = RestUtils.dbStore(SwaggerUtils.toJson(resp));
+			resp.authkey = key;
 			return;
 		}
 
@@ -58,4 +64,5 @@ public class AuthPost implements IRestAction {
 	public String getContext() {
 		return "autenticar";
 	}
+
 }

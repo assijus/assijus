@@ -2,19 +2,24 @@ package br.jus.trf2.assijus;
 
 import org.json.JSONObject;
 
-import com.crivano.restservlet.IRestAction;
+import br.jus.trf2.assijus.IAssijus.IViewPost;
+import br.jus.trf2.assijus.IAssijus.ViewPostRequest;
+import br.jus.trf2.assijus.IAssijus.ViewPostResponse;
+
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
-public class ViewPost implements IRestAction {
+public class ViewPost implements IViewPost {
 
-	public void run(JSONObject req, final JSONObject resp) throws Exception {
-		// Parse request
-		String system = req.getString("system");
-		String id = req.getString("id");
+	@Override
+	public void run(ViewPostRequest req, ViewPostResponse resp)
+			throws Exception {
+		String system = req.system;
+		String id = req.id;
 		String password = Utils.getPassword(system);
 
-		String authkey = req.getString("authkey");
+		String authkey = req.authkey;
 		String cpf = Utils
 				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
@@ -28,11 +33,12 @@ public class ViewPost implements IRestAction {
 
 		// Produce response
 		String doc = gedresp.getString("doc");
-		resp.put("payload", doc);
-		resp.put("content-type", "application/pdf");
+		resp.payload = SwaggerUtils.base64Decode(doc);
+		resp.contenttype = "application/pdf";
 	}
 
 	public String getContext() {
 		return "obter o pdf";
 	}
+
 }

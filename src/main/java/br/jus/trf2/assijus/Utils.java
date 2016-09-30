@@ -5,20 +5,12 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Protocol;
-import redis.clients.util.SafeEncoder;
 
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
@@ -86,8 +78,8 @@ public class Utils {
 		blucreq.put("envelope", signB64);
 		blucreq.put("time", dateAsString);
 		blucreq.put("policy", "PKCS7");
-		blucreq.put("sha1", Base64.encode(calcSha1(tokenAsBytes)));
-		blucreq.put("sha256", Base64.encode(calcSha256(tokenAsBytes)));
+		blucreq.put("sha1", SwaggerUtils.base64Encode(calcSha1(tokenAsBytes)));
+		blucreq.put("sha256", SwaggerUtils.base64Encode(calcSha256(tokenAsBytes)));
 		blucreq.put("crl", true);
 
 		// Call bluc-server hash webservice

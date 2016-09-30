@@ -1,38 +1,41 @@
 package br.jus.trf2.assijus;
 
+import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.crivano.restservlet.IRestAction;
-import com.crivano.restservlet.RestUtils;
+import br.jus.trf2.assijus.IAssijus.ISavePost;
+import br.jus.trf2.assijus.IAssijus.SavePostRequest;
+import br.jus.trf2.assijus.IAssijus.SavePostResponse;
+import br.jus.trf2.assijus.IAssijus.Warning;
 
-public class SavePost implements IRestAction {
+import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
+
+public class SavePost implements ISavePost {
 	private static final Logger log = LoggerFactory.getLogger(RestUtils.class);
 
 	@Override
-	public void run(JSONObject req, final JSONObject resp) throws Exception {
-		// Parse request
+	public void run(SavePostRequest req, SavePostResponse resp)
+			throws Exception {
 
-		String code = req.getString("code");
-		String system = req.getString("system");
-		String id = req.getString("id");
+		String code = req.code;
+		String system = req.system;
+		String id = req.id;
 		String password = Utils.getPassword(system);
 
-		String certificate = req.getString("certificate");
-		String signature = req.optString("signature", null);
-		String signkey = req.optString("signkey", null);
-		String time = req.getString("time");
-		String policy = req.getString("policy");
+		String certificate = SwaggerUtils.base64Encode(req.certificate);
+		String signature = SwaggerUtils.base64Encode(req.signature);
+		String time = SwaggerUtils.format(req.time);
+		String policy = req.policy;
 
-		String sha1 = req.getString("sha1");
-		String sha256 = req.getString("sha256");
+		String sha1 = SwaggerUtils.base64Encode(req.sha1);
+		String sha256 = SwaggerUtils.base64Encode(req.sha256);
 
-		String extra = req.optString("extra", null);
-
-		if (signature == null && signkey != null)
-			signature = RestUtils.dbRetrieve(signkey, true);
+		String extra = req.extra;
 
 		if (signature == null)
 			throw new Exception("Não foi possível obter o parâmetro signature.");
@@ -99,21 +102,29 @@ public class SavePost implements IRestAction {
 				urlSave, sigareq);
 
 		// Produce response
-		JSONArray warning = sigaresp.optJSONArray("warning");
-		if ("PKCS7".equals(policy)) {
-			if (warning == null)
-				warning = new JSONArray();
+		resp.warning = new ArrayList<IAssijus.Warning>();
+		JSONArray receivedwarnings = sigaresp.optJSONArray("warning");
+		if (receivedwarnings != null) {
+			for (int i = 0; i > receivedwarnings.length(); i++) {
+				Warning warning = new Warning();
+				JSONObject w = receivedwarnings.getJSONObject(i);
+				warning.label = w.getString("label");
+				warning.description = w.getString("description");
+				resp.warning.add(warning);
+			}
 
-			JSONObject obj = new JSONObject();
-			obj.put("label", "p7");
-			obj.put("description", "Assinatura no padrão PKCS#7.");
-			warning.put(obj);
 		}
-		if (warning != null)
-			resp.put("warning", warning);
+		if ("PKCS7".equals(policy)) {
+			Warning warning = new Warning();
+			warning.label = "p7";
+			warning.description = "Assinatura no padrão PKCS#7.";
+			resp.warning.add(warning);
+		}
+		if (resp.warning.size() == 0)
+			resp.warning = null;
 
 		String status = sigaresp.optString("status", null);
-		resp.put("status", status);
+		resp.status = status;
 
 		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", "
 				+ status);
@@ -123,4 +134,5 @@ public class SavePost implements IRestAction {
 	public String getContext() {
 		return "gravar a assinatura";
 	}
+
 }

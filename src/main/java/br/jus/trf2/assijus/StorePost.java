@@ -1,27 +1,29 @@
 package br.jus.trf2.assijus;
 
-import org.json.JSONObject;
+import br.jus.trf2.assijus.IAssijus.IStorePost;
+import br.jus.trf2.assijus.IAssijus.StorePostRequest;
+import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 
-import com.crivano.restservlet.IRestAction;
 import com.crivano.restservlet.RestUtils;
 
-public class StorePost implements IRestAction {
+public class StorePost implements IStorePost {
 
 	@Override
-	public void run(JSONObject req, JSONObject resp) throws Exception {
-		// Parse request
-		String payload = req.getString("payload");
+	public void run(StorePostRequest req, StorePostResponse resp)
+			throws Exception {
+		String payload = req.payload;
 
 		// Call
 		String key = RestUtils.dbStore(payload);
 
 		// Produce response
-		resp.put("status", "OK");
-		resp.put("key", key);
+		resp.status = "OK";
+		resp.key = key;
 	}
 
 	@Override
 	public String getContext() {
 		return "armazenar a assinatura";
 	}
+
 }

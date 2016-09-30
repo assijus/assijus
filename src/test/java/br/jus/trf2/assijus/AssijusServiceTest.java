@@ -3,9 +3,23 @@ package br.jus.trf2.assijus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
+import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
+import br.jus.trf2.assijus.IAssijus.HashPostRequest;
+import br.jus.trf2.assijus.IAssijus.HashPostResponse;
+import br.jus.trf2.assijus.IAssijus.ListPostRequest;
+import br.jus.trf2.assijus.IAssijus.ListPostResponse;
+import br.jus.trf2.assijus.IAssijus.SavePostRequest;
+import br.jus.trf2.assijus.IAssijus.SavePostResponse;
+import br.jus.trf2.assijus.IAssijus.StorePostRequest;
+import br.jus.trf2.assijus.IAssijus.StorePostResponse;
+import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
+import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
+
 import com.crivano.restservlet.HTTPMockFromJSON;
 import com.crivano.restservlet.RestUtils;
 import com.crivano.swaggerservlet.SwaggerTestSupport;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class AssijusServiceTest extends SwaggerTestSupport {
 
@@ -53,83 +67,89 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 	}
 
 	public void testToken_Simple_Success() throws JSONException {
-		JSONObject req = new JSONObject();
-		JSONObject resp = run("POST", "/token", req);
+		TokenPostRequest req = new TokenPostRequest();
+		TokenPostResponse resp = new TokenPostResponse();
+		run("POST", "/token", req, resp);
 
-		assertEquals(policy, resp.get("policy"));
-		assertTrue(resp.getString("token").startsWith("TOKEN-"));
+		assertEquals(policy, resp.policy);
+		assertTrue(resp.token.startsWith("TOKEN-"));
 	}
 
 	public void testAuth_ByToken_Success() throws JSONException {
-		JSONObject req = new JSONObject();
-		req.put("token", token);
-		JSONObject resp = run("POST", "/auth", req);
+		AuthPostRequest req = new AuthPostRequest();
+		AuthPostResponse resp = new AuthPostResponse();
+		req.token = token;
+		run("POST", "/auth", req, resp);
 
-		assertEquals(36, resp.getString("authkey").length());
-		assertEquals(token, resp.getString("token"));
-		assertEquals(certificate, resp.getString("certificate"));
-		assertEquals(cpf, resp.getString("cpf"));
-		assertEquals(kind, resp.getString("kind"));
-		assertEquals(name, resp.getString("name"));
+		assertEquals(36, resp.authkey.length());
+		assertEquals(token, resp.token);
+		assertEquals(certificate, SwaggerUtils.base64Encode(resp.certificate));
+		assertEquals(cpf, resp.cpf);
+		assertEquals(kind, resp.kind);
+		assertEquals(name, resp.name);
 	}
 
 	public void testStore_Simple_Success() throws JSONException {
-		JSONObject req = new JSONObject();
-		req.put("payload", sha1);
-		JSONObject resp = run("POST", "/store", req);
+		StorePostRequest req = new StorePostRequest();
+		StorePostResponse resp = new StorePostResponse();
+		req.payload = sha1;
+		run("POST", "/store", req, resp);
 
-		assertEquals(36, resp.getString("key").length());
-		assertEquals("OK", resp.getString("status"));
+		assertEquals(36, resp.key.length());
+		assertEquals("OK", resp.status);
+	}
+
+	private String getAuthKey() {
+		AuthPostRequest req = new AuthPostRequest();
+		AuthPostResponse resp = new AuthPostResponse();
+		req.token = token;
+		run("POST", "/auth", req, resp);
+		return resp.authkey;
 	}
 
 	public void testList_Simple_Success() throws JSONException {
-		JSONObject authreq = new JSONObject();
-		authreq.put("token", token);
-		JSONObject authresp = run("POST", "/auth", authreq);
-		String authkey = authresp.getString("authkey");
+		ListPostRequest req = new ListPostRequest();
+		ListPostResponse resp = new ListPostResponse();
 
-		JSONObject req = new JSONObject();
-		req.put("certificate", certificate);
-		req.put("authkey", authkey);
-		JSONObject resp = run("POST", "/list", req);
+		req.certificate = SwaggerUtils.base64Decode(certificate);
+		req.authkey = getAuthKey();
+		run("POST", "/list", req, resp);
 
-		assertEquals(3, resp.getJSONArray("list").length());
-		assertEquals("testesigner", resp.getJSONArray("list").getJSONObject(0)
-				.getString("system"));
-		assertEquals("OK", resp.getString("status-teste"));
+		assertEquals(3, resp.list.size());
+		assertEquals("testesigner", resp.list.get(0).system);
+		assertNull(resp.status.get(0).errormsg);
 	}
 
 	public void testHash_Simple_Success() throws JSONException {
-		JSONObject authreq = new JSONObject();
-		authreq.put("token", token);
-		JSONObject authresp = run("POST", "/auth", authreq);
-		String authkey = authresp.getString("authkey");
+		HashPostRequest req = new HashPostRequest();
+		HashPostResponse resp = new HashPostResponse();
 
-		JSONObject req = new JSONObject();
-		req.put("authkey", authkey);
-		req.put("id", id);
-		req.put("certificate", certificate);
-		req.put("system", system);
-		JSONObject resp = run("POST", "/hash", req);
+		req.authkey = getAuthKey();
+		req.id = id;
+		req.certificate = SwaggerUtils.base64Decode(certificate);
+		req.system = system;
+		run("POST", "/hash", req, resp);
 
-		assertEquals(sha1, resp.getString("sha1"));
-		assertEquals(sha256, resp.getString("sha256"));
+		assertEquals(sha1, SwaggerUtils.base64Encode(resp.sha1));
+		assertEquals(sha256, SwaggerUtils.base64Encode(resp.sha256));
 	}
 
 	public void testSave_Simple_Success() throws JSONException {
-		JSONObject req = new JSONObject();
-		req.put("id", id);
-		req.put("code", code);
-		req.put("certificate", certificate);
-		req.put("time", time);
-		req.put("system", system);
-		req.put("sha1", sha1);
-		req.put("sha256", sha256);
-		req.put("policy", policy);
-		req.put("policyversion", policyversion);
-		req.put("signature", signature);
-		JSONObject resp = run("POST", "/save", req);
+		SavePostRequest req = new SavePostRequest();
+		SavePostResponse resp = new SavePostResponse();
 
-		assertEquals("OK", resp.getString("status"));
+		req.id = id;
+		req.code = code;
+		req.certificate = SwaggerUtils.base64Decode(certificate);
+		req.time = SwaggerUtils.parse(time);
+		req.system = system;
+		req.sha1 = SwaggerUtils.base64Decode(sha1);
+		req.sha256 = SwaggerUtils.base64Decode(sha256);
+		req.policy = policy;
+		req.policyversion = policyversion;
+		req.signature = SwaggerUtils.base64Decode(signature);
+		run("POST", "/save", req, resp);
+
+		assertEquals("OK", resp.status);
 	}
 }

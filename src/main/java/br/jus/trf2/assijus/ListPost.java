@@ -1,6 +1,6 @@
 package br.jus.trf2.assijus;
 
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -9,26 +9,35 @@ import java.util.concurrent.Future;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.crivano.restservlet.IRestAction;
+import br.jus.trf2.assijus.IAssijus.Document;
+import br.jus.trf2.assijus.IAssijus.IListPost;
+import br.jus.trf2.assijus.IAssijus.ListPostRequest;
+import br.jus.trf2.assijus.IAssijus.ListPostResponse;
+import br.jus.trf2.assijus.IAssijus.ListStatus;
+
 import com.crivano.restservlet.RestAsyncResponse;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
-public class ListPost implements IRestAction {
+public class ListPost implements IListPost {
 
 	@Override
-	public void run(JSONObject req, final JSONObject resp) throws Exception {
-		// Parse certificate
-		String certificate = req.getString("certificate");
+	public void run(ListPostRequest req, ListPostResponse resp)
+			throws Exception {
+		String certificate = SwaggerUtils.base64Encode(req.certificate);
+
 		JSONObject blucreq = new JSONObject();
 		blucreq.put("certificate", certificate);
 
-		String listkey = req.optString("key", null);
+		String listkey = req.key;
 
-		String authkey = req.getString("authkey");
+		String authkey = req.authkey;
 		String cpf = Utils
 				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
 		final JSONArray arrtmp = new JSONArray();
+
+		resp.status = new ArrayList<IAssijus.ListStatus>();
 
 		if (listkey != null) {
 			// Read list from cache
@@ -72,14 +81,14 @@ public class ListPost implements IRestAction {
 										// versão do
 										// Siga-Doc for para a produção
 						error = o.optString("error", null);
+					ListStatus ls = new ListStatus();
+					ls.system = system;
 					if (error != null) {
-						resp.put("status-" + context, "Error");
-						resp.put("errormsg-" + context, error);
-						resp.put("stacktrace-" + context,
-								o.optString("stacktrace", null));
+						ls.errormsg = error;
+						ls.stacktrace = o.optString("stacktrace", null);
 						continue;
 					}
-					resp.put("status-" + context, "OK");
+					resp.status.add(ls);
 					for (int i = 0; i < o.getJSONArray("list").length(); i++) {
 						JSONObject doc = o.getJSONArray("list")
 								.getJSONObject(i);
@@ -87,11 +96,11 @@ public class ListPost implements IRestAction {
 						arrtmp.put(doc);
 					}
 				} catch (Exception ex) {
-					resp.put("status-" + context, "Error");
-					resp.put("errormsg-" + context,
-							RestUtils.messageAsString(ex));
-					resp.put("stacktrace-" + context,
-							RestUtils.stackAsString(ex));
+					ListStatus ls = new ListStatus();
+					ls.system = system;
+					ls.errormsg = RestUtils.messageAsString(ex);
+					ls.stacktrace = RestUtils.stackAsString(ex);
+					resp.status.add(ls);
 				}
 			}
 
@@ -108,8 +117,7 @@ public class ListPost implements IRestAction {
 		}
 
 		// Produce response
-		JSONArray arr = new JSONArray();
-		resp.put("list", arr);
+		resp.list = new ArrayList<IAssijus.Document>();
 
 		for (int i = 0; i < arrtmp.length(); i++) {
 			JSONObject o = arrtmp.getJSONObject(i);
@@ -122,22 +130,21 @@ public class ListPost implements IRestAction {
 			String status = o.optString("status", null);
 			String extra = o.optString("extra", null);
 
-			JSONObject doc = new JSONObject();
-			doc.put("id", id);
-			doc.put("code", code);
-			doc.put("descr", descr);
-			doc.put("kind", kind);
-			doc.put("system", system);
-			doc.put("origin", origin);
+			Document doc = new Document();
+			doc.id = id;
+			doc.code = code;
+			doc.descr = descr;
+			doc.kind = kind;
+			doc.system = system;
+			doc.origin = origin;
+			doc.extra = extra;
+
 			// Acrescenta essa informação na tabela para permitir a
 			// posterior visualização.
-			RestUtils.memCacheStore(cpf + "-" + system + "-" + id, new byte[] { 1 });
-			if (extra != null) {
-				doc.put("extra", extra);
-			}
-			doc.put("status", status);
+			RestUtils.memCacheStore(cpf + "-" + system + "-" + id,
+					new byte[] { 1 });
 			// for (int j = 0; j < 50; j++)
-			arr.put(doc);
+			resp.list.add(doc);
 		}
 	}
 
@@ -145,4 +152,5 @@ public class ListPost implements IRestAction {
 	public String getContext() {
 		return "listar documentos";
 	}
+
 }

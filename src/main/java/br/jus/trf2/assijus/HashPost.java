@@ -4,21 +4,25 @@ import java.util.Date;
 
 import org.json.JSONObject;
 
-import com.crivano.restservlet.IRestAction;
+import br.jus.trf2.assijus.IAssijus.HashPostRequest;
+import br.jus.trf2.assijus.IAssijus.HashPostResponse;
+import br.jus.trf2.assijus.IAssijus.IHashPost;
+
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
-public class HashPost implements IRestAction {
+public class HashPost implements IHashPost {
 
 	@Override
-	public void run(JSONObject req, final JSONObject resp) throws Exception {
-		// Parse request
-		String certificate = req.getString("certificate");
-		String system = req.getString("system");
+	public void run(HashPostRequest req, HashPostResponse resp)
+			throws Exception {
+		String certificate = SwaggerUtils.base64Encode(req.certificate);
+		String system = req.system;
 		String password = Utils.getPassword(system);
-		String id = req.getString("id");
+		String id = req.id;
 
-		String authkey = req.getString("authkey");
+		String authkey = req.authkey;
 		String cpf = Utils
 				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
@@ -58,27 +62,23 @@ public class HashPost implements IRestAction {
 			String hashPolicyVersion = blucresp.getString("policyversion");
 			String hashPolicy = blucresp.getString("policy");
 
-			resp.put("hash", hash);
-			resp.put("policyversion", hashPolicyVersion);
-			resp.put("policy", hashPolicy);
-			resp.put("certificate", certificate);
-			resp.put("time", time);
-			resp.put("sha1", sha1);
-			resp.put("sha256", sha256);
+			resp.hash = SwaggerUtils.base64Decode(hash);
+			resp.policyversion = hashPolicyVersion;
+			resp.policy = hashPolicy;
 		} else {
 			if (doc == null)
 				throw new Exception(
 						"Para realizar assinaturas sem política, é necessário informar o conteúdo do documento, codificado em Base64, na propriedade 'doc'.");
-			resp.put("time", time);
-			resp.put("hash", doc);
-			resp.put("policy", "PKCS7");
-			resp.put("sha1", sha1);
-			resp.put("sha256", sha256);
+			resp.hash = SwaggerUtils.base64Decode(doc);
+			resp.policy = "PKCS7";
 		}
+		resp.time = SwaggerUtils.parse(time);
+		resp.sha1 = SwaggerUtils.base64Decode(sha1);
+		resp.sha256 = SwaggerUtils.base64Decode(sha256);
 
 		String extra = gedresp.optString("extra", null);
 		if (extra != null) {
-			resp.put("extra", extra);
+			resp.extra = extra;
 		}
 
 	}
@@ -87,4 +87,5 @@ public class HashPost implements IRestAction {
 	public String getContext() {
 		return "obter o hash";
 	}
+
 }
