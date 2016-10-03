@@ -44,8 +44,8 @@ public class AuthPost implements IAuthPost {
 			cpf = json.getJSONObject("certdetails").getString("cpf0");
 
 			// Produce response
-			resp.certificate = SwaggerUtils.base64Decode(json
-					.getString("certificate"));
+//			resp.certificate = SwaggerUtils.base64Decode(json
+//					.getString("certificate"));
 			resp.name = json.getString("cn");
 			resp.cpf = cpf;
 			resp.token = token;

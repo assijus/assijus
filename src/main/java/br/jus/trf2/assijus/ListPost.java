@@ -83,12 +83,15 @@ public class ListPost implements IListPost {
 						error = o.optString("error", null);
 					ListStatus ls = new ListStatus();
 					ls.system = system;
+					resp.status.add(ls);
 					if (error != null) {
 						ls.errormsg = error;
-						ls.stacktrace = o.optString("stacktrace", null);
+						JSONArray details = o.optJSONArray("errordetails");
+						if (details != null && details.length() > 0)
+							ls.stacktrace = details.getJSONObject(0).optString(
+									"stacktrace", null);
 						continue;
 					}
-					resp.status.add(ls);
 					for (int i = 0; i < o.getJSONArray("list").length(); i++) {
 						JSONObject doc = o.getJSONArray("list")
 								.getJSONObject(i);

@@ -18,48 +18,54 @@ app.config([ '$routeProvider', '$locationProvider',
 			$locationProvider.html5Mode(false);
 		} ]);
 
-app.controller('routerCtrl', function($scope, $http, $window, $q, $location) {
-	$scope.assijusexe = "assijus-v0-9-3.exe";
+app
+		.controller(
+				'routerCtrl',
+				function($scope, $http, $window, $q, $location) {
+					$scope.assijusexe = "assijus-v0-9-3.exe";
 
-	$scope.parseLocation = function(location) {
-		var pairs = location.substring(1).split("&");
-		var obj = {};
-		var pair;
-		var i;
+					$scope.parseLocation = function(location) {
+						var pairs = location.substring(1).split("&");
+						var obj = {};
+						var pair;
+						var i;
 
-		for (i in pairs) {
-			if (pairs[i] === "")
-				continue;
+						for (i in pairs) {
+							if (pairs[i] === "")
+								continue;
 
-			var idx = pairs[i].indexOf("=");
-			obj[decodeURIComponent(pairs[i].substring(0, idx))] = decodeURIComponent(pairs[i].substring(idx+1));
-		}
+							var idx = pairs[i].indexOf("=");
+							obj[decodeURIComponent(pairs[i].substring(0, idx))] = decodeURIComponent(pairs[i]
+									.substring(idx + 1));
+						}
 
-		return obj;
-	};
+						return obj;
+					};
 
-	$scope.querystring = $scope.parseLocation($window.location.search);
+					$scope.querystring = $scope
+							.parseLocation($window.location.search);
 
-	$scope.myhttp = function(conf) {
-		// The ID of the extension we want to talk to.
-		var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
-		// if ($location.absUrl().indexOf("//localhost/")
-		// !== -1)
-		// editorExtensionId =
-		// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
-		var deferred = $q.defer()
+					$scope.myhttp = function(conf) {
+						// The ID of the extension we want to talk to.
+						var editorExtensionId = "ifabfihopbhogohngopafekijckmpmka";
+						// if ($location.absUrl().indexOf("//localhost/")
+						// !== -1)
+						// editorExtensionId =
+						// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
+						var deferred = $q.defer()
 
-		// Make a simple request:
-		chrome.runtime.sendMessage(editorExtensionId, conf, function(response) {
-			if (!response.success) {
-				deferred.reject(response);
-			} else {
-				deferred.resolve(response)
-			}
-		});
-		return deferred.promise
-	}
-});
+						// Make a simple request:
+						chrome.runtime.sendMessage(editorExtensionId, conf,
+								function(response) {
+									if (!response.success) {
+										deferred.reject(response);
+									} else {
+										deferred.resolve(response)
+									}
+								});
+						return deferred.promise
+					}
+				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
 	$scope.versionAssijus = "1.2.9.0";
@@ -417,11 +423,6 @@ app
 							authkey.name = 'authkey';
 							authkey.value = $scope.getAuthKey();
 
-							var subject = document.createElement('input');
-							subject.type = 'text';
-							subject.name = 'subject';
-							subject.value = $scope.cert.subject;
-
 							var system = document.createElement('input');
 							system.type = 'text';
 							system.name = 'system';
@@ -437,7 +438,6 @@ app
 							submit.id = 'submitView';
 
 							form.appendChild(authkey);
-							form.appendChild(subject);
 							form.appendChild(system);
 							form.appendChild(docid);
 							form.appendChild(submit);
@@ -474,7 +474,7 @@ app
 
 						$scope.progress.start("Processando Assinatura Digital",
 								6 + 6);
-						
+
 						if ($scope.endpoint)
 							$scope.endpoint.usecallback = false;
 						$scope.validarAuthKey($scope.progress, $scope.executar);
@@ -632,23 +632,30 @@ app
 								code : state.nome,
 								extra : state.extra
 							}
-						}).then(
-								function successCallback(response) {
-									var data = response.data;
-									progress.step(state.nome
-											+ ": Assinatura gravada.");
-									$scope.reportSuccess(state.codigo, data);
-									if (!progress.active && $scope.endpoint.usecallback && $scope.endpoint.callback) {
-										window.location.href = $scope.endpoint.callback;
-										return;
-									}
-								},
-								function errorCallback(response) {
-									progress.step(state.nome
-											+ ": Assinatura não gravada.");
-									$scope.reportErrorAndResume(state.codigo,
-											"gravando assinatura", response);
-								});
+						})
+								.then(
+										function successCallback(response) {
+											var data = response.data;
+											progress.step(state.nome
+													+ ": Assinatura gravada.");
+											$scope.reportSuccess(state.codigo,
+													data);
+											if (!progress.active
+													&& $scope.endpoint.usecallback
+													&& $scope.endpoint.callback) {
+												window.location.href = $scope.endpoint.callback;
+												return;
+											}
+										},
+										function errorCallback(response) {
+											progress
+													.step(state.nome
+															+ ": Assinatura não gravada.");
+											$scope.reportErrorAndResume(
+													state.codigo,
+													"gravando assinatura",
+													response);
+										});
 					}
 
 					$scope.disable = function(id) {
@@ -705,45 +712,35 @@ app
 										key : $scope.hasOwnProperty('endpoint') ? $scope.endpoint.listkey
 												: undefined
 									}
-								})
-								.then(
-										function successCallback(response) {
-											var data = response.data;
-											$scope.setError();
-											for ( var property in data) {
-												if (data
-														.hasOwnProperty(property)) {
-													if (property
-															.indexOf("status-") == 0) {
-														var system = property
-																.substring(7);
-														if (data[property] == "OK") {
-															delete $scope.errorDetails[system];
-														} else if (data[property] == "Error") {
-															$scope.errorDetails[system] = {
-																errormsg : data["errormsg-"
-																		+ system],
-																errordetails : [ {
-																	stacktrace : data["stacktrace-"
-																			+ system],
-																	context : "listar documentos",
-																	service : system
-																} ]
-															};
-														}
-													}
-												}
-											}
-											if (progress.active)
-												$scope.update(data.list);
-											progress
-													.step("Lista de documentos recebida.");
-											progress.stop();
-										}, function errorCallback(response) {
-											delete $scope.documentos;
-											progress.stop();
-											$scope.setError(response);
-										});
+								}).then(function successCallback(response) {
+							var data = response.data;
+							$scope.setError();
+							if (data.hasOwnProperty("status")) {
+								for (var i = 0; i < data.status.length; i++) {
+									var sts = data.status[i];
+									if (!sts.hasOwnProperty("errormsg")) {
+										delete $scope.errorDetails[sts.system];
+									} else {
+										$scope.errorDetails[sts.system] = {
+											errormsg : sts.errormsg,
+											errordetails : [ {
+												stacktrace : sts.stacktrace,
+												context : "listar documentos",
+												service : sts.system
+											} ]
+										};
+									}
+								}
+							}
+							if (progress.active)
+								$scope.update(data.list);
+							progress.step("Lista de documentos recebida.");
+							progress.stop();
+						}, function errorCallback(response) {
+							delete $scope.documentos;
+							progress.stop();
+							$scope.setError(response);
+						});
 					}
 
 					$scope.update = function(l) {
