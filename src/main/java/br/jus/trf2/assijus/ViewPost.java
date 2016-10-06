@@ -1,13 +1,11 @@
 package br.jus.trf2.assijus;
 
-import org.json.JSONObject;
-
 import br.jus.trf2.assijus.IAssijus.IViewPost;
 import br.jus.trf2.assijus.IAssijus.ViewPostRequest;
 import br.jus.trf2.assijus.IAssijus.ViewPostResponse;
 
-import com.crivano.restservlet.PresentableException;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.PresentableException;
+import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class ViewPost implements IViewPost {
@@ -23,22 +21,25 @@ public class ViewPost implements IViewPost {
 		String cpf = Utils
 				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
-		if (RestUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
+		if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
 			throw new PresentableException("CPF não autorizado.");
 
 		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";
+
 		// Call document repository hash webservice
-		JSONObject gedresp = RestUtils.restGet("ged-view", password, urlView,
-				"cpf", cpf);
+		IAssijusSystem.DocIdPdfGetRequest q = new IAssijusSystem.DocIdPdfGetRequest();
+		q.id = id;
+		q.cpf = cpf;
+		IAssijusSystem.DocIdPdfGetResponse s = SwaggerCall.call(
+				system + "-get", password, "GET", urlView, q,
+				IAssijusSystem.DocIdPdfGetResponse.class);
 
 		// Produce response
-		String doc = gedresp.getString("doc");
-		resp.payload = SwaggerUtils.base64Decode(doc);
+		resp.payload = s.doc;
 		resp.contenttype = "application/pdf";
 	}
 
 	public String getContext() {
 		return "obter o pdf";
 	}
-
 }

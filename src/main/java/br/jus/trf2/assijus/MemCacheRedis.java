@@ -6,8 +6,8 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 import redis.clients.util.SafeEncoder;
 
-import com.crivano.restservlet.IMemCache;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.IMemCache;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class MemCacheRedis implements IMemCache {
 	private static JedisPool poolMaster;
@@ -18,16 +18,16 @@ public class MemCacheRedis implements IMemCache {
 	}
 
 	private static void redisConfig() {
-		String masterhost = RestUtils.getProperty("assijus.redis.master.host",
+		String masterhost = SwaggerUtils.getProperty("assijus.redis.master.host",
 				"localhost");
-		int masterport = Integer.parseInt(RestUtils.getProperty(
+		int masterport = Integer.parseInt(SwaggerUtils.getProperty(
 				"assijus.redis.master.port", "6379"));
-		String slavehost = RestUtils.getProperty("assijus.redis.slave.host",
+		String slavehost = SwaggerUtils.getProperty("assijus.redis.slave.host",
 				null);
-		int slaveport = Integer.parseInt(RestUtils.getProperty(
+		int slaveport = Integer.parseInt(SwaggerUtils.getProperty(
 				"assijus.redis.slave.port", "0"));
-		String password = RestUtils.getProperty("assijus.redis.password", null);
-		int database = Integer.parseInt(RestUtils.getProperty(
+		String password = SwaggerUtils.getProperty("assijus.redis.password", null);
+		int database = Integer.parseInt(SwaggerUtils.getProperty(
 				"assijus.redis.database", "10"));
 
 		poolMaster = new JedisPool(new JedisPoolConfig(), masterhost,

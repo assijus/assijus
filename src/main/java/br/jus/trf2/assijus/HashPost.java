@@ -2,14 +2,11 @@ package br.jus.trf2.assijus;
 
 import java.util.Date;
 
-import org.json.JSONObject;
-
 import br.jus.trf2.assijus.IAssijus.HashPostRequest;
 import br.jus.trf2.assijus.IAssijus.HashPostResponse;
 import br.jus.trf2.assijus.IAssijus.IHashPost;
 
-import com.crivano.restservlet.PresentableException;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
@@ -64,7 +61,7 @@ public class HashPost implements IHashPost {
 			if (doc == null)
 				throw new Exception(
 						"Para realizar assinaturas sem política, é necessário informar o conteúdo do documento, codificado em Base64, na propriedade 'doc'.");
-			if (RestUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
+			if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
 				throw new PresentableException("CPF não autorizado.");
 			resp.hash = SwaggerUtils.base64Decode(doc);
 			resp.policy = "PKCS7";

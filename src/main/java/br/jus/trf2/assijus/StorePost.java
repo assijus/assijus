@@ -4,7 +4,7 @@ import br.jus.trf2.assijus.IAssijus.IStorePost;
 import br.jus.trf2.assijus.IAssijus.StorePostRequest;
 import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class StorePost implements IStorePost {
 
@@ -14,7 +14,7 @@ public class StorePost implements IStorePost {
 		String payload = req.payload;
 
 		// Call
-		String key = RestUtils.dbStore(payload);
+		String key = SwaggerUtils.dbStore(payload);
 
 		// Produce response
 		resp.status = "OK";

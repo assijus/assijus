@@ -14,7 +14,6 @@ import br.jus.trf2.assijus.IAssijus.ListStatus;
 import br.jus.trf2.assijus.IAssijusSystem.DocListGetRequest;
 import br.jus.trf2.assijus.IAssijusSystem.DocListGetResponse;
 
-import com.crivano.restservlet.RestUtils;
 import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerException;
@@ -40,7 +39,7 @@ public class ListPost implements IListPost {
 			// Read list from cache
 			String payload = null;
 			if (listkey != null)
-				payload = RestUtils.dbRetrieve(listkey, false);
+				payload = SwaggerUtils.dbRetrieve(listkey, false);
 
 			ListPostResponse fakeresp = SwaggerUtils.fromJson(payload,
 					ListPostResponse.class);
@@ -94,15 +93,15 @@ public class ListPost implements IListPost {
 							doc.origin = d.origin;
 							doc.system = system;
 							resp.list.add(doc);
-							RestUtils.memCacheStore(cpf + "-" + system + "-"
+							SwaggerUtils.memCacheStore(cpf + "-" + system + "-"
 									+ doc.id, new byte[] { 1 });
 						}
 					}
 				} catch (Exception ex) {
 					ListStatus ls = new ListStatus();
 					ls.system = system;
-					ls.errormsg = RestUtils.messageAsString(ex);
-					ls.stacktrace = RestUtils.stackAsString(ex);
+					ls.errormsg = SwaggerUtils.messageAsString(ex);
+					ls.stacktrace = SwaggerUtils.stackAsString(ex);
 					resp.status.add(ls);
 				}
 			}

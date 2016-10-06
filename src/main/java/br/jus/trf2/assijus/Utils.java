@@ -10,8 +10,7 @@ import org.json.JSONObject;
 
 import br.jus.trf2.assijus.IBlueCrystal.ValidatePostResponse;
 
-import com.crivano.restservlet.PresentableException;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
@@ -22,16 +21,16 @@ public class Utils {
 			ISO_FORMAT);
 
 	public static String getUrl(String system) {
-		return RestUtils.getProperty(system + ".url", "http://localhost:8080/"
+		return SwaggerUtils.getProperty(system + ".url", "http://localhost:8080/"
 				+ system + "/api/v1");
 	}
 
 	public static String getPassword(String system) {
-		return RestUtils.getProperty(system + ".password", null);
+		return SwaggerUtils.getProperty(system + ".password", null);
 	}
 
 	public static String getUrlBluCServer() {
-		return RestUtils.getProperty("blucservice.url",
+		return SwaggerUtils.getProperty("blucservice.url",
 				"http://localhost:8080/blucservice/api/v1");
 	}
 
@@ -92,7 +91,7 @@ public class Utils {
 
 	public static JSONObject validateAuthKey(String authkey,
 			String urlblucserver) throws Exception {
-		String payload = RestUtils.dbRetrieve(authkey, false);
+		String payload = SwaggerUtils.dbRetrieve(authkey, false);
 
 		if (payload == null) {
 			throw new PresentableException(
@@ -112,14 +111,14 @@ public class Utils {
 
 	public static String assertValidAuthKey(String authkey, String urlblucserver)
 			throws Exception {
-		byte[] cached = RestUtils.memCacheRetrieve("valid-" + authkey);
+		byte[] cached = SwaggerUtils.memCacheRetrieve("valid-" + authkey);
 		if (cached != null)
 			return new String(cached);
 
 		JSONObject json = validateAuthKey(authkey, urlblucserver);
 
 		String cpf = json.getString("cpf");
-		RestUtils.memCacheStore("valid-" + authkey, cpf.getBytes());
+		SwaggerUtils.memCacheStore("valid-" + authkey, cpf.getBytes());
 		return cpf;
 	}
 

@@ -7,8 +7,7 @@ import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
 import br.jus.trf2.assijus.IAssijus.IAuthPost;
 import br.jus.trf2.assijus.IBlueCrystal.ValidatePostResponse;
 
-import com.crivano.restservlet.PresentableException;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class AuthPost implements IAuthPost {
@@ -21,7 +20,7 @@ public class AuthPost implements IAuthPost {
 		String payload = null;
 
 		if (authkey != null) {
-			payload = RestUtils.dbRetrieve(authkey, false);
+			payload = SwaggerUtils.dbRetrieve(authkey, false);
 
 			if (payload.startsWith("TOKEN-"))
 				// A token is stored
@@ -50,7 +49,7 @@ public class AuthPost implements IAuthPost {
 			resp.token = token;
 			resp.kind = "signed-token";
 
-			String key = RestUtils.dbStore(SwaggerUtils.toJson(resp));
+			String key = SwaggerUtils.dbStore(SwaggerUtils.toJson(resp));
 			resp.authkey = key;
 			return;
 		}

@@ -12,12 +12,11 @@ import br.jus.trf2.assijus.IAssijus.SavePostRequest;
 import br.jus.trf2.assijus.IAssijus.SavePostResponse;
 import br.jus.trf2.assijus.IAssijus.Warning;
 
-import com.crivano.restservlet.RestUtils;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class SavePost implements ISavePost {
-	private static final Logger log = LoggerFactory.getLogger(RestUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(SavePost.class);
 
 	@Override
 	public void run(SavePostRequest req, SavePostResponse resp)
