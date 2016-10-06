@@ -1,7 +1,6 @@
 package br.jus.trf2.assijus;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
 import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
@@ -16,8 +15,8 @@ import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
 import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
 
-import com.crivano.restservlet.HTTPMockFromJSON;
-import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.HTTPMockFromJSON;
+import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerTestSupport;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
@@ -57,8 +56,8 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 				.getResourceAsStream("blucservice.mock.json"));
 		http.add("http://localhost:8080/testesigner/api/v1", this.getClass()
 				.getResourceAsStream("testesigner.mock.json"));
-		RestUtils.setHttp(http);
-		RestUtils.setProperty("assijus.systems", "testesigner");
+		SwaggerCall.setHttp(http);
+		SwaggerUtils.setProperty("assijus.systems", "testesigner");
 	}
 
 	@Override
@@ -83,7 +82,6 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 
 		assertEquals(36, resp.authkey.length());
 		assertEquals(token, resp.token);
-		assertEquals(certificate, SwaggerUtils.base64Encode(resp.certificate));
 		assertEquals(cpf, resp.cpf);
 		assertEquals(kind, resp.kind);
 		assertEquals(name, resp.name);

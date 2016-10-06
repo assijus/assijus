@@ -1,8 +1,8 @@
 package br.jus.trf2.assijus;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ import br.jus.trf2.assijus.IAssijus.SavePostResponse;
 import br.jus.trf2.assijus.IAssijus.Warning;
 
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class SavePost implements ISavePost {
@@ -41,75 +42,70 @@ public class SavePost implements ISavePost {
 			throw new Exception("Não foi possível obter o parâmetro signature.");
 
 		// Parse certificate
-		JSONObject blucreq2 = new JSONObject();
-		blucreq2.put("certificate", certificate);
+		IBlueCrystal.CertificatePostRequest q = new IBlueCrystal.CertificatePostRequest();
+		q.certificate = SwaggerUtils.base64Decode(certificate);
+		IBlueCrystal.CertificatePostResponse s = SwaggerCall.call(
+				"bluc-certificate", null, "POST", Utils.getUrlBluCServer()
+						+ "/certificate", q,
+				IBlueCrystal.CertificatePostResponse.class);
+		String subject = s.subject;
+		String cn = s.cn;
+		String name = s.name;
+		String cpf = s.cpf;
 
-		// Call bluc-server hash webservice
-		JSONObject blucresp2 = RestUtils.restPost("bluc-certificate", null,
-				Utils.getUrlBluCServer() + "/certificate", blucreq2);
-
-		String subject = blucresp2.getString("subject");
-		String cn = blucresp2.getString("cn");
-		String name = blucresp2.getString("name");
-		String cpf = blucresp2.getString("cpf");
-
+		// Build envelope
 		String envelope = null;
-		JSONObject blucreq = new JSONObject();
-		blucreq.put("certificate", certificate);
-		blucreq.put("time", time);
-		blucreq.put("policy", policy);
-		blucreq.put("sha1", sha1);
-		blucreq.put("sha256", sha256);
-		blucreq.put("crl", true);
 		if (!"PKCS7".equals(policy)) {
-			blucreq.put("signature", signature);
-			// Call bluc-server hash webservice
-			JSONObject blucresp = RestUtils.restPost("bluc-envelope", null,
-					Utils.getUrlBluCServer() + "/envelope", blucreq);
-
-			envelope = blucresp.getString("envelope");
-
-			// Call bluc-server validate webservice. If there is an error,
-			// Utils will throw an exception.
-			blucreq.remove("signature");
+			IBlueCrystal.EnvelopePostRequest q2 = new IBlueCrystal.EnvelopePostRequest();
+			q2.certificate = SwaggerUtils.base64Decode(certificate);
+			q2.time = SwaggerUtils.parse(time);
+			q2.policy = policy;
+			q2.sha1 = SwaggerUtils.base64Decode(sha1);
+			q2.sha256 = SwaggerUtils.base64Decode(sha256);
+			q2.crl = true;
+			q2.signature = SwaggerUtils.base64Decode(signature);
+			IBlueCrystal.EnvelopePostResponse s2 = SwaggerCall.call(
+					"bluc-envelope", null, "POST", Utils.getUrlBluCServer()
+							+ "/envelope", q2,
+					IBlueCrystal.EnvelopePostResponse.class);
+			envelope = SwaggerUtils.base64Encode(s2.envelope);
 		} else {
 			envelope = signature;
 		}
-		blucreq.put("envelope", envelope);
 
-		// Call bluc-server validate webservice. If there is an error,
-		// Utils will throw an exception.
-		JSONObject blucvalidateresp = RestUtils.restPost("bluc-validate", null,
-				Utils.getUrlBluCServer() + "/validate", blucreq);
+		// Validate: call bluc-server validate webservice. If there is an error,
+		// it will throw an exception.
+		IBlueCrystal.ValidatePostRequest q3 = new IBlueCrystal.ValidatePostRequest();
+		q3.time = SwaggerUtils.parse(time);
+		q3.sha1 = SwaggerUtils.base64Decode(sha1);
+		q3.sha256 = SwaggerUtils.base64Decode(sha256);
+		q3.crl = true;
+		q3.envelope = SwaggerUtils.base64Decode(envelope);
+		IBlueCrystal.ValidatePostResponse s3 = SwaggerCall.call(
+				"bluc-validate", null, "POST", Utils.getUrlBluCServer()
+						+ "/validate", q3,
+				IBlueCrystal.ValidatePostResponse.class);
 
-		// Call
-		JSONObject sigareq = new JSONObject();
-		sigareq.put("certificate", certificate);
-		sigareq.put("envelope", envelope);
-		sigareq.put("time", time);
-		sigareq.put("subject", subject);
-		sigareq.put("cn", cn);
-		sigareq.put("name", name);
-		sigareq.put("cpf", cpf);
-		sigareq.put("sha1", sha1);
-		sigareq.put("sha256", sha256);
-		if (extra != null)
-			sigareq.put("extra", extra);
-
-		// Call document repository hash webservice
+		// Store the signature
+		IAssijusSystem.DocIdSignPutRequest q4 = new IAssijusSystem.DocIdSignPutRequest();
+		q4.envelope = SwaggerUtils.base64Decode(envelope);
+		q4.time = SwaggerUtils.parse(time);
+		q4.name = name;
+		q4.cpf = cpf;
+		q4.sha1 = SwaggerUtils.base64Decode(sha1);
+		q4.extra = extra;
 		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";
-		JSONObject sigaresp = RestUtils.restPut("save-signature", password,
-				urlSave, sigareq);
+		IAssijusSystem.DocIdSignPutResponse s4 = SwaggerCall.call(
+				"system-save", password, "PUT", urlSave, q4,
+				IAssijusSystem.DocIdSignPutResponse.class);
 
 		// Produce response
 		resp.warning = new ArrayList<IAssijus.Warning>();
-		JSONArray receivedwarnings = sigaresp.optJSONArray("warning");
-		if (receivedwarnings != null) {
-			for (int i = 0; i > receivedwarnings.length(); i++) {
+		if (s4.warning != null) {
+			for (int i = 0; i > s4.warning.size(); i++) {
 				Warning warning = new Warning();
-				JSONObject w = receivedwarnings.getJSONObject(i);
-				warning.label = w.getString("label");
-				warning.description = w.getString("description");
+				warning.label = s4.warning.get(i).label;
+				warning.description = s4.warning.get(i).description;
 				resp.warning.add(warning);
 			}
 
@@ -123,11 +119,10 @@ public class SavePost implements ISavePost {
 		if (resp.warning.size() == 0)
 			resp.warning = null;
 
-		String status = sigaresp.optString("status", null);
-		resp.status = status;
+		resp.status = s4.status;
 
 		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", "
-				+ status);
+				+ resp.status);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
 import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
 import br.jus.trf2.assijus.IAssijus.IAuthPost;
+import br.jus.trf2.assijus.IBlueCrystal.ValidatePostResponse;
 
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
@@ -38,15 +39,13 @@ public class AuthPost implements IAuthPost {
 		}
 
 		if (token != null) {
-			JSONObject json = Utils.validateToken(token,
+			ValidatePostResponse json = Utils.validateToken(token,
 					Utils.getUrlBluCServer());
 			String cpf = null;
-			cpf = json.getJSONObject("certdetails").getString("cpf0");
+			cpf = json.certdetails.cpf0;
 
 			// Produce response
-//			resp.certificate = SwaggerUtils.base64Decode(json
-//					.getString("certificate"));
-			resp.name = json.getString("cn");
+			resp.name = json.cn;
 			resp.cpf = cpf;
 			resp.token = token;
 			resp.kind = "signed-token";

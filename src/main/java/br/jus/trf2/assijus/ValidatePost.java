@@ -7,6 +7,7 @@ import br.jus.trf2.assijus.IAssijus.ValidatePostRequest;
 import br.jus.trf2.assijus.IAssijus.ValidatePostResponse;
 
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class ValidatePost implements IValidatePost {
@@ -20,23 +21,24 @@ public class ValidatePost implements IValidatePost {
 		String sha1 = SwaggerUtils.base64Encode(req.sha1);
 		String sha256 = SwaggerUtils.base64Encode(req.sha256);
 
-		// Call bluc-server validate webservice. If there is an error,
-		// Utils will throw an exception.
-		JSONObject blucreq = new JSONObject();
-		blucreq.put("envelope", envelope);
-		blucreq.put("time", time);
-		blucreq.put("sha1", sha1);
-		blucreq.put("sha256", sha256);
-		blucreq.put("crl", true);
-		JSONObject blucresp = RestUtils.restPost("bluc-validate", null,
-				Utils.getUrlBluCServer() + "/validate", blucreq);
+		// Validate: call bluc-server validate webservice. If there is an error,
+		// it will throw an exception.
+		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
+		q.time = SwaggerUtils.parse(time);
+		q.sha1 = SwaggerUtils.base64Decode(sha1);
+		q.sha256 = SwaggerUtils.base64Decode(sha256);
+		q.crl = true;
+		q.envelope = SwaggerUtils.base64Decode(envelope);
+		IBlueCrystal.ValidatePostResponse s = SwaggerCall.call("bluc-validate",
+				null, "POST", Utils.getUrlBluCServer() + "/validate", q,
+				IBlueCrystal.ValidatePostResponse.class);
 
-		String policy = blucresp.getString("policy");
-		String policyversion = blucresp.getString("policyversion");
-		String policyoid = blucresp.getString("policyoid");
-		String cn = blucresp.getString("cn");
-		String cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
-		String status = blucresp.getString("status");
+		String policy = s.policy;
+		String policyversion = s.policyversion;
+		String policyoid = s.policyoid;
+		String cn = s.cn;
+		String cpf = s.certdetails.cpf0;
+		String status = s.status;
 
 		resp.policy = policy;
 		resp.policyversion = policyversion;

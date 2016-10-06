@@ -8,8 +8,11 @@ import java.util.Date;
 
 import org.json.JSONObject;
 
+import br.jus.trf2.assijus.IBlueCrystal.ValidatePostResponse;
+
 import com.crivano.restservlet.PresentableException;
 import com.crivano.restservlet.RestUtils;
+import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
@@ -33,7 +36,7 @@ public class Utils {
 	}
 
 	public static String[] getSystems() {
-		String systems = RestUtils.getProperty("assijus.systems", null);
+		String systems = SwaggerUtils.getProperty("assijus.systems", null);
 		if (systems == null)
 			return null;
 		return systems.split(",");
@@ -60,8 +63,8 @@ public class Utils {
 		return null;
 	}
 
-	public static JSONObject validateToken(String token, String urlblucserver)
-			throws Exception {
+	public static ValidatePostResponse validateToken(String token,
+			String urlblucserver) throws Exception {
 		String tokenAsString = token.split(";")[0];
 		if (!tokenAsString.startsWith("TOKEN-"))
 			throw new Exception("Token não está no formato correto.");
@@ -74,18 +77,17 @@ public class Utils {
 		if (signB64 == null)
 			throw new Exception("Assinatura do token não foi encontrada.");
 
-		JSONObject blucreq = new JSONObject();
-		blucreq.put("envelope", signB64);
-		blucreq.put("time", dateAsString);
-		blucreq.put("policy", "PKCS7");
-		blucreq.put("sha1", SwaggerUtils.base64Encode(calcSha1(tokenAsBytes)));
-		blucreq.put("sha256", SwaggerUtils.base64Encode(calcSha256(tokenAsBytes)));
-		blucreq.put("crl", true);
-
-		// Call bluc-server hash webservice
-		JSONObject blucresp = RestUtils.restPost("bluc-validate", null,
-				urlblucserver + "/validate", blucreq);
-		return blucresp;
+		// Validate: call bluc-server validate webservice. If there is an error,
+		// it will throw an exception.
+		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
+		q.time = SwaggerUtils.parse(dateAsString);
+		q.sha1 = calcSha1(tokenAsBytes);
+		q.sha256 = calcSha256(tokenAsBytes);
+		q.crl = true;
+		q.envelope = SwaggerUtils.base64Decode(signB64);
+		return SwaggerCall.call("bluc-validate", null, "POST",
+				Utils.getUrlBluCServer() + "/validate", q,
+				IBlueCrystal.ValidatePostResponse.class);
 	}
 
 	public static JSONObject validateAuthKey(String authkey,
@@ -99,10 +101,10 @@ public class Utils {
 
 		JSONObject json = new JSONObject(payload);
 		String kind = json.getString("kind");
-		JSONObject blucresp = validateToken(json.getString("token"),
+		ValidatePostResponse blucresp = validateToken(json.getString("token"),
 				urlblucserver);
 		String cpf = null;
-		cpf = blucresp.getJSONObject("certdetails").getString("cpf0");
+		cpf = blucresp.certdetails.cpf0;
 		if (!cpf.equals(json.getString("cpf")))
 			throw new Exception("cpf não confere");
 		return json;

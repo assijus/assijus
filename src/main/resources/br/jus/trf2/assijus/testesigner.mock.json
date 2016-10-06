@@ -1,7 +1,7 @@
 {
   "Listar documentos": {
     "method": "GET",
-    "path": "/doc/list?&urlapi=http%3A%2F%2Flocalhost%3A8080%2Ftestesigner%2Fapi%2Fv1&cpf=00489623760",
+    "path": "/doc/list?cpf=00489623760&urlapi=http%3A%2F%2Flocalhost%3A8080%2Ftestesigner%2Fapi%2Fv1",
     "response": {
       "list": [
        {
@@ -39,7 +39,7 @@
   },
   "Gerar hash de PDF": {
     "method": "GET",
-    "path": "/doc/00489623760_144_46/hash?&cpf=00489623760",
+    "path": "/doc/00489623760_144_46/hash?cpf=00489623760",
     "response": {
       "sha256": "9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d",
       "sha1": "vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d"
