@@ -397,6 +397,7 @@ app
 									system : doc.system,
 									codigo : doc.id,
 									nome : doc.code,
+									extra : doc.extra,
 									enabled : true,
 								};
 								$scope.operacoes.push(operacao);
@@ -464,6 +465,7 @@ app
 									system : doc.system,
 									codigo : doc.id,
 									nome : doc.code,
+									extra : doc.extra,
 									enabled : true,
 								};
 								$scope.operacoes.push(operacao);
@@ -510,7 +512,8 @@ app
 								$scope.assinar({
 									nome : o.nome,
 									codigo : o.codigo,
-									system : o.system
+									system : o.system,
+									extra : o.extra
 								}, progress);
 							}, 10);
 							return;
@@ -531,6 +534,7 @@ app
 							data : {
 								system : state.system,
 								id : state.codigo,
+								extra : state.extra,
 								certificate : $scope.cert.certificate,
 								subject : $scope.cert.subject,
 								authkey : $scope.getAuthKey()

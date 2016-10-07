@@ -11,8 +11,9 @@ import br.jus.trf2.assijus.IAssijus.IListPost;
 import br.jus.trf2.assijus.IAssijus.ListPostRequest;
 import br.jus.trf2.assijus.IAssijus.ListPostResponse;
 import br.jus.trf2.assijus.IAssijus.ListStatus;
-import br.jus.trf2.assijus.IAssijusSystem.DocListGetRequest;
-import br.jus.trf2.assijus.IAssijusSystem.DocListGetResponse;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
+import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetRequest;
+import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
 
 import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerCall;

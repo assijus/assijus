@@ -5,7 +5,9 @@ import java.util.Date;
 import br.jus.trf2.assijus.IAssijus.HashPostRequest;
 import br.jus.trf2.assijus.IAssijus.HashPostResponse;
 import br.jus.trf2.assijus.IAssijus.IHashPost;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
+import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;

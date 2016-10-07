@@ -15,14 +15,10 @@ public class AssijusServlet extends SwaggerServlet {
 		super.init(config);
 
 		SwaggerUtils.setCache(new MemCacheRedis());
+		
+		super.setAPI(IAssijus.class);
 
 		super.setActionPackage("br.jus.trf2.assijus");
-
-		Swagger sw = new Swagger();
-		sw.loadFromInputStream(this.getClass().getResourceAsStream(
-				"/swagger.yaml"));
-
-		super.setSwagger(sw);
 	}
 
 	@Override

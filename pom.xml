@@ -11,9 +11,15 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.crivano</groupId>
-			<artifactId>swaggerservlet</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<groupId>br.jus.trf2.assijus</groupId>
+			<artifactId>assijus-system-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.crivano.blucservice</groupId>
+			<artifactId>blucservice-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

@@ -1,9 +1,7 @@
 package br.jus.trf2.assijus;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +9,9 @@ import br.jus.trf2.assijus.IAssijus.ISavePost;
 import br.jus.trf2.assijus.IAssijus.SavePostRequest;
 import br.jus.trf2.assijus.IAssijus.SavePostResponse;
 import br.jus.trf2.assijus.IAssijus.Warning;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
+import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 

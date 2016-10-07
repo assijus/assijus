@@ -61,6 +61,11 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 	}
 
 	@Override
+	protected Class getAPI() {
+		return IAssijus.class;
+	}
+
+	@Override
 	protected String getPackage() {
 		return "br.jus.trf2.assijus";
 	}
@@ -150,4 +155,5 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 
 		assertEquals("OK", resp.status);
 	}
+
 }

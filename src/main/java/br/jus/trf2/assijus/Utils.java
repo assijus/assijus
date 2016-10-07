@@ -8,8 +8,8 @@ import java.util.Date;
 
 import org.json.JSONObject;
 
-import br.jus.trf2.assijus.IBlueCrystal.ValidatePostResponse;
-
+import com.crivano.blucservice.api.IBlueCrystal;
+import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
@@ -21,8 +21,8 @@ public class Utils {
 			ISO_FORMAT);
 
 	public static String getUrl(String system) {
-		return SwaggerUtils.getProperty(system + ".url", "http://localhost:8080/"
-				+ system + "/api/v1");
+		return SwaggerUtils.getProperty(system + ".url",
+				"http://localhost:8080/" + system + "/api/v1");
 	}
 
 	public static String getPassword(String system) {

@@ -4,6 +4,7 @@ import br.jus.trf2.assijus.IAssijus.IValidatePost;
 import br.jus.trf2.assijus.IAssijus.ValidatePostRequest;
 import br.jus.trf2.assijus.IAssijus.ValidatePostResponse;
 
+import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
