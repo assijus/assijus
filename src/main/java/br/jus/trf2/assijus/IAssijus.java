@@ -8,214 +8,234 @@ import com.crivano.swaggerservlet.ISwaggerModel;
 import com.crivano.swaggerservlet.ISwaggerRequest;
 import com.crivano.swaggerservlet.ISwaggerResponse;
 
-interface IAssijus {
-	class Document implements ISwaggerModel {
-		String system;
-		String id;
-		String code;
-		String descr;
-		String kind;
-		String origin;
-		String extra;
+public interface IAssijus {
+	public class Document implements ISwaggerModel {
+		public String system;
+		public String id;
+		public String secret;
+		public String code;
+		public String descr;
+		public String kind;
+		public String origin;
+		public String extra;
 	}
 
-	class ListStatus implements ISwaggerModel {
-		String system;
-		String errormsg;
-		String stacktrace;
+	public class ListStatus implements ISwaggerModel {
+		public String system;
+		public String errormsg;
+		public String stacktrace;
 	}
 
-	class Warning implements ISwaggerModel {
-		String label;
-		String description;
+	public class Warning implements ISwaggerModel {
+		public String label;
+		public String description;
 	}
 
-	class Policy implements ISwaggerModel {
+	public class Policy implements ISwaggerModel {
 	}
 
-	class PolicyVersion implements ISwaggerModel {
+	public class PolicyVersion implements ISwaggerModel {
 	}
 
-	class PolicyOID implements ISwaggerModel {
+	public class PolicyOID implements ISwaggerModel {
 	}
 
-	class CN implements ISwaggerModel {
+	public class CN implements ISwaggerModel {
 	}
 
-	class CPF implements ISwaggerModel {
+	public class CPF implements ISwaggerModel {
 	}
 
-	class AuthKey implements ISwaggerModel {
+	public class AuthKey implements ISwaggerModel {
 	}
 
-	class AuthKind implements ISwaggerModel {
+	public class AuthKind implements ISwaggerModel {
 	}
 
-	class Token implements ISwaggerModel {
+	public class Token implements ISwaggerModel {
 	}
 
-	class Name implements ISwaggerModel {
+	public class Name implements ISwaggerModel {
 	}
 
-	class Certificate implements ISwaggerModel {
+	public class Certificate implements ISwaggerModel {
 	}
 
-	class Time implements ISwaggerModel {
+	public class Time implements ISwaggerModel {
 	}
 
-	class Hash implements ISwaggerModel {
+	public class Hash implements ISwaggerModel {
 	}
 
-	class Sha1 implements ISwaggerModel {
+	public class Sha1 implements ISwaggerModel {
 	}
 
-	class Sha256 implements ISwaggerModel {
+	public class Sha256 implements ISwaggerModel {
 	}
 
-	class Extra implements ISwaggerModel {
+	public class Extra implements ISwaggerModel {
 	}
 
-	class error implements ISwaggerModel {
-		String error;
+	public class error implements ISwaggerModel {
+		public String error;
 	}
 
-	class TokenPostRequest implements ISwaggerRequest {
+	public class TokenPostRequest implements ISwaggerRequest {
 	}
 
-	class TokenPostResponse implements ISwaggerResponse {
-		String token;
-		String policy;
+	public class TokenPostResponse implements ISwaggerResponse {
+		public String token;
+		public String policy;
 	}
 
-	interface ITokenPost extends ISwaggerMethod {
-		void run(TokenPostRequest req, TokenPostResponse resp) throws Exception;
+	public interface ITokenPost extends ISwaggerMethod {
+		public void run(TokenPostRequest req, TokenPostResponse resp) throws Exception;
 	}
 
-	class AuthPostRequest implements ISwaggerRequest {
-		String authkey;
-		String token;
+	public class AuthPostRequest implements ISwaggerRequest {
+		public String authkey;
+		public String token;
 	}
 
-	class AuthPostResponse implements ISwaggerResponse {
-		String authkey;
-		String cpf;
-		String name;
-		String token;
-		String kind;
-		byte[] certificate;
-		String cn;
+	public class AuthPostResponse implements ISwaggerResponse {
+		public String authkey;
+		public String cpf;
+		public String name;
+		public String token;
+		public String kind;
+		public String cn;
 	}
 
-	interface IAuthPost extends ISwaggerMethod {
-		void run(AuthPostRequest req, AuthPostResponse resp) throws Exception;
+	public interface IAuthPost extends ISwaggerMethod {
+		public void run(AuthPostRequest req, AuthPostResponse resp) throws Exception;
 	}
 
-	class ListPostRequest implements ISwaggerRequest {
-		String key;
-		String authkey;
-		byte[] certificate;
+	public class ListPostRequest implements ISwaggerRequest {
+		public String key;
+		public String authkey;
+		public byte[] certificate;
 	}
 
-	class ListPostResponse implements ISwaggerResponse {
-		List<Document> list;
-		List<ListStatus> status;
+	public class ListPostResponse implements ISwaggerResponse {
+		public List<Document> list;
+		public List<ListStatus> status;
 	}
 
-	interface IListPost extends ISwaggerMethod {
-		void run(ListPostRequest req, ListPostResponse resp) throws Exception;
+	public interface IListPost extends ISwaggerMethod {
+		public void run(ListPostRequest req, ListPostResponse resp) throws Exception;
 	}
 
-	class ViewPostRequest implements ISwaggerRequest {
-		String authkey;
-		String id;
-		String system;
+	public class ViewPostRequest implements ISwaggerRequest {
+		public String authkey;
+		public String system;
+		public String id;
+		public String secret;
 	}
 
-	class ViewPostResponse implements ISwaggerResponse {
-		byte[] payload;
-		String contenttype;
+	public class ViewPostResponse implements ISwaggerResponse {
+		public byte[] payload;
+		public String contenttype;
 	}
 
-	interface IViewPost extends ISwaggerMethod {
-		void run(ViewPostRequest req, ViewPostResponse resp) throws Exception;
+	public interface IViewPost extends ISwaggerMethod {
+		public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception;
 	}
 
-	class HashPostRequest implements ISwaggerRequest {
-		String authkey;
-		byte[] certificate;
-		String id;
-		String system;
+	public class HashPostRequest implements ISwaggerRequest {
+		public String authkey;
+		public byte[] certificate;
+		public String system;
+		public String id;
+		public String secret;
 	}
 
-	class HashPostResponse implements ISwaggerResponse {
-		String policy;
-		String policyversion;
-		Date time;
-		byte[] hash;
-		String extra;
-		byte[] sha1;
-		byte[] sha256;
+	public class HashPostResponse implements ISwaggerResponse {
+		public String policy;
+		public String policyversion;
+		public Date time;
+		public byte[] hash;
+		public String extra;
+		public byte[] sha1;
+		public byte[] sha256;
 	}
 
-	interface IHashPost extends ISwaggerMethod {
-		void run(HashPostRequest req, HashPostResponse resp) throws Exception;
+	public interface IHashPost extends ISwaggerMethod {
+		public void run(HashPostRequest req, HashPostResponse resp) throws Exception;
 	}
 
-	class SavePostRequest implements ISwaggerRequest {
-		byte[] certificate;
-		String system;
-		String id;
-		String code;
-		String policy;
-		String policyversion;
-		byte[] signature;
-		byte[] sha1;
-		byte[] sha256;
-		Date time;
-		String extra;
+	public class SavePostRequest implements ISwaggerRequest {
+		public byte[] certificate;
+		public String system;
+		public String id;
+		public String code;
+		public String policy;
+		public String policyversion;
+		public byte[] signature;
+		public byte[] sha1;
+		public byte[] sha256;
+		public Date time;
+		public String extra;
 	}
 
-	class SavePostResponse implements ISwaggerResponse {
-		String status;
-		List<Warning> warning;
+	public class SavePostResponse implements ISwaggerResponse {
+		public String status;
+		public List<Warning> warning;
 	}
 
-	interface ISavePost extends ISwaggerMethod {
-		void run(SavePostRequest req, SavePostResponse resp) throws Exception;
+	public interface ISavePost extends ISwaggerMethod {
+		public void run(SavePostRequest req, SavePostResponse resp) throws Exception;
 	}
 
-	class ValidatePostRequest implements ISwaggerRequest {
-		byte[] envelope;
-		byte[] sha1;
-		byte[] sha256;
-		Date time;
+	public class ValidatePostRequest implements ISwaggerRequest {
+		public byte[] envelope;
+		public byte[] sha1;
+		public byte[] sha256;
+		public Date time;
 	}
 
-	class ValidatePostResponse implements ISwaggerResponse {
-		String policy;
-		String policyversion;
-		String policyoid;
-		String cn;
-		String cpf;
-		String status;
+	public class ValidatePostResponse implements ISwaggerResponse {
+		public String policy;
+		public String policyversion;
+		public String policyoid;
+		public String cn;
+		public String cpf;
+		public String status;
 	}
 
-	interface IValidatePost extends ISwaggerMethod {
-		void run(ValidatePostRequest req, ValidatePostResponse resp)
-				throws Exception;
+	public interface IValidatePost extends ISwaggerMethod {
+		public void run(ValidatePostRequest req, ValidatePostResponse resp) throws Exception;
 	}
 
-	class StorePostRequest implements ISwaggerRequest {
-		String payload;
+	public class VerifyPostRequest implements ISwaggerRequest {
+		public String system;
+		public String id;
+		public String ref;
 	}
 
-	class StorePostResponse implements ISwaggerResponse {
-		String status;
-		String key;
+	public class VerifyPostResponse implements ISwaggerResponse {
+		public String policy;
+		public String policyversion;
+		public String policyoid;
+		public String cn;
+		public String cpf;
+		public String status;
 	}
 
-	interface IStorePost extends ISwaggerMethod {
-		void run(StorePostRequest req, StorePostResponse resp) throws Exception;
+	public interface IVerifyPost extends ISwaggerMethod {
+		public void run(VerifyPostRequest req, VerifyPostResponse resp) throws Exception;
+	}
+
+	public class StorePostRequest implements ISwaggerRequest {
+		public String payload;
+	}
+
+	public class StorePostResponse implements ISwaggerResponse {
+		public String status;
+		public String key;
+	}
+
+	public interface IStorePost extends ISwaggerMethod {
+		public void run(StorePostRequest req, StorePostResponse resp) throws Exception;
 	}
 
 }

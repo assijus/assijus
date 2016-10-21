@@ -31,7 +31,17 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/tokenResponse"
+            type: object
+            properties:
+              token:
+                type: string
+                description: Token que deve ser assinado para autenticar o usuário
+              policy:
+                type: string
+                description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+            example:
+              policy: AD-RB
+              token: TOKEN-2016-05-24T14:05:11.248-03:00
         500:
           description: Error ocurred
           schema:
@@ -41,12 +51,28 @@ paths:
     post:
       description: Verifica a validade de um token e retorna o nome do usuário e o certificado
       tags: [auth]
-      parameters: []
+      parameters:
+        - $ref: "#/parameters/authkey"
+        - $ref: "#/parameters/token"
       responses:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/authResponse"
+            type: object
+            properties:
+              authkey:
+                $ref: "#/definitions/AuthKey"
+              cpf:
+                $ref: "#/definitions/CPF"
+              name:
+                $ref: "#/definitions/Name"
+              token:
+                $ref: "#/definitions/Token"
+              kind:
+                $ref: "#/definitions/AuthKind"
+              cn:
+                type: string
+                description: Nome do usuário
         500:
           description: Error ocurred
           schema:
@@ -57,6 +83,7 @@ paths:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
       tags: [view]
       parameters:
+        - $ref: "#/parameters/key"
         - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/certificate"
       responses:
@@ -68,7 +95,11 @@ paths:
               list:
                 type: array
                 items:
-                  $ref: "#/definitions/document"
+                  $ref: "#/definitions/Document"
+              status:
+                type: array
+                items:
+                  $ref: "#/definitions/ListStatus"
         500:
           description: Error ocurred
           schema:
@@ -94,7 +125,15 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/viewResponse"
+            type: object
+            properties:
+              payload:
+                type: string
+                format: byte
+                description: PDF codificado em base64
+              contenttype:
+                type: string
+                description: Constante em application/pdf
         500:
           description: Error ocurred
           schema:
@@ -122,7 +161,26 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/hashResponse"
+            type: object
+            properties:
+              policy:
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              time:
+                $ref: "#/definitions/Time"
+              hash:
+                $ref: "#/definitions/Hash"
+              extra:
+                $ref: "#/definitions/Extra"
+              sha1:
+                $ref: "#/definitions/Sha1"
+              sha256:
+                $ref: "#/definitions/Sha256"
+            example:      
+              sha1: csTZGGSt1AG1m3T5VaIzcHX8Av0=
+              sha256: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
+              urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
         500:
           description: Error ocurred
           schema:
@@ -134,61 +192,28 @@ paths:
       tags: [sign]
       parameters:
         - $ref: "#/parameters/certificate"
-        - name: id
-          in: formData
-          description: Identificador do documento
-          required: true
-          type: string
-        - name: system
-          in: formData
-          description: Identificador do systema integrado
-          required: true
-          type: string
-        - name: signature
-          in: formData
-          description: Envelope da assinatura digital em base64
-          required: false
-          type: string
-          format: byte
-        - name: signkey
-          in: formData
-          description: Chave para obter o envelope da assinatura digital em base64
-          required: false
-          type: string
-          format: byte
-        - name: time
-          in: formData
-          description: Data e hora da assinatura digital
-          required: true
-          type: string
-          format: datetime
-        - name: policy
-          in: formData
-          description: Código da política usada na assinatura digital (PKCS7, AD-RB)
-          required: true
-          type: string
-        - name: policyversion
-          in: formData
-          description: Número de versão da política usada na assinatura digital
-          required: false
-          type: string
-        - name: sha1
-          in: formData
-          description: SHA-1 do PDF codificado em base64
-          required: true
-          type: string
-          format: byte
-        - name: sha256
-          in: formData
-          description: SHA-256 do PDF codificado em base64
-          required: true
-          type: string
-          format: byte
+        - $ref: "#/parameters/system"
+        - $ref: "#/parameters/id"
+        - $ref: "#/parameters/code"
+        - $ref: "#/parameters/policy"
+        - $ref: "#/parameters/policyversion"
+        - $ref: "#/parameters/signature"
+        - $ref: "#/parameters/sha1"
+        - $ref: "#/parameters/sha256"
+        - $ref: "#/parameters/time"
+        - $ref: "#/parameters/extra"
       responses:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/saveResponse"
+            type: object
+            properties:
+              status:
+                type: string
+              warning:
+                type: array
+                items:
+                  $ref: "#/definitions/Warning"
         500:
           description: Error ocurred
           schema:
@@ -207,7 +232,53 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/validateResponse"
+            type: object
+            properties:
+              policy:
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              policyoid:
+                $ref: "#/definitions/PolicyOID"
+              cn:
+                $ref: "#/definitions/CN"
+              cpf:
+                $ref: "#/definitions/CPF"
+              status:
+                type: string
+                description: Resultado da validação - GOOD ou UNKNOWN são aceitáveis, outros representam erros
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /verify:
+    post:
+      description: Valida um envelope CMS de assinatura digital
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/system"
+        - $ref: "#/parameters/id"
+        - $ref: "#/parameters/ref"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              policy:
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              policyoid:
+                $ref: "#/definitions/PolicyOID"
+              cn:
+                $ref: "#/definitions/CN"
+              cpf:
+                $ref: "#/definitions/CPF"
+              status:
+                type: string
+                description: Resultado da validação - GOOD ou UNKNOWN são aceitáveis, outros representam erros
         500:
           description: Error ocurred
           schema:
@@ -223,12 +294,16 @@ paths:
           description: Array de bytes em base64 que será armazenado
           required: true
           type: string
-          format: byte
       responses:
         200:
           description: Successful response
           schema:
-            $ref: "#/definitions/saveResponse"
+            type: object
+            properties:
+              status:
+                type: string
+              key:
+                type: string
         500:
           description: Error ocurred
           schema:
@@ -242,12 +317,23 @@ parameters:
     required: true
     type: string
     format: byte
+  key:
+    name: key
+    in: formData
+    description: Chave para o registro que contem a lista de documentos a serem assinados
+    required: false
+    type: string
   authkey:
     name: authkey
     in: formData
     description: Chave para o registro que comprova a identidade do usuário
     required: true
     type: string
+  token:
+    name: token
+    in: formData
+    type: string
+    description: Token que deve ser assinado para autenticar o usuário
   envelope:
     name: envelope
     in: formData
@@ -261,7 +347,7 @@ parameters:
     description: Data e hora da assinatura digital
     required: true
     type: string
-    format: datetime
+    format: date-time
   sha1:
     name: sha1
     in: formData
@@ -276,11 +362,61 @@ parameters:
     required: true
     type: string
     format: byte
+  id:  
+    name: id
+    in: formData
+    description: Identificador do documento
+    required: true
+    type: string
+  code:  
+    name: code
+    in: formData
+    description: Numero do documento
+    required: true
+    type: string
+  system:
+    name: system
+    in: formData
+    description: Identificador do systema integrado
+    required: true
+    type: string
+  ref:  
+    name: ref
+    in: formData
+    description: Identificador da assinatura
+    required: true
+    type: string
+  signature:
+    name: signature
+    in: formData
+    description: Envelope da assinatura digital em base64
+    required: false
+    type: string
+    format: byte
+  policy:
+    name: policy
+    in: formData
+    description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+    required: true
+    type: string
+  policyversion:
+    name: policyversion
+    in: formData
+    description: Número de versão da política usada na assinatura digital
+    required: false
+    type: string
+  extra:
+    name: extra
+    in: formData
+    type: string
+    description: Parametros adicionais obtidos durante o hash e necessarios para a gravacao da assinatura
             
 definitions:
-  document:
+  Document:
     type: object
     properties:
+      system: 
+        type: string
       id:
         type: string
         description: identificador do documento
@@ -292,11 +428,7 @@ definitions:
         type: string
       origin: 
         type: string
-      urlView: 
-        type: string
-      urlHash: 
-        type: string
-      urlSave: 
+      extra: 
         type: string
     example:
       id: 00489623760_2_67631650_1460490840000_0_0
@@ -307,83 +439,21 @@ definitions:
       urlView: apolo/view/00489623760_2_67631650_1460490840000_0_0
       urlHash: apolo/hash/00489623760_2_67631650_1460490840000_0_0
       urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
+      
+  ListStatus:
+    type: object
+    properties:
+      system:
+        type: string
+        description: Identificador do sistema integrado
+      errormsg:
+        type: string
+        description: Mensagem de erro se houver
+      stacktrace:
+        type: string
+        description: Detalhamento do erro
 
-  authResponse:
-    type: object
-    properties:
-      certificate:
-        type: string
-        description: Certificado do usuário em Base64
-      cn:
-        type: string
-        description: Nome do usuário
-
-  tokenResponse:
-    type: object
-    properties:
-      token:
-        type: string
-        description: Token que deve ser assinado para autenticar o usuário
-      policy:
-        type: string
-        description: Código da política usada na assinatura digital (PKCS7, AD-RB)
-    example:
-      policy: AD-RB
-      token: TOKEN-2016-05-24T14:05:11.248-03:00
-        
-  viewResponse:
-    type: object
-    properties:
-      doc:
-        type: string
-        description: PDF codificado em base64
-    example:
-      doc: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
-        
-  hashResponse:
-    type: object
-    properties:
-      sha1:
-        type: string
-        format: byte
-      sha256:
-        type: string
-        format: byte
-      urlSave:
-        type: string
-    example:      
-      sha1: csTZGGSt1AG1m3T5VaIzcHX8Av0=
-      sha256: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
-      urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
-
-  saveResponse:
-    type: object
-    properties:
-      status:
-        type: string
-      warning:
-        type: array
-        items:
-          $ref: "#/definitions/warning"
-          
-  validateResponse:
-    type: object
-    properties:
-      policy:
-        $ref: "#/definitions/Policy"
-      policyversion:
-        $ref: "#/definitions/PolicyVersion"
-      policyoid:
-        $ref: "#/definitions/PolicyOID"
-      cn:
-        $ref: "#/definitions/CN"
-      cpf:
-        $ref: "#/definitions/CPF"
-      status:
-        type: string
-        description: Resultado da validação - GOOD ou UNKNOWN são aceitáveis, outros representam erros
-
-  warning:
+  Warning:
     type: object
     properties:
       label:
@@ -414,7 +484,52 @@ definitions:
   CPF:
     type: string
     description: CPF do signatário
-    example: RENATO DO AMARAL CRIVANO MACHADO        
+    example: RENATO DO AMARAL CRIVANO MACHADO
+ 
+  AuthKey:
+    description: Chave para o registro que comprova a identidade do usuário
+    type: string
+
+  AuthKind:
+    description: Tipo de autenticação realizada
+    type: string
+
+  Token:
+    type: string
+    description: Token que deve ser assinado para autenticar o usuário        
+
+  Name:
+    type: string
+    description: Nome do usuário
+    
+  Certificate:
+    type: string
+    format: byte
+    description: Certificado do usuário em Base64
+
+  Time:
+    type: string
+    format: date-time
+    description: Data e hora da assinatura digital
+
+  Hash:
+    type: string
+    format: byte
+    description: Pacote Assinavel padrao ICP-Brasil em Base64
+    
+  Sha1:
+    type: string
+    format: byte
+    description: SHA-1 do PDF codificado em base64
+
+  Sha256:
+    type: string
+    format: byte
+    description: SHA-256 do PDF codificado em base64
+
+  Extra:
+    type: string
+    description: Parametros adicionais obtidos durante o hash e necessarios para a gravacao da assinatura
 
   error:
     type: object

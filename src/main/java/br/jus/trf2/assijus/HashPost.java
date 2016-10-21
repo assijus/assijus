@@ -15,16 +15,14 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 public class HashPost implements IHashPost {
 
 	@Override
-	public void run(HashPostRequest req, HashPostResponse resp)
-			throws Exception {
+	public void run(HashPostRequest req, HashPostResponse resp) throws Exception {
 		String certificate = SwaggerUtils.base64Encode(req.certificate);
 		String system = req.system;
 		String password = Utils.getPassword(system);
 		String id = req.id;
 
 		String authkey = req.authkey;
-		String cpf = Utils
-				.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
+		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
 		String urlHash = Utils.getUrl(system) + "/doc/" + id + "/hash";
 		String time = Utils.format(new Date());
@@ -32,9 +30,8 @@ public class HashPost implements IHashPost {
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
 		systemreq.cpf = cpf;
-		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall.call(
-				"system-hash", password, "GET", urlHash, systemreq,
-				IAssijusSystem.DocIdHashGetResponse.class);
+		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall.call("system-hash", password, "GET", urlHash,
+				systemreq, IAssijusSystem.DocIdHashGetResponse.class);
 
 		// Produce response
 
@@ -53,9 +50,8 @@ public class HashPost implements IHashPost {
 			q.sha1 = SwaggerUtils.base64Decode(sha1);
 			q.sha256 = SwaggerUtils.base64Decode(sha256);
 			q.crl = true;
-			IBlueCrystal.HashPostResponse s = SwaggerCall.call("bluc-hash",
-					null, "POST", Utils.getUrlBluCServer() + "/hash", q,
-					IBlueCrystal.HashPostResponse.class);
+			IBlueCrystal.HashPostResponse s = SwaggerCall.call("bluc-hash", null, "POST",
+					Utils.getUrlBluCServer() + "/hash", q, IBlueCrystal.HashPostResponse.class);
 			resp.hash = s.hash;
 			resp.policyversion = s.policyversion;
 			resp.policy = s.policy;
@@ -63,8 +59,15 @@ public class HashPost implements IHashPost {
 			if (doc == null)
 				throw new Exception(
 						"Para realizar assinaturas sem política, é necessário informar o conteúdo do documento, codificado em Base64, na propriedade 'doc'.");
-			if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
-				throw new PresentableException("CPF não autorizado.");
+
+			if (systemresp.secret != null) {
+				if (!Utils.makeSecret(systemresp.secret).equals(req.secret))
+					throw new PresentableException("Não autorizado.");
+			} else {
+				if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
+					throw new PresentableException("CPF não autorizado.");
+			}
+
 			resp.hash = SwaggerUtils.base64Decode(doc);
 			resp.policy = "PKCS7";
 		}

@@ -17,12 +17,10 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 public class Utils {
 	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
 	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-	public static final SimpleDateFormat isoFormatter = new SimpleDateFormat(
-			ISO_FORMAT);
+	public static final SimpleDateFormat isoFormatter = new SimpleDateFormat(ISO_FORMAT);
 
 	public static String getUrl(String system) {
-		return SwaggerUtils.getProperty(system + ".url",
-				"http://localhost:8080/" + system + "/api/v1");
+		return SwaggerUtils.getProperty(system + ".url", "http://localhost:8080/" + system + "/api/v1");
 	}
 
 	public static String getPassword(String system) {
@@ -30,8 +28,7 @@ public class Utils {
 	}
 
 	public static String getUrlBluCServer() {
-		return SwaggerUtils.getProperty("blucservice.url",
-				"http://localhost:8080/blucservice/api/v1");
+		return SwaggerUtils.getProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
 	}
 
 	public static String[] getSystems() {
@@ -43,8 +40,7 @@ public class Utils {
 
 	public static String fixUrl(String url) {
 		for (String system : getSystems()) {
-			if (url.startsWith(system.replace("signer", "") + "/")
-					|| url.startsWith(system + "/")) {
+			if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
 				String urlSystem = Utils.getUrl(system);
 				return urlSystem + url.substring(url.indexOf("/"));
 			}
@@ -54,16 +50,14 @@ public class Utils {
 
 	public static String chooseSystem(String url) {
 		for (String system : getSystems()) {
-			if (url.startsWith(system.replace("signer", "") + "/")
-					|| url.startsWith(system + "/")) {
+			if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
 				return system;
 			}
 		}
 		return null;
 	}
 
-	public static ValidatePostResponse validateToken(String token,
-			String urlblucserver) throws Exception {
+	public static ValidatePostResponse validateToken(String token, String urlblucserver) throws Exception {
 		String tokenAsString = token.split(";")[0];
 		if (!tokenAsString.startsWith("TOKEN-"))
 			throw new Exception("Token não está no formato correto.");
@@ -84,13 +78,11 @@ public class Utils {
 		q.sha256 = calcSha256(tokenAsBytes);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(signB64);
-		return SwaggerCall.call("bluc-validate", null, "POST",
-				Utils.getUrlBluCServer() + "/validate", q,
+		return SwaggerCall.call("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
 				IBlueCrystal.ValidatePostResponse.class);
 	}
 
-	public static JSONObject validateAuthKey(String authkey,
-			String urlblucserver) throws Exception {
+	public static JSONObject validateAuthKey(String authkey, String urlblucserver) throws Exception {
 		String payload = SwaggerUtils.dbRetrieve(authkey, false);
 
 		if (payload == null) {
@@ -100,8 +92,7 @@ public class Utils {
 
 		JSONObject json = new JSONObject(payload);
 		String kind = json.getString("kind");
-		ValidatePostResponse blucresp = validateToken(json.getString("token"),
-				urlblucserver);
+		ValidatePostResponse blucresp = validateToken(json.getString("token"), urlblucserver);
 		String cpf = null;
 		cpf = blucresp.certdetails.cpf0;
 		if (!cpf.equals(json.getString("cpf")))
@@ -109,8 +100,7 @@ public class Utils {
 		return json;
 	}
 
-	public static String assertValidAuthKey(String authkey, String urlblucserver)
-			throws Exception {
+	public static String assertValidAuthKey(String authkey, String urlblucserver) throws Exception {
 		byte[] cached = SwaggerUtils.memCacheRetrieve("valid-" + authkey);
 		if (cached != null)
 			return new String(cached);
@@ -134,22 +124,49 @@ public class Utils {
 		}
 	}
 
-	public static byte[] calcSha1(byte[] content)
-			throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance("SHA-1");
+	public static byte[] calcSha1(byte[] content) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 		md.reset();
 		md.update(content);
 		byte[] output = md.digest();
 		return output;
 	}
 
-	public static byte[] calcSha256(byte[] content)
-			throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
+	public static byte[] calcSha256(byte[] content) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 		md.reset();
 		md.update(content);
 		byte[] output = md.digest();
 		return output;
 	}
 
+	final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	public static String bytesToHex(byte[] bytes) {
+
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
+	public static String makeSecret(String s) {
+		if (s == null || s.length() == 0)
+			return null;
+		byte[] bytes = s.getBytes();
+		return bytesToHex(calcSha1(bytes));
+	}
 }

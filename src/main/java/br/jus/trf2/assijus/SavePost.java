@@ -101,7 +101,7 @@ public class SavePost implements ISavePost {
 		// Produce response
 		resp.warning = new ArrayList<IAssijus.Warning>();
 		if (s4.warning != null) {
-			for (int i = 0; i > s4.warning.size(); i++) {
+			for (int i = 0; i < s4.warning.size(); i++) {
 				Warning warning = new Warning();
 				warning.label = s4.warning.get(i).label;
 				warning.description = s4.warning.get(i).description;

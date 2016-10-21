@@ -28,8 +28,7 @@ public class AuthPost implements IAuthPost {
 			else if (payload.startsWith("{")) {
 				// A client-cert authentication is stored
 				JSONObject json = new JSONObject(payload);
-				resp.certificate = SwaggerUtils.base64Decode(json
-						.getString("certificate"));
+				resp.authkey = authkey;
 				resp.name = json.getString("name");
 				resp.cpf = json.getString("cpf");
 				resp.kind = "client-cert";

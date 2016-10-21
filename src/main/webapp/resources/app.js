@@ -52,18 +52,22 @@ app
 						// !== -1)
 						// editorExtensionId =
 						// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
-						var deferred = $q.defer()
+						var deferred = $q.defer();
 
 						// Make a simple request:
 						chrome.runtime.sendMessage(editorExtensionId, conf,
 								function(response) {
-									if (!response.success) {
+									try {
+										if (response.success) {
+											deferred.resolve(response)
+										} else {
+											deferred.reject(response);
+										}
+									} catch (err) {
 										deferred.reject(response);
-									} else {
-										deferred.resolve(response)
 									}
 								});
-						return deferred.promise
+						return deferred.promise;
 					}
 				});
 
@@ -116,6 +120,7 @@ app
 							$scope.endpoint.list = JSON
 									.parse($scope.$parent.querystring.endpointlist);
 						$scope.endpoint.callback = $scope.$parent.querystring.endpointcallback;
+						$scope.endpoint.autostart = $scope.$parent.querystring.endpointautostart == "true";
 					}
 					$scope.urlBaseAPI = "/assijus/api/v1";
 
@@ -396,6 +401,7 @@ app
 								var operacao = {
 									system : doc.system,
 									codigo : doc.id,
+									segredo : doc.secret,
 									nome : doc.code,
 									extra : doc.extra,
 									enabled : true,
@@ -434,6 +440,11 @@ app
 							docid.name = 'id';
 							docid.value = doc.id;
 
+							var docsecret = document.createElement('input');
+							docsecret.type = 'text';
+							docsecret.name = 'secret';
+							docsecret.value = doc.secret;
+
 							var submit = document.createElement('input');
 							submit.type = 'submit';
 							submit.id = 'submitView';
@@ -441,6 +452,7 @@ app
 							form.appendChild(authkey);
 							form.appendChild(system);
 							form.appendChild(docid);
+							form.appendChild(docsecret);
 							form.appendChild(submit);
 							document.body.appendChild(form);
 
@@ -464,6 +476,7 @@ app
 								var operacao = {
 									system : doc.system,
 									codigo : doc.id,
+									segredo : doc.secret,
 									nome : doc.code,
 									extra : doc.extra,
 									enabled : true,
@@ -512,6 +525,7 @@ app
 								$scope.assinar({
 									nome : o.nome,
 									codigo : o.codigo,
+									segredo : o.segredo,
 									system : o.system,
 									extra : o.extra
 								}, progress);
@@ -534,6 +548,7 @@ app
 							data : {
 								system : state.system,
 								id : state.codigo,
+								secret : state.segredo,
 								extra : state.extra,
 								certificate : $scope.cert.certificate,
 								subject : $scope.cert.subject,
@@ -645,6 +660,7 @@ app
 											$scope.reportSuccess(state.codigo,
 													data);
 											if (!progress.active
+													&& $scope.endpoint 
 													&& $scope.endpoint.usecallback
 													&& $scope.endpoint.callback) {
 												window.location.href = $scope.endpoint.callback;
@@ -702,6 +718,8 @@ app
 								&& $scope.endpoint.hasOwnProperty('list')) {
 							$scope.update($scope.endpoint.list);
 							progress.stop();
+							if ($scope.endpoint.autostart)
+								$scope.assinarDocumentos($scope.progress);
 							return;
 						}
 						progress.step("Listando documentos...");
@@ -740,6 +758,9 @@ app
 								$scope.update(data.list);
 							progress.step("Lista de documentos recebida.");
 							progress.stop();
+							if ($scope.endpoint.autostart)
+								$scope.assinarDocumentos($scope.progress);
+							return;
 						}, function errorCallback(response) {
 							delete $scope.documentos;
 							progress.stop();
@@ -1000,7 +1021,10 @@ app
 											}
 										},
 										function errorCallback(response) {
-											var data = response.data;
+											var data = undefined;
+											if (response !== undefined
+													&& typeof response === 'object')
+												data = response.data;
 											delete $scope.documentos;
 											progress.stop();
 											if (typeof data === 'object'
