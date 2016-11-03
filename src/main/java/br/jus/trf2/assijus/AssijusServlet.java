@@ -65,7 +65,9 @@ public class AssijusServlet extends SwaggerServlet {
 
 			@Override
 			public String getUrl() {
-				return SwaggerUtils.getProperty("assijus.redis.master.host", "localhost");
+				return "redis://" + MemCacheRedis.getMasterHost() + ":" + MemCacheRedis.getMasterPort() + "/"
+						+ MemCacheRedis.getDatabase() + " (" + "redis://" + MemCacheRedis.getSlaveHost() + ":"
+						+ MemCacheRedis.getSlavePort() + "/" + MemCacheRedis.getDatabase() + ")";
 			}
 
 			@Override

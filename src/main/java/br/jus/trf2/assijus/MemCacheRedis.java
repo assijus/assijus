@@ -18,17 +18,12 @@ public class MemCacheRedis implements IMemCache {
 	}
 
 	private static void redisConfig() {
-		String masterhost = SwaggerUtils.getProperty("assijus.redis.master.host",
-				"localhost");
-		int masterport = Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.master.port", "6379"));
-		String slavehost = SwaggerUtils.getProperty("assijus.redis.slave.host",
-				null);
-		int slaveport = Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.slave.port", "0"));
-		String password = SwaggerUtils.getProperty("assijus.redis.password", null);
-		int database = Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.database", "10"));
+		String masterhost = getMasterHost();
+		int masterport = getMasterPort();
+		String slavehost = getSlaveHost();
+		int slaveport = getSlavePort();
+		String password = getPassword();
+		int database = getDatabase();
 
 		poolMaster = new JedisPool(new JedisPoolConfig(), masterhost,
 				masterport, Protocol.DEFAULT_TIMEOUT, password, database);
@@ -38,6 +33,35 @@ public class MemCacheRedis implements IMemCache {
 					slaveport, Protocol.DEFAULT_TIMEOUT, password, database);
 		else
 			poolSlave = poolMaster;
+	}
+
+	public static int getDatabase() {
+		return Integer.parseInt(SwaggerUtils.getProperty(
+				"assijus.redis.database", "10"));
+	}
+
+	public static String getPassword() {
+		return SwaggerUtils.getProperty("assijus.redis.password", null);
+	}
+
+	public static int getSlavePort() {
+		return Integer.parseInt(SwaggerUtils.getProperty(
+				"assijus.redis.slave.port", "0"));
+	}
+
+	public static String getSlaveHost() {
+		return SwaggerUtils.getProperty("assijus.redis.slave.host",
+				null);
+	}
+
+	public static String getMasterHost() {
+		return SwaggerUtils.getProperty("assijus.redis.master.host",
+				"localhost");
+	}
+
+	public static int getMasterPort() {
+		return Integer.parseInt(SwaggerUtils.getProperty(
+				"assijus.redis.master.port", "6379"));
 	}
 
 	@Override
