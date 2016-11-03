@@ -758,7 +758,7 @@ app
 								$scope.update(data.list);
 							progress.step("Lista de documentos recebida.");
 							progress.stop();
-							if ($scope.endpoint.autostart)
+							if ($scope.hasOwnProperty('endpoint') && $scope.endpoint.autostart)
 								$scope.assinarDocumentos($scope.progress);
 							return;
 						}, function errorCallback(response) {
