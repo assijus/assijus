@@ -5,7 +5,7 @@ Assijus é um site que produz assinaturas digitais no padrão da ICP-Brasil (AD-
 ![captura_de_tela_051216_120220_pm](https://cloud.githubusercontent.com/assets/4137623/16231009/914fa6d2-379a-11e6-8e70-937ef7fa94f1.jpg)
 
 ## Veja o Assijus funcionando
-[![Apresentação do Assijus](https://img.youtube.com/vi/5qRObgaNG-E/0.jpg)](]https://www.youtube.com/watch?v=5qRObgaNG-E)
+[![Apresentação do Assijus](https://img.youtube.com/vi/5qRObgaNG-E/0.jpg)](https://www.youtube.com/watch?v=5qRObgaNG-E)
 
 ## Integrando com um novo sistema
 Para incluir um novo sistema, é necessário apenas que ele seja capaz de responder a 4 métodos REST:
