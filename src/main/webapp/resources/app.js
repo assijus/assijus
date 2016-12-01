@@ -5,6 +5,15 @@ app.config([ '$routeProvider', '$locationProvider',
 			$routeProvider.when('/home', {
 				templateUrl : 'resources/home.html',
 				controller : 'ctrl'
+			}).when('/autenticar-form', {
+				templateUrl : 'resources/autenticar-form.html',
+				controller : 'authCtrl'
+			}).when('/autenticar/:system/:id/:secret', {
+				templateUrl : 'resources/autenticar.html',
+				controller : 'authCtrl'
+			}).when('/login/:logincallback*', {
+				templateUrl : 'resources/home.html',
+				controller : 'ctrl'
 			}).when('/sugestoes', {
 				templateUrl : 'resources/sugestoes.html',
 				controller : 'ctrl2'
@@ -71,6 +80,74 @@ app
 					}
 				});
 
+app
+		.controller(
+				'authCtrl',
+				function($scope, $http, $sce, $routeParams) {
+					$scope.system = $routeParams.system;
+					$scope.id = $routeParams.id;
+					$scope.secret = $routeParams.secret;
+					$scope.link = 'api/v1/view/' + $scope.system + '/'
+							+ $scope.id + '/' + $scope.secret;
+					$scope.verify = function(signature) {
+						signature.status = $sce
+								.trustAsHtml('<span class="status-alert" data-toggle="tooltip" title="Verificando...">&#8987;</span>');
+
+						$http({
+							url : 'api/v1/verify',
+							method : "POST",
+							data : {
+								system : $scope.system,
+								id : $scope.id,
+								ref : signature.ref
+							}
+						})
+								.then(
+										function successCallback(response) {
+											var data = response.data;
+											signature.signer = data.cn;
+											signature.status = data.status;
+											if (signature.status == 'GOOD') {
+												signature.status = $sce
+														.trustAsHtml('<span class="status-ok" data-toggle="tooltip" title="Assinatura, OK!">&#10003;</span>');
+											}
+											signature.download = $sce
+													.trustAsHtml('<a href="">'
+															+ data.policy
+															+ (data.policyversion ? ' v'
+																	+ data.policyversion
+																	: '')
+															+ '</a>');
+										}, function errorCallback(response) {
+											signature.status = "Erro";
+										});
+
+					}
+
+					document.getElementById("pdf").innerHTML = '<iframe src="'
+							+ $scope.link
+							+ '" width="100%" height="700" align="center" style="margin-top: 10px;"></iframe>';
+					document.getElementById("pdf-download").innerHTML = '<a href="'
+							+ $scope.link + '" download="documento">PDF</a>';
+
+					$http(
+							{
+								url : 'api/v1/info/' + $scope.system + '/'
+										+ $scope.id + '/' + $scope.secret,
+								method : "GET"
+							}).then(function successCallback(response) {
+						var data = response.data;
+						$scope.status = data.status;
+						$scope.movement = data.movement;
+						$scope.signature = data.signature;
+						if ($scope.signature !== undefined)
+							for (var i = 0; i < $scope.signature.length; i++) {
+								$scope.verify($scope.signature[i]);
+							}
+					}, function errorCallback(response) {
+					});
+				});
+
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
 	$scope.versionAssijus = "1.2.9.0";
 	$scope.versionAssijusChromeExtension = document
@@ -94,7 +171,7 @@ app
 		.controller(
 				'ctrl',
 				function($scope, $http, $interval, $window, $location, $filter,
-						$timeout) {
+						$timeout, $routeParams) {
 
 					$scope.isChromeExtensionActive = function() {
 						return document
@@ -102,12 +179,8 @@ app
 					}
 
 					$scope.PROCESSING = "Processando Assinaturas Digitais";
+					$scope.urlBluCRESTSigner = "http://localhost:8612";
 
-					if ($scope.$parent.querystring.hasOwnProperty('urlsigner')) {
-						$scope.urlBluCRESTSigner = $scope.$parent.querystring.urlsigner;
-					} else {
-						$scope.urlBluCRESTSigner = "http://localhost:8612";
-					}
 					if ($scope.$parent.querystring
 							.hasOwnProperty('endpointlist')
 							|| $scope.$parent.querystring
@@ -278,11 +351,13 @@ app
 						active : false,
 						csteps : 0,
 						isteps : 0,
-						start : function(title, steps) {
+						minwidth : 0,
+						maxwidth : 100,
+						start : function(title, steps, min, max) {
 							$scope.noProgress.stop(); // disable pending
 							// updates
 							$scope.progressbarTitle = title;
-							$scope.progressbarWidth = 0;
+							$scope.progressbarWidth = this.minwidth;
 							$scope.progressbarShow = true;
 							$scope.progressbarHide = function() {
 								$scope.progress.active = false;
@@ -290,6 +365,8 @@ app
 							this.active = true;
 							this.isteps = 0;
 							this.csteps = steps;
+							this.minwidth = min;
+							this.maxwidth = max;
 						},
 						step : function(caption, skip) {
 							if (!this.active) {
@@ -300,14 +377,16 @@ app
 							this.isteps += 1 + (skip || 0);
 							console.log(this.isteps + "/" + this.csteps + ": "
 									+ caption);
-							$scope.progressbarWidth = 100 * (this.isteps / this.csteps);
+							$scope.progressbarWidth = this.minwidth
+									+ this.maxwidth
+									* (this.isteps / this.csteps);
 							$scope.progressbarShow = true;
 							$scope.progressbarCaption = caption;
 							if (this.isteps == this.csteps)
 								this.stop();
 						},
 						startperc : function(title, caption) {
-							this.start(title, 100);
+							this.start(title, 100, 0, 100);
 							$scope.progressbarCaption = caption;
 						},
 						perc : function(caption, percentage) {
@@ -319,7 +398,7 @@ app
 						},
 						stop : function() {
 							$scope.progressbarTitle = '';
-							$scope.progressbarWidth = 100;
+							$scope.progressbarWidth = this.maxwidth;
 							$scope.progressbarShow = false;
 							$scope.progressbarCaption = '';
 							this.active = false;
@@ -415,7 +494,8 @@ app
 					// View
 					//
 					$scope.view = function(doc) {
-						$scope.progress.start("Preparando Visualização", 6);
+						$scope.progress.start("Preparando Visualização", 6, 0,
+								100);
 						$scope.validarAuthKey($scope.progress, function(
 								progress) {
 							progress.stop();
@@ -488,7 +568,7 @@ app
 						$scope.iOperacao = -1;
 
 						$scope.progress.start("Processando Assinatura Digital",
-								6 + 6);
+								6 + 6, 0, 100);
 
 						if ($scope.endpoint)
 							$scope.endpoint.usecallback = false;
@@ -503,8 +583,12 @@ app
 						if (tipo == 0)
 							return;
 
-						progress.start($scope.PROCESSING,
-								$scope.operacoes.length * 6 + 6);
+						if ($scope.endpoint && $scope.endpoint.autostart)
+							progress.start($scope.PROCESSING,
+									$scope.operacoes.length * 6 + 6, 20, 100);
+						else
+							progress.start($scope.PROCESSING,
+									$scope.operacoes.length * 6 + 6, 0, 100);
 						if ($scope.endpoint && $scope.endpoint.callback)
 							$scope.endpoint.usecallback = true;
 						$scope.validarAuthKey(progress, $scope.executar);
@@ -660,7 +744,7 @@ app
 											$scope.reportSuccess(state.codigo,
 													data);
 											if (!progress.active
-													&& $scope.endpoint 
+													&& $scope.endpoint
 													&& $scope.endpoint.usecallback
 													&& $scope.endpoint.callback) {
 												window.location.href = $scope.endpoint.callback;
@@ -734,38 +818,45 @@ app
 										key : $scope.hasOwnProperty('endpoint') ? $scope.endpoint.listkey
 												: undefined
 									}
-								}).then(function successCallback(response) {
-							var data = response.data;
-							$scope.setError();
-							if (data.hasOwnProperty("status")) {
-								for (var i = 0; i < data.status.length; i++) {
-									var sts = data.status[i];
-									if (!sts.hasOwnProperty("errormsg")) {
-										delete $scope.errorDetails[sts.system];
-									} else {
-										$scope.errorDetails[sts.system] = {
-											errormsg : sts.errormsg,
-											errordetails : [ {
-												stacktrace : sts.stacktrace,
-												context : "listar documentos",
-												service : sts.system
-											} ]
-										};
-									}
-								}
-							}
-							if (progress.active)
-								$scope.update(data.list);
-							progress.step("Lista de documentos recebida.");
-							progress.stop();
-							if ($scope.hasOwnProperty('endpoint') && $scope.endpoint.autostart)
-								$scope.assinarDocumentos($scope.progress);
-							return;
-						}, function errorCallback(response) {
-							delete $scope.documentos;
-							progress.stop();
-							$scope.setError(response);
-						});
+								})
+								.then(
+										function successCallback(response) {
+											var data = response.data;
+											$scope.setError();
+											if (data.hasOwnProperty("status")) {
+												for (var i = 0; i < data.status.length; i++) {
+													var sts = data.status[i];
+													if (!sts
+															.hasOwnProperty("errormsg")) {
+														delete $scope.errorDetails[sts.system];
+													} else {
+														$scope.errorDetails[sts.system] = {
+															errormsg : sts.errormsg,
+															errordetails : [ {
+																stacktrace : sts.stacktrace,
+																context : "listar documentos",
+																service : sts.system
+															} ]
+														};
+													}
+												}
+											}
+											if (progress.active)
+												$scope.update(data.list);
+											progress
+													.step("Lista de documentos recebida.");
+											progress.stop();
+											if ($scope
+													.hasOwnProperty('endpoint')
+													&& $scope.endpoint.autostart)
+												$scope
+														.assinarDocumentos($scope.progress);
+											return;
+										}, function errorCallback(response) {
+											delete $scope.documentos;
+											progress.stop();
+											$scope.setError(response);
+										});
 					}
 
 					$scope.update = function(l) {
@@ -927,7 +1018,7 @@ app
 					}
 
 					// 3 steps
-					$scope.buscarCertificado = function(progress) {
+					$scope.buscarCertificado = function(progress, cont) {
 						progress.step("Buscando certificado corrente...");
 						$scope
 								.myhttp(
@@ -946,7 +1037,7 @@ app
 																2);
 												$scope.setCert(data);
 												$scope.validarAuthKey(progress,
-														$scope.list);
+														cont);
 											} else {
 												progress
 														.step("Selecionando certificado...");
@@ -978,7 +1069,7 @@ app
 																	$scope
 																			.validarAuthKey(
 																					progress,
-																					$scope.list);
+																					cont);
 																},
 																function errorCallback(
 																		response) {
@@ -997,7 +1088,7 @@ app
 					}
 
 					// 2 steps
-					$scope.testarSigner = function(progress) {
+					$scope.testarSigner = function(progress, cont) {
 						progress.step("Testando Assijus.exe");
 						$scope
 								.myhttp({
@@ -1012,8 +1103,8 @@ app
 											if (response.data.status == "OK") {
 												document
 														.getElementById("native-client-active").value = response.data.version;
-												$scope
-														.buscarCertificado(progress);
+												$scope.buscarCertificado(
+														progress, cont);
 											} else {
 												progress.stop();
 												$scope
@@ -1043,18 +1134,55 @@ app
 						if (!$scope.progress.active
 								&& !$scope.noProgress.active) {
 							// $scope.noProgress.start("Inicializando", 12);
-							$scope.testarSigner($scope.noProgress);
+							$scope.testarSigner($scope.noProgress, $scope.list);
 						}
 					}
 
 					$scope.forceRefresh = function() {
 						delete $scope.documentos;
 						delete $scope.lastUpdateFormatted;
-						$scope.progress.start("Inicializando", 14);
-						$scope.testarSigner($scope.progress);
+						if ($scope.endpoint && $scope.endpoint.autostart)
+							$scope.progress.start("Inicializando", 14, 0, 20);
+						else
+							$scope.progress.start("Inicializando", 14, 0, 100);
+						$scope.testarSigner($scope.progress, $scope.list);
 					}
 
-					$timeout($scope.forceRefresh, 10);
+					// 3 steps
+					$scope.login = function(progress) {
+						progress.step("Gerando JSON Web Token...");
+						$http({
+							url : $scope.urlBaseAPI + '/login',
+							method : "POST",
+							data : {
+								"authkey" : $scope.getAuthKey(),
+								"callback" : $routeParams.logincallback
+							}
+						})
+								.then(
+										function successCallback(response) {
+											progress.step("JWT gerado.");
+											progress
+													.step("Login realizado. Redirecionando...");
+											$window.location.href = response.data.url;
+										}, function errorCallback(response) {
+											progress.stop();
+											$scope.setError(response);
+										});
+					}
+
+					$scope.startLogin = function() {
+						// Um passo a mais para ficar mostrando o redirect na
+						// progressbar.
+						$scope.progress.start("Processando Login", 16, 0, 100);
+						$scope.testarSigner($scope.progress, $scope.login);
+					}
+
+					if ($routeParams.logincallback) {
+						$timeout($scope.startLogin, 10);
+					} else {
+						$timeout($scope.forceRefresh, 10);
+					}
 				});
 
 app

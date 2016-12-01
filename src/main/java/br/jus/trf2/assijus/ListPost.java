@@ -33,7 +33,7 @@ public class ListPost implements IListPost {
 		String listkey = req.key;
 
 		String authkey = req.authkey;
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
+		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
 		resp.list = new ArrayList<>();
 		resp.status = new ArrayList<IAssijus.ListStatus>();

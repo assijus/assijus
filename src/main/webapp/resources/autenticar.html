@@ -1,0 +1,63 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-lg-8">
+			<h3>Autenticação e Acompanhamento de Documento Digital</h3>
+			<div id="pdf"></div>
+		</div>
+		<div class="col-sm-12 col-lg-4">
+			<div>
+				<h3>Arquivos</h3>
+
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Tipo</th>
+							<th>Responsável</th>
+							<th>Status</th>
+							<th>Download</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Documento</td>
+							<td>-</td>
+							<td>-</td>
+							<td id="pdf-download">PDF</td>
+						</tr>
+						<tr ng-repeat="s in signature">
+							<td>{{s.kind}}</td>
+							<td>{{s.signer}}</td>
+							<td ng-bind-html="s.status"></td>
+							<td ng-bind-html="s.download"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div>
+				<h3>Status</h3>
+				<p>{{status}}</p>
+			</div>
+			<div>
+				<h3>Últimas Movimentações</h3>
+
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Data</th>
+							<th>Unidade</th>
+							<th>Tipo</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="m in movement">
+							<td>{{m.time.substring(0,10)}}</td>
+							<td>{{m.department}}</td>
+							<td>{{m.kind}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+	</div>
+</div>

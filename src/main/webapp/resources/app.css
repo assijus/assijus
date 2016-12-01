@@ -45,6 +45,12 @@
 	font-size: 120%;
 }
 
+.status-alert {
+	color: gold;
+	font-weight: bold;
+	font-size: 120%;
+}
+
 .status-warning {
 	font-size: .80em;
 	vertical-align: super;

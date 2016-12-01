@@ -22,10 +22,10 @@ public class HashPost implements IHashPost {
 		String id = req.id;
 
 		String authkey = req.authkey;
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
+		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
 		String urlHash = Utils.getUrl(system) + "/doc/" + id + "/hash";
-		String time = Utils.format(new Date());
+		String time = SwaggerUtils.format(new Date());
 
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();

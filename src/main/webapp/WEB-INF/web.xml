@@ -25,6 +25,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/api/v1/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>LoginServlet</servlet-name>
+		<servlet-class>br.jus.trf2.assijus.LoginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

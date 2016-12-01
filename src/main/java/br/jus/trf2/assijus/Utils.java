@@ -1,9 +1,15 @@
 package br.jus.trf2.assijus;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.JSONObject;
@@ -15,10 +21,6 @@ import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
-	// public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS zzz";
-	public static String ISO_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-	public static final SimpleDateFormat isoFormatter = new SimpleDateFormat(ISO_FORMAT);
-
 	public static String getUrl(String system) {
 		return SwaggerUtils.getProperty(system + ".url", "http://localhost:8080/" + system + "/api/v1");
 	}
@@ -63,7 +65,7 @@ public class Utils {
 			throw new Exception("Token não está no formato correto.");
 		byte[] tokenAsBytes = tokenAsString.getBytes("UTF-8");
 		String dateAsString = tokenAsString.substring(6);
-		Date date = parse(dateAsString);
+		Date date = SwaggerUtils.parse(dateAsString);
 		if (date == null)
 			throw new Exception("Data do token não está no formato correto.");
 		String signB64 = token.split(";")[1];
@@ -82,46 +84,74 @@ public class Utils {
 				IBlueCrystal.ValidatePostResponse.class);
 	}
 
-	public static JSONObject validateAuthKey(String authkey, String urlblucserver) throws Exception {
+	public static AuthKeyFields validateAuthKey(String authkey, String urlblucserver) throws Exception {
 		String payload = SwaggerUtils.dbRetrieve(authkey, false);
-
 		if (payload == null) {
 			throw new PresentableException(
 					"Não foi possível recuperar dados de autenticação a partir da chave informada.");
 		}
 
 		JSONObject json = new JSONObject(payload);
-		String kind = json.getString("kind");
 		ValidatePostResponse blucresp = validateToken(json.getString("token"), urlblucserver);
-		String cpf = null;
-		cpf = blucresp.certdetails.cpf0;
-		if (!cpf.equals(json.getString("cpf")))
+
+		AuthKeyFields akf = new AuthKeyFields();
+		akf.cn = blucresp.cn;
+		akf.cpf = blucresp.certdetails.cpf0;
+		akf.email = blucresp.certdetails.san_email0;
+
+		if (!akf.cpf.equals(json.getString("cpf")))
 			throw new Exception("cpf não confere");
-		return json;
+		return akf;
 	}
 
-	public static String assertValidAuthKey(String authkey, String urlblucserver) throws Exception {
+	public static class AuthKeyFields implements Serializable {
+		private static final long serialVersionUID = 7284471261596241887L;
+		String cpf;
+		String email;
+		String cn;
+
+		public static byte[] serialize(AuthKeyFields akf) throws Exception {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutput out = null;
+			try {
+				out = new ObjectOutputStream(bos);
+				out.writeObject(akf);
+				out.flush();
+				return bos.toByteArray();
+			} finally {
+				try {
+					bos.close();
+				} catch (IOException ex) {
+					// ignore close exception
+				}
+			}
+		}
+
+		public static AuthKeyFields deserialize(byte[] bytes) throws Exception {
+			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+			ObjectInput in = null;
+			try {
+				in = new ObjectInputStream(bis);
+				return (AuthKeyFields) in.readObject();
+			} finally {
+				try {
+					if (in != null) {
+						in.close();
+					}
+				} catch (IOException ex) {
+					// ignore close exception
+				}
+			}
+		}
+	}
+
+	public static AuthKeyFields assertValidAuthKey(String authkey, String urlblucserver) throws Exception {
 		byte[] cached = SwaggerUtils.memCacheRetrieve("valid-" + authkey);
 		if (cached != null)
-			return new String(cached);
-
-		JSONObject json = validateAuthKey(authkey, urlblucserver);
-
-		String cpf = json.getString("cpf");
-		SwaggerUtils.memCacheStore("valid-" + authkey, cpf.getBytes());
-		return cpf;
-	}
-
-	public static String format(Date date) {
-		return isoFormatter.format(date);
-	}
-
-	public static Date parse(String date) {
-		try {
-			return isoFormatter.parse(date);
-		} catch (ParseException e) {
-			return null;
-		}
+			return AuthKeyFields.deserialize(cached);
+		AuthKeyFields akf = validateAuthKey(authkey, urlblucserver);
+		SwaggerUtils.memCacheStore("valid-" + authkey, AuthKeyFields.serialize(akf));
+		return akf;
 	}
 
 	public static byte[] calcSha1(byte[] content) {

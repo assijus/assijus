@@ -78,6 +78,32 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
+  /login:
+    post:
+      description: Gera um JSON Web Token para autenticar o usuário em um sistema qualquer
+      tags: [auth]
+      parameters: 
+        - $ref: "#/parameters/authkey"
+        - name: callback
+          in: path
+          description: Identificador do systema integrado
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              url:
+                type: string
+                description: Url para a qual o usuário deve ser redirecionado
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+
+
   /list:
     post:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
@@ -111,15 +137,46 @@ paths:
       tags: [view]
       parameters:
         - $ref: "#/parameters/authkey"
+        - $ref: "#/parameters/system"
+        - $ref: "#/parameters/id"
+        - $ref: "#/parameters/secret"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+                format: byte
+                description: PDF codificado em base64
+              contenttype:
+                type: string
+                description: Constante em application/pdf
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /view/{system}/{id}/{secret}:
+    get:
+      description: Obter o PDF de um documento para visualização
+      tags: [view]
+      parameters:
+        - name: system
+          in: path
+          description: Identificador do systema integrado
+          required: true
+          type: string
         - name: id
-          in: formData
+          in: path
           description: Identificador do documento
           required: true
           type: string
-        - name: system
-          in: formData
-          description: Identificador do systema integrado
-          required: true
+        - name: secret
+          in: path
+          description: Segredo do documento
+          required: false
           type: string
       responses:
         200:
@@ -139,6 +196,47 @@ paths:
           schema:
             $ref: "#/definitions/error"
             
+  /info/{system}/{id}/{secret}:
+    get:
+      description: Obter informações de um documento para visualização
+      tags: [view]
+      parameters:
+        - name: system
+          in: path
+          description: Identificador do systema integrado
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: Identificador do documento
+          required: true
+          type: string
+        - name: secret
+          in: path
+          description: Segredo do documento
+          required: false
+          type: string
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              signature:
+                type: array
+                items:
+                  $ref: "#/definitions/Signature"
+              movement:
+                type: array
+                items:
+                  $ref: "#/definitions/Movement"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
   /hash:
     post:
       description: Obter o hash de um documento
@@ -146,17 +244,9 @@ paths:
       parameters:
         - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/certificate"
-        - name: id
-          in: formData
-          description: Identificador do documento
-          required: true
-          type: string
-        - name: system
-          in: formData
-          description: Identificador do systema integrado
-          required: true
-          type: string
-        
+        - $ref: "#/parameters/system"
+        - $ref: "#/parameters/id"
+        - $ref: "#/parameters/secret"
       responses:
         200:
           description: Successful response
@@ -368,6 +458,12 @@ parameters:
     description: Identificador do documento
     required: true
     type: string
+  secret:  
+    name: secret
+    in: formData
+    description: Segredo relacionado ao documento
+    required: false
+    type: string
   code:  
     name: code
     in: formData
@@ -420,6 +516,9 @@ definitions:
       id:
         type: string
         description: identificador do documento
+      secret:
+        type: string
+        description: segredo que é usado para garantir o acesso ao documento
       code: 
         type: string
       descr: 
@@ -530,6 +629,27 @@ definitions:
   Extra:
     type: string
     description: Parametros adicionais obtidos durante o hash e necessarios para a gravacao da assinatura
+
+  Signature:
+    type: object
+    properties:
+      ref:
+        type: string
+      signer:
+        type: string
+      kind:
+        type: string
+
+  Movement:
+    type: object
+    properties:
+      time:
+        type: string
+        format: date-time
+      department:
+        type: string
+      kind:
+        type: string
 
   error:
     type: object

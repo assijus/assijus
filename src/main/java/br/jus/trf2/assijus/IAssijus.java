@@ -76,6 +76,18 @@ public interface IAssijus {
 	public class Extra implements ISwaggerModel {
 	}
 
+	public class Signature implements ISwaggerModel {
+		public String ref;
+		public String signer;
+		public String kind;
+	}
+
+	public class Movement implements ISwaggerModel {
+		public Date time;
+		public String department;
+		public String kind;
+	}
+
 	public class error implements ISwaggerModel {
 		public String error;
 	}
@@ -110,6 +122,19 @@ public interface IAssijus {
 		public void run(AuthPostRequest req, AuthPostResponse resp) throws Exception;
 	}
 
+	public class LoginPostRequest implements ISwaggerRequest {
+		public String authkey;
+		public String callback;
+	}
+
+	public class LoginPostResponse implements ISwaggerResponse {
+		public String url;
+	}
+
+	public interface ILoginPost extends ISwaggerMethod {
+		public void run(LoginPostRequest req, LoginPostResponse resp) throws Exception;
+	}
+
 	public class ListPostRequest implements ISwaggerRequest {
 		public String key;
 		public String authkey;
@@ -139,6 +164,37 @@ public interface IAssijus {
 
 	public interface IViewPost extends ISwaggerMethod {
 		public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception;
+	}
+
+	public class ViewSystemIdSecretGetRequest implements ISwaggerRequest {
+		public String system;
+		public String id;
+		public String secret;
+	}
+
+	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse {
+		public byte[] payload;
+		public String contenttype;
+	}
+
+	public interface IViewSystemIdSecretGet extends ISwaggerMethod {
+		public void run(ViewSystemIdSecretGetRequest req, ViewSystemIdSecretGetResponse resp) throws Exception;
+	}
+
+	public class InfoSystemIdSecretGetRequest implements ISwaggerRequest {
+		public String system;
+		public String id;
+		public String secret;
+	}
+
+	public class InfoSystemIdSecretGetResponse implements ISwaggerResponse {
+		public String status;
+		public List<Signature> signature;
+		public List<Movement> movement;
+	}
+
+	public interface IInfoSystemIdSecretGet extends ISwaggerMethod {
+		public void run(InfoSystemIdSecretGetRequest req, InfoSystemIdSecretGetResponse resp) throws Exception;
 	}
 
 	public class HashPostRequest implements ISwaggerRequest {

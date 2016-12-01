@@ -1,15 +1,13 @@
 package br.jus.trf2.assijus;
 
-import java.util.Date;
+import com.crivano.blucservice.api.IBlueCrystal;
+import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.IVerifyPost;
 import br.jus.trf2.assijus.IAssijus.VerifyPostRequest;
 import br.jus.trf2.assijus.IAssijus.VerifyPostResponse;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
-
-import com.crivano.blucservice.api.IBlueCrystal;
-import com.crivano.swaggerservlet.SwaggerCall;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class VerifyPost implements IVerifyPost {
 

@@ -1,18 +1,17 @@
 package br.jus.trf2.assijus;
 
-import br.jus.trf2.assijus.IAssijus.IViewPost;
-import br.jus.trf2.assijus.IAssijus.ViewPostRequest;
-import br.jus.trf2.assijus.IAssijus.ViewPostResponse;
-import br.jus.trf2.assijus.system.api.IAssijusSystem;
-
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
-public class ViewPost implements IViewPost {
+import br.jus.trf2.assijus.IAssijus.IViewSystemIdSecretGet;
+import br.jus.trf2.assijus.IAssijus.ViewSystemIdSecretGetRequest;
+import br.jus.trf2.assijus.IAssijus.ViewSystemIdSecretGetResponse;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
+
+public class ViewSystemIdSecretGet implements IViewSystemIdSecretGet {
 
 	@Override
-	public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception {
+	public void run(ViewSystemIdSecretGetRequest req, ViewSystemIdSecretGetResponse resp) throws Exception {
 		IAssijusSystem.DocIdPdfGetResponse s = getPdf(req);
 
 		// Produce response
@@ -20,30 +19,31 @@ public class ViewPost implements IViewPost {
 		resp.contenttype = "application/pdf";
 	}
 
-	public static IAssijusSystem.DocIdPdfGetResponse getPdf(ViewPostRequest req)
+	public static IAssijusSystem.DocIdPdfGetResponse getPdf(ViewSystemIdSecretGetRequest req)
 			throws Exception, PresentableException {
 		String system = req.system;
 		String id = req.id;
 		String password = Utils.getPassword(system);
-
-		String authkey = req.authkey;
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
 		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";
 
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdPdfGetRequest q = new IAssijusSystem.DocIdPdfGetRequest();
 		q.id = id;
-		q.cpf = cpf;
 		IAssijusSystem.DocIdPdfGetResponse s = SwaggerCall.call(system + "-get", password, "GET", urlView, q,
 				IAssijusSystem.DocIdPdfGetResponse.class);
 
 		if (s.secret != null) {
-			if (!Utils.makeSecret(s.secret).equals(req.secret))
+			if (req.secret == null)
+				throw new Exception("Parâmetro 'secret' precisa ser informado.");
+
+			if (!Utils.makeSecret(s.secret).equals(req.secret)) {
+				// Apenas para garantir que não é possível
+				// um ataque para tentar descobrir o valor
+				// de secret
+				Thread.sleep(4000);
 				throw new PresentableException("Não autorizado.");
-		} else {
-			if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
-				throw new PresentableException("CPF não autorizado.");
+			}
 		}
 		return s;
 	}
