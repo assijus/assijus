@@ -1,4 +1,5 @@
-var app = angular.module('app', [ 'ngAnimate', 'ngRoute', 'cgBusy' ]);
+var app = angular.module('app', [ 'angularModalService', 'ngAnimate',
+		'ngRoute', 'cgBusy' ]);
 
 app.config([ '$routeProvider', '$locationProvider',
 		function($routeProvider, $locationProvider) {
@@ -171,7 +172,7 @@ app
 		.controller(
 				'ctrl',
 				function($scope, $http, $interval, $window, $location, $filter,
-						$timeout, $routeParams) {
+						$timeout, $routeParams, ModalService) {
 
 					$scope.isChromeExtensionActive = function() {
 						return document
@@ -196,6 +197,7 @@ app
 						$scope.endpoint.autostart = $scope.$parent.querystring.endpointautostart == "true";
 					}
 					$scope.urlBaseAPI = "/assijus/api/v1";
+					$scope.showPIN = false;
 
 					$scope.showErrorDetails = false;
 					$scope.filterErrorDetails = function(v) {
@@ -233,8 +235,13 @@ app
 
 					$scope.reportErrorAndResume = function(codigo, context,
 							response) {
-						var msg = "Erro " + context + ': '
-								+ response.statusText;
+						var msg = "Erro " + context;
+						if (response.statusText)
+							msg = "Erro " + context + ': '
+									+ response.statusText;
+						if (response.data.hasOwnProperty("errormsg")
+								&& response.statusText === undefined)
+							msg = response.data.errormsg;
 						try {
 							var detail = {
 								presentable : false,
@@ -1016,9 +1023,124 @@ app
 							$scope.obterToken(progress, cont);
 						});
 					}
+					
+					// 2 steps
+					$scope.selecionarCertificado = function(progress, cont) {
+						progress.step("Selecionando certificado...");
+						$scope
+								.myhttp({
+									url : $scope.urlBluCRESTSigner + '/cert',
+									method : "POST",
+									data : {
+										userPIN : $scope.userPIN,
+										subject : $scope.userSubject
+									}
+								})
+								.then(
+										function successCallback(response) {
+											var data = response.data;
+
+											if ($scope.p11 && data && data.list) {
+												$scope
+														.showDialogForCerts(data.list);
+												return;
+											}
+
+											progress
+													.step("Certificado selecionado.");
+											if (data.hasOwnProperty('errormsg')
+													&& data.errormsg != null) {
+												delete $scope.documentos;
+												progress.stop();
+												$scope.setError(response);
+												return;
+											}
+											$scope.setCert(data);
+											$scope.validarAuthKey(progress,
+													cont);
+										},
+										function errorCallback(response) {
+											delete $scope.documentos;
+											progress.stop();
+											if (response.data
+													&& response.data.errormsg
+															.indexOf("CKR_") !== -1) {
+												var err = response.data.errormsg;
+												if (err == "CKR_PIN_INCORRECT")
+													err = "PIN incorreto. Atenção: muitas tentativas incorretas podem bloquear seu token!";
+												if (err == "CKR_PIN_LOCKED")
+													err = "Seu token está bloqueado por excesso de tentativas incorretas de informar o PIN.";
+												$scope.showDialogForPIN(err);
+												return;
+											}
+											$scope.setError(response);
+										});
+					}
+
+					$scope.prosseguirComPIN = function(userPIN, cont) {
+						if ((userPIN || "") == "") {
+							delete $scope.userPIN;
+							return;
+						}
+						$scope.userPIN = userPIN;
+						if ($scope.hasOwnProperty('userPIN')) {
+							$scope.progress.start("Inicializando", 10);
+							$scope.selecionarCertificado($scope.progress, cont);
+						}
+					}
+
+					$scope.showDialogForPIN = function(errormsg, cont) {
+						ModalService.showModal({
+							templateUrl : "resources/dialog-pin.html",
+							controller : "PINController",
+							inputs : {
+								title : "Autenticação",
+								errormsg : errormsg
+							}
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.prosseguirComPIN(result.pin, cont);
+							});
+						});
+					};
+
+					$scope.prosseguirComCertificado = function(userSubject, cont) {
+						if ((userSubject || "") == "") {
+							delete $scope.userSubject;
+							return;
+						}
+						$scope.userSubject = userSubject;
+						if ($scope.hasOwnProperty('userSubject')) {
+							$scope.progress.start("Inicializando", 10);
+							$scope.selecionarCertificado($scope.progress, cont);
+						}
+					}
+
+					$scope.showDialogForCerts = function(list, cont) {
+						ModalService
+								.showModal(
+										{
+											templateUrl : "resources/dialog-certs.html",
+											controller : "CertsController",
+											inputs : {
+												title : "Seleção de Certificado",
+												list : list
+											}
+										})
+								.then(
+										function(modal) {
+											modal.element.modal();
+											modal.close
+													.then(function(result) {
+														$scope
+																.prosseguirComCertificado(result.subject, cont);
+													});
+										});
+					};
 
 					// 3 steps
-					$scope.buscarCertificado = function(progress, cont) {
+					$scope.buscarCertificadoCorrente = function(progress, cont) {
 						progress.step("Buscando certificado corrente...");
 						$scope
 								.myhttp(
@@ -1030,7 +1152,7 @@ app
 								.then(
 										function successCallback(response) {
 											var data = response.data;
-											if (data.subject !== null) {
+											if (data.hasOwnProperty('subject')) {
 												progress
 														.step(
 																"Certificado corrente localizado.",
@@ -1039,46 +1161,15 @@ app
 												$scope.validarAuthKey(progress,
 														cont);
 											} else {
-												progress
-														.step("Selecionando certificado...");
+												if ($scope.p11
+														&& !$scope
+																.hasOwnProperty('userPIN')) {
+													$scope.showDialogForPIN(undefined, cont);
+													progress.stop();
+													return;
+												}
 												$scope
-														.myhttp(
-																{
-																	url : $scope.urlBluCRESTSigner
-																			+ '/cert',
-																	method : "GET"
-																})
-														.then(
-																function successCallback(
-																		response) {
-																	var data = response.data;
-																	progress
-																			.step("Certificado selecionado.");
-																	if (data
-																			.hasOwnProperty('errormsg')
-																			&& data.errormsg != null) {
-																		delete $scope.documentos;
-																		progress
-																				.stop();
-																		$scope
-																				.setError(response);
-																		return;
-																	}
-																	$scope
-																			.setCert(data);
-																	$scope
-																			.validarAuthKey(
-																					progress,
-																					cont);
-																},
-																function errorCallback(
-																		response) {
-																	delete $scope.documentos;
-																	progress
-																			.stop();
-																	$scope
-																			.setError(response);
-																});
+														.selecionarCertificado(progress);
 											}
 										}, function errorCallback(response) {
 											delete $scope.documentos;
@@ -1086,7 +1177,7 @@ app
 											$scope.setError(response);
 										});
 					}
-
+					
 					// 2 steps
 					$scope.testarSigner = function(progress, cont) {
 						progress.step("Testando Assijus.exe");
@@ -1101,9 +1192,11 @@ app
 											progress
 													.step("Assijus.exe está ativo.");
 											if (response.data.status == "OK") {
+												$scope.p11 = response.data.provider
+												.indexOf("PKCS#11") !== -1;
 												document
 														.getElementById("native-client-active").value = response.data.version;
-												$scope.buscarCertificado(
+												$scope.buscarCertificadoCorrente(
 														progress, cont);
 											} else {
 												progress.stop();
@@ -1184,6 +1277,86 @@ app
 						$timeout($scope.forceRefresh, 10);
 					}
 				});
+app.controller('PINController', function($scope, $element, $timeout, title,
+		errormsg, close) {
+
+	$scope.pin = null;
+	$scope.title = title;
+	$scope.errormsg = errormsg;
+
+	$scope.clickclose = function() {
+		if (($scope.pin || "") == "") {
+			$scope.errormsg = "PIN deve ser preenchido.";
+			return;
+		}
+		$scope.close();
+		// Manually hide the modal.
+		$element.modal('hide');
+	};
+
+	// This close function doesn't need to use jQuery or bootstrap, because
+	// the button has the 'data-dismiss' attribute.
+	$scope.close = function() {
+		if (($scope.pin || "") == "") {
+			$scope.errormsg = "PIN deve ser preenchido.";
+			return;
+		}
+		close({
+			pin : $scope.pin
+		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+	// This cancel function must use the bootstrap, 'modal' function because
+	// the doesn't have the 'data-dismiss' attribute.
+	$scope.cancel = function() {
+
+		// Manually hide the modal.
+		$element.modal('hide');
+
+		// Now call close, returning control to the caller.
+		close({
+			name : $scope.name
+		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+});
+
+app.controller('CertsController', function($scope, $element, $timeout, title,
+		list, close) {
+
+	$scope.pin = null;
+	$scope.title = title;
+	$scope.list = list;
+	$scope.cert = {
+		subject : $scope.list[0].subject
+	};
+
+	$scope.clickclose = function() {
+		$scope.close();
+		// Manually hide the modal.
+		$element.modal('hide');
+	};
+
+	// This close function doesn't need to use jQuery or bootstrap, because
+	// the button has the 'data-dismiss' attribute.
+	$scope.close = function() {
+		close({
+			subject : $scope.cert.subject
+		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+	// This cancel function must use the bootstrap, 'modal' function because
+	// the doesn't have the 'data-dismiss' attribute.
+	$scope.cancel = function() {
+
+		// Manually hide the modal.
+		$element.modal('hide');
+
+		// Now call close, returning control to the caller.
+		close({}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+});
 
 app
 		.directive(
