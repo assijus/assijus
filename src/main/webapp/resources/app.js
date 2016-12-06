@@ -911,8 +911,54 @@ app
 						return $location.protocol() == "https";
 					}
 
-					// 4 steps
+					// 2 steps
+					$scope.assinarToken = function(token, progress, cont) {
+						$scope.assertCont(cont);
+						// Assinar string para formar o
+						// token
+						$scope.myhttp({
+							url : $scope.urlBluCRESTSigner + '/token',
+							method : "POST",
+							data : {
+								"certificate" : $scope.cert.certificate,
+								"token" : token,
+								"subject" : $scope.cert.subject,
+								"policy" : "AD-RB"
+							}
+						}).then(function successCallback(response) {
+							var data = response.data;
+							progress.step("Usuário autenticado.");
+							var token = data.token + ";" + data.sign;
+
+							// Armazenar o
+							// token e obter
+							// a authkey
+							$http({
+								url : $scope.urlBaseAPI + '/auth',
+								method : "POST",
+								data : {
+									"token" : token
+								}
+							}).then(function successCallback(response) {
+								var data = response.data;
+								progress.step("Chave de autenticação obtida.");
+								$scope.setAuthKey(data.authkey);
+								cont(progress);
+							}, function errorCallback(response) {
+								delete $scope.documentos;
+								progress.stop();
+								$scope.setError(response);
+							});
+						}, function errorCallback(response) {
+							delete $scope.documentos;
+							progress.stop();
+							$scope.setError(response);
+						});
+					}
+
+					// 2 steps
 					$scope.obterToken = function(progress, cont) {
+						$scope.assertCont(cont);
 						// Obter string para ser assinada
 						$http({
 							url : $scope.urlBaseAPI + '/token',
@@ -920,88 +966,23 @@ app
 							data : {
 								"certificate" : $scope.cert.certificate
 							}
-						})
-								.then(
-										function successCallback(response) {
-											var data = response.data;
-											progress
-													.step("Senha de autenticação preparada.");
-											var token = data.token;
-											progress
-													.step("Autenticando usuário");
+						}).then(function successCallback(response) {
+							var data = response.data;
+							progress.step("Senha de autenticação preparada.");
+							var token = data.token;
+							progress.step("Autenticando usuário");
 
-											// Assinar string para formar o
-											// token
-											$scope
-													.myhttp(
-															{
-																url : $scope.urlBluCRESTSigner
-																		+ '/token',
-																method : "POST",
-																data : {
-																	"certificate" : $scope.cert.certificate,
-																	"token" : token,
-																	"subject" : $scope.cert.subject,
-																	"policy" : "AD-RB"
-																}
-															})
-													.then(
-															function successCallback(
-																	response) {
-																var data = response.data;
-																progress
-																		.step("Usuário autenticado.");
-																var token = data.token
-																		+ ";"
-																		+ data.sign;
-
-																// Armazenar o
-																// token e obter
-																// a authkey
-																$http(
-																		{
-																			url : $scope.urlBaseAPI
-																					+ '/auth',
-																			method : "POST",
-																			data : {
-																				"token" : token
-																			}
-																		})
-																		.then(
-																				function successCallback(
-																						response) {
-																					var data = response.data;
-																					progress
-																							.step("Chave de autenticação obtida.");
-																					$scope
-																							.setAuthKey(data.authkey);
-																					cont(progress);
-																				},
-																				function errorCallback(
-																						response) {
-																					delete $scope.documentos;
-																					progress
-																							.stop();
-																					$scope
-																							.setError(response);
-																				});
-															},
-															function errorCallback(
-																	response) {
-																delete $scope.documentos;
-																progress.stop();
-																$scope
-																		.setError(response);
-															});
-										}, function errorCallback(response) {
-											delete $scope.documentos;
-											progress.stop();
-											$scope.setError(response);
-										});
+							$scope.assinarToken(token, progress, cont);
+						}, function errorCallback(response) {
+							delete $scope.documentos;
+							progress.stop();
+							$scope.setError(response);
+						});
 					}
 
 					// 2 steps
 					$scope.validarAuthKey = function(progress, cont) {
+						$scope.assertCont(cont);
 						// Verificar se a authkey existe e é valida
 						if (!$scope.hasAuthKey()) {
 							progress.step("Chave de autenticação inexistente",
@@ -1023,9 +1004,10 @@ app
 							$scope.obterToken(progress, cont);
 						});
 					}
-					
+
 					// 2 steps
 					$scope.selecionarCertificado = function(progress, cont) {
+						$scope.assertCont(cont);
 						progress.step("Selecionando certificado...");
 						$scope
 								.myhttp({
@@ -1078,6 +1060,7 @@ app
 					}
 
 					$scope.prosseguirComPIN = function(userPIN, cont) {
+						$scope.assertCont(cont);
 						if ((userPIN || "") == "") {
 							delete $scope.userPIN;
 							return;
@@ -1090,6 +1073,7 @@ app
 					}
 
 					$scope.showDialogForPIN = function(errormsg, cont) {
+						$scope.assertCont(cont);
 						ModalService.showModal({
 							templateUrl : "resources/dialog-pin.html",
 							controller : "PINController",
@@ -1105,7 +1089,9 @@ app
 						});
 					};
 
-					$scope.prosseguirComCertificado = function(userSubject, cont) {
+					$scope.prosseguirComCertificado = function(userSubject,
+							cont) {
+						$scope.assertCont(cont);
 						if ((userSubject || "") == "") {
 							delete $scope.userSubject;
 							return;
@@ -1118,29 +1104,27 @@ app
 					}
 
 					$scope.showDialogForCerts = function(list, cont) {
-						ModalService
-								.showModal(
-										{
-											templateUrl : "resources/dialog-certs.html",
-											controller : "CertsController",
-											inputs : {
-												title : "Seleção de Certificado",
-												list : list
-											}
-										})
-								.then(
-										function(modal) {
-											modal.element.modal();
-											modal.close
-													.then(function(result) {
-														$scope
-																.prosseguirComCertificado(result.subject, cont);
-													});
-										});
+						$scope.assertCont(cont);
+						ModalService.showModal({
+							templateUrl : "resources/dialog-certs.html",
+							controller : "CertsController",
+							inputs : {
+								title : "Seleção de Certificado",
+								list : list
+							}
+						}).then(
+								function(modal) {
+									modal.element.modal();
+									modal.close.then(function(result) {
+										$scope.prosseguirComCertificado(
+												result.subject, cont);
+									});
+								});
 					};
 
 					// 3 steps
 					$scope.buscarCertificadoCorrente = function(progress, cont) {
+						$scope.assertCont(cont);
 						progress.step("Buscando certificado corrente...");
 						$scope
 								.myhttp(
@@ -1152,7 +1136,8 @@ app
 								.then(
 										function successCallback(response) {
 											var data = response.data;
-											if (data.hasOwnProperty('subject')) {
+											if (data.hasOwnProperty('subject')
+													&& data.subject !== null) {
 												progress
 														.step(
 																"Certificado corrente localizado.",
@@ -1164,12 +1149,13 @@ app
 												if ($scope.p11
 														&& !$scope
 																.hasOwnProperty('userPIN')) {
-													$scope.showDialogForPIN(undefined, cont);
+													$scope.showDialogForPIN(
+															undefined, cont);
 													progress.stop();
 													return;
 												}
 												$scope
-														.selecionarCertificado(progress);
+														.selecionarCertificado(progress, cont);
 											}
 										}, function errorCallback(response) {
 											delete $scope.documentos;
@@ -1177,9 +1163,10 @@ app
 											$scope.setError(response);
 										});
 					}
-					
+
 					// 2 steps
 					$scope.testarSigner = function(progress, cont) {
+						$scope.assertCont(cont);
 						progress.step("Testando Assijus.exe");
 						$scope
 								.myhttp({
@@ -1193,11 +1180,12 @@ app
 													.step("Assijus.exe está ativo.");
 											if (response.data.status == "OK") {
 												$scope.p11 = response.data.provider
-												.indexOf("PKCS#11") !== -1;
+														.indexOf("PKCS#11") !== -1;
 												document
 														.getElementById("native-client-active").value = response.data.version;
-												$scope.buscarCertificadoCorrente(
-														progress, cont);
+												$scope
+														.buscarCertificadoCorrente(
+																progress, cont);
 											} else {
 												progress.stop();
 												$scope
@@ -1221,6 +1209,11 @@ app
 														.setError($scope.errorMsgMissingSigner)
 											}
 										});
+					}
+
+					$scope.assertCont = function(cont) {
+						if (typeof cont !== 'function')
+							throw "continuação deve ser informada";
 					}
 
 					$scope.autoRefresh = function() {
