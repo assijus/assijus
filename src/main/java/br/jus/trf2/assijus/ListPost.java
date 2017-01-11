@@ -28,7 +28,7 @@ import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
 
 public class ListPost implements IListPost {
 	private static final Logger log = LoggerFactory.getLogger(ListPost.class);
-	private static final long TIMEOUT_MILLISECONDS = 15000;
+	private static final long TIMEOUT_MILLISECONDS = 120000;
 
 	@Override
 	public void run(ListPostRequest req, ListPostResponse resp) throws Exception {
