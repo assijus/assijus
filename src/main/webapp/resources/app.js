@@ -669,6 +669,8 @@ app
 											+ ": Não encontrado...", 4);
 									$scope.reportErrorAndResume(state.codigo,
 											"obtendo o hash", response);
+									if ($scope.endpoint)
+										$scope.endpoint.usecallback = false;
 									$scope.executar(progress);
 								});
 					}
@@ -718,6 +720,8 @@ app
 											$scope.reportErrorAndResume(
 													state.codigo, "assinando",
 													response);
+											if ($scope.endpoint)
+												$scope.endpoint.usecallback = false;
 											$scope.executar(progress);
 										});
 					}
@@ -754,6 +758,16 @@ app
 													&& $scope.endpoint
 													&& $scope.endpoint.usecallback
 													&& $scope.endpoint.callback) {
+												ModalService.showModal({
+													templateUrl : "resources/dialog-callback.html",
+													controller : "PINController",
+													inputs : {
+														title : "---",
+														errormsg : "---"
+													}
+												}).then(function(modal) {
+													modal.element.modal();
+												});
 												window.location.href = $scope.endpoint.callback;
 												return;
 											}
@@ -766,6 +780,8 @@ app
 													state.codigo,
 													"gravando assinatura",
 													response);
+											if ($scope.endpoint)
+												$scope.endpoint.usecallback = false;
 										});
 					}
 
