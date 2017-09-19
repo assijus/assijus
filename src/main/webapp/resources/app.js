@@ -503,50 +503,62 @@ app
 					$scope.view = function(doc) {
 						$scope.progress.start("Preparando Visualização", 6, 0,
 								100);
-						$scope.validarAuthKey($scope.progress, function(
-								progress) {
-							progress.stop();
-							var form = document.createElement('form');
-							form.action = $scope.urlBaseAPI + "/view";
-							form.method = 'POST';
-							form.target = '_blank';
-							form.style.display = 'none';
+						$scope
+								.validarAuthKey(
+										$scope.progress,
+										function(progress) {
+											progress.stop();
+											var form = document
+													.createElement('form');
+											form.action = $scope.urlBaseAPI
+													+ "/view";
+											form.method = 'POST';
+											form.target = '_blank';
+											form.style.display = 'none';
 
-							var authkey = document.createElement('input');
-							authkey.type = 'text';
-							authkey.name = 'authkey';
-							authkey.value = $scope.getAuthKey();
+											var authkey = document
+													.createElement('input');
+											authkey.type = 'text';
+											authkey.name = 'authkey';
+											authkey.value = $scope.getAuthKey();
 
-							var system = document.createElement('input');
-							system.type = 'text';
-							system.name = 'system';
-							system.value = doc.system;
+											var system = document
+													.createElement('input');
+											system.type = 'text';
+											system.name = 'system';
+											system.value = doc.system;
 
-							var docid = document.createElement('input');
-							docid.type = 'text';
-							docid.name = 'id';
-							docid.value = doc.id;
+											var docid = document
+													.createElement('input');
+											docid.type = 'text';
+											docid.name = 'id';
+											docid.value = doc.id;
 
-							var docsecret = document.createElement('input');
-							docsecret.type = 'text';
-							docsecret.name = 'secret';
-							docsecret.value = doc.secret;
+											var docsecret = document
+													.createElement('input');
+											docsecret.type = 'text';
+											docsecret.name = 'secret';
+											docsecret.value = doc.secret;
 
-							var submit = document.createElement('input');
-							submit.type = 'submit';
-							submit.id = 'submitView';
+											var submit = document
+													.createElement('input');
+											submit.type = 'submit';
+											submit.id = 'submitView';
 
-							form.appendChild(authkey);
-							form.appendChild(system);
-							form.appendChild(docid);
-							form.appendChild(docsecret);
-							form.appendChild(submit);
-							document.body.appendChild(form);
+											form.appendChild(authkey);
+											form.appendChild(system);
+											form.appendChild(docid);
+											form.appendChild(docsecret);
+											form.appendChild(submit);
+											document.body.appendChild(form);
 
-							$('#submitView').click();
+											$('#submitView').click();
 
-							document.body.removeChild(form);
-						});
+											document.body.removeChild(form);
+
+											logEvento("visualização",
+													"visualizar", doc.system);
+										});
 					}
 
 					//
@@ -667,6 +679,8 @@ app
 								function errorCallback(response) {
 									progress.step(state.nome
 											+ ": Não encontrado...", 4);
+									logEvento("erro", "obtendo o hash",
+											state.system);
 									$scope.reportErrorAndResume(state.codigo,
 											"obtendo o hash", response);
 									if ($scope.endpoint)
@@ -717,6 +731,8 @@ app
 										function errorCallback(response) {
 											progress.step(state.nome
 													+ ": Não assinado.", 2);
+											logEvento("erro", "assinando",
+													state.system);
 											$scope.reportErrorAndResume(
 													state.codigo, "assinando",
 													response);
@@ -752,30 +768,41 @@ app
 											var data = response.data;
 											progress.step(state.nome
 													+ ": Assinatura gravada.");
+											logEvento("assinatura", "assinar",
+													state.system);
 											$scope.reportSuccess(state.codigo,
 													data);
 											if (!progress.active
 													&& $scope.endpoint
 													&& $scope.endpoint.usecallback
 													&& $scope.endpoint.callback) {
-												ModalService.showModal({
-													templateUrl : "resources/dialog-callback.html",
-													controller : "PINController",
-													inputs : {
-														title : "---",
-														errormsg : "---"
-													}
-												}).then(function(modal) {
-													modal.element.modal();
-												});
+												ModalService
+														.showModal(
+																{
+																	templateUrl : "resources/dialog-callback.html",
+																	controller : "PINController",
+																	inputs : {
+																		title : "---",
+																		errormsg : "---"
+																	}
+																})
+														.then(
+																function(modal) {
+																	modal.element
+																			.modal();
+																});
 												window.location.href = $scope.endpoint.callback;
 												return;
 											}
+											;
 										},
 										function errorCallback(response) {
 											progress
 													.step(state.nome
 															+ ": Assinatura não gravada.");
+											logEvento("erro",
+													"gravando assinatura",
+													state.system);
 											$scope.reportErrorAndResume(
 													state.codigo,
 													"gravando assinatura",
@@ -861,6 +888,9 @@ app
 																service : sts.system
 															} ]
 														};
+														logEvento("erro",
+																"listando",
+																sts.system);
 													}
 												}
 											}
@@ -874,11 +904,15 @@ app
 													&& $scope.endpoint.autostart)
 												$scope
 														.assinarDocumentos($scope.progress);
+											logEvento("listagem", "listar");
 											return;
-										}, function errorCallback(response) {
+										},
+										function errorCallback(response) {
 											delete $scope.documentos;
 											progress.stop();
 											$scope.setError(response);
+											logEvento("erro", "listando",
+													"todos");
 										});
 					}
 
@@ -1170,8 +1204,8 @@ app
 													progress.stop();
 													return;
 												}
-												$scope
-														.selecionarCertificado(progress, cont);
+												$scope.selecionarCertificado(
+														progress, cont);
 											}
 										}, function errorCallback(response) {
 											delete $scope.documentos;

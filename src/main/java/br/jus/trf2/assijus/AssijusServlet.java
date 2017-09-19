@@ -30,7 +30,7 @@ public class AssijusServlet extends SwaggerServlet {
 
 		super.setActionPackage("br.jus.trf2.assijus");
 
-		addDependency(new SwaggerServletDependency("webservice", "blucservice", false) {
+		addDependency(new SwaggerServletDependency("webservice", "blucservice", false, 0, 10000) {
 
 			@Override
 			public String getUrl() {
@@ -46,7 +46,7 @@ public class AssijusServlet extends SwaggerServlet {
 
 		String[] systems = Utils.getSystems();
 		for (final String system : systems) {
-			addDependency(new SwaggerServletDependency("webservice", system, true) {
+			addDependency(new SwaggerServletDependency("webservice", system, true, 0, 10000) {
 
 				@Override
 				public String getUrl() {
@@ -61,7 +61,7 @@ public class AssijusServlet extends SwaggerServlet {
 			});
 		}
 
-		addDependency(new TestableDependency("cache", "redis", false) {
+		addDependency(new TestableDependency("cache", "redis", false, 0, 10000) {
 
 			@Override
 			public String getUrl() {

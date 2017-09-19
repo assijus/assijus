@@ -188,3 +188,11 @@ var formdata = function(obj) {
 
 	return s;
 }
+
+var logEvento = function(categoria, acao, rotulo, valor) {
+	try {
+		ga('send', 'event', categoria, acao, rotulo, valor);
+	} catch (ex) {
+
+	}
+}
