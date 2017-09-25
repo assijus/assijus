@@ -7,6 +7,7 @@ import com.crivano.swaggerservlet.ISwaggerMethod;
 import com.crivano.swaggerservlet.ISwaggerModel;
 import com.crivano.swaggerservlet.ISwaggerRequest;
 import com.crivano.swaggerservlet.ISwaggerResponse;
+import com.crivano.swaggerservlet.ISwaggerResponsePayload;
 
 public interface IAssijus {
 	public class Document implements ISwaggerModel {
@@ -157,7 +158,7 @@ public interface IAssijus {
 		public String secret;
 	}
 
-	public class ViewPostResponse implements ISwaggerResponse {
+	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponsePayload {
 		public byte[] payload;
 		public String contenttype;
 	}
@@ -172,7 +173,7 @@ public interface IAssijus {
 		public String secret;
 	}
 
-	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse {
+	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse, ISwaggerResponsePayload {
 		public byte[] payload;
 		public String contenttype;
 	}
@@ -217,6 +218,27 @@ public interface IAssijus {
 
 	public interface IHashPost extends ISwaggerMethod {
 		public void run(HashPostRequest req, HashPostResponse resp) throws Exception;
+	}
+
+	public class SignedAttrsPostRequest implements ISwaggerRequest {
+		public String authkey;
+		public byte[] certificate;
+		public String policy;
+		public byte[] sha1;
+		public byte[] sha256;
+	}
+
+	public class SignedAttrsPostResponse implements ISwaggerResponse {
+		public String policy;
+		public String policyversion;
+		public Date time;
+		public byte[] hash;
+		public byte[] sha1;
+		public byte[] sha256;
+	}
+
+	public interface ISignedAttrsPost extends ISwaggerMethod {
+		public void run(SignedAttrsPostRequest req, SignedAttrsPostResponse resp) throws Exception;
 	}
 
 	public class SavePostRequest implements ISwaggerRequest {

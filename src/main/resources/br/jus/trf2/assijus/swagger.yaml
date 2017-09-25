@@ -276,6 +276,42 @@ paths:
           schema:
             $ref: "#/definitions/error"
             
+  /signed-attrs:
+    post:
+      description: Obter os attributos assináveis para compor uma assinatura com política
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/authkey"
+        - $ref: "#/parameters/certificate"
+        - $ref: "#/parameters/policy"
+        - $ref: "#/parameters/sha1"
+        - $ref: "#/parameters/sha256"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              policy:
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              time:
+                $ref: "#/definitions/Time"
+              hash:
+                $ref: "#/definitions/Hash"
+              sha1:
+                $ref: "#/definitions/Sha1"
+              sha256:
+                $ref: "#/definitions/Sha256"
+            example:      
+              sha1: csTZGGSt1AG1m3T5VaIzcHX8Av0=
+              sha256: 24yd3pPUpPz4dyVdRQAP+zI7R8wTsNX9J7El/a5Bb64=
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
   /save:
     post:
       description: Gravar a assinatura do documento
