@@ -144,15 +144,14 @@ paths:
         200:
           description: Successful response
           schema:
-            type: object
-            properties:
-              payload:
-                type: string
-                format: byte
-                description: PDF codificado em base64
-              contenttype:
-                type: string
-                description: Constante em application/pdf
+            type: file
+          headers:
+            Content-Type:
+              type: string
+              description: application/pdf
+            Content-Disposition:
+              type: string
+              description: attachment
         500:
           description: Error ocurred
           schema:
@@ -182,15 +181,14 @@ paths:
         200:
           description: Successful response
           schema:
-            type: object
-            properties:
-              payload:
-                type: string
-                format: byte
-                description: PDF codificado em base64
-              contenttype:
-                type: string
-                description: Constante em application/pdf
+            type: file
+          headers:
+            Content-Type:
+              type: string
+              description: application/pdf
+            Content-Disposition:
+              type: string
+              description: attachment
         500:
           description: Error ocurred
           schema:
@@ -311,6 +309,47 @@ paths:
           description: Error ocurred
           schema:
             $ref: "#/definitions/error"
+            
+  /envelope:
+    post:
+      description: Produzir o envelope
+      tags: [sign]
+      parameters:
+        - $ref: "#/parameters/certificate"
+        - $ref: "#/parameters/policy"
+        - $ref: "#/parameters/policyversion"
+        - $ref: "#/parameters/signature"
+        - $ref: "#/parameters/sha1"
+        - $ref: "#/parameters/sha256"
+        - $ref: "#/parameters/time"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              envelope:
+                $ref: "#/definitions/Envelope"
+              policy:
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              time:
+                $ref: "#/definitions/Time"
+              sha1:
+                $ref: "#/definitions/Sha1"
+              sha256:
+                $ref: "#/definitions/Sha256"
+              cpf:
+                $ref: "#/definitions/CPF"
+              name:
+                $ref: "#/definitions/Name"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+
             
   /save:
     post:
@@ -651,6 +690,11 @@ definitions:
     type: string
     format: byte
     description: Pacote Assinavel padrao ICP-Brasil em Base64
+    
+  Envelope:
+    type: string
+    format: byte
+    description: Assinatura Digital padrao ICP-Brasil em Base64
     
   Sha1:
     type: string

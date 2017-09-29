@@ -14,6 +14,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 		<url-pattern>/</url-pattern>
 		<url-pattern>/index.html</url-pattern>
 		<url-pattern>/popup.html</url-pattern>
+		<url-pattern>/popup-api.html</url-pattern>
 		<url-pattern>/resources/*</url-pattern>
 	</filter-mapping>
 

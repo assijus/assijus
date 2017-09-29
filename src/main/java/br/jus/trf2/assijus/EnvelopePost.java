@@ -1,0 +1,83 @@
+package br.jus.trf2.assijus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.crivano.blucservice.api.IBlueCrystal;
+import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerUtils;
+
+import br.jus.trf2.assijus.IAssijus.EnvelopePostRequest;
+import br.jus.trf2.assijus.IAssijus.EnvelopePostResponse;
+import br.jus.trf2.assijus.IAssijus.IEnvelopePost;
+
+public class EnvelopePost implements IEnvelopePost {
+	private static final Logger log = LoggerFactory.getLogger(EnvelopePost.class);
+
+	@Override
+	public void run(EnvelopePostRequest req, EnvelopePostResponse resp) throws Exception {
+		String certificate = SwaggerUtils.base64Encode(req.certificate);
+		String signature = SwaggerUtils.base64Encode(req.signature);
+		String time = SwaggerUtils.format(req.time);
+		String policy = req.policy;
+
+		String sha1 = SwaggerUtils.base64Encode(req.sha1);
+		String sha256 = SwaggerUtils.base64Encode(req.sha256);
+
+		if (signature == null)
+			throw new Exception("Não foi possível obter o parâmetro signature.");
+
+		// Parse certificate
+		IBlueCrystal.CertificatePostRequest q = new IBlueCrystal.CertificatePostRequest();
+		q.certificate = SwaggerUtils.base64Decode(certificate);
+		IBlueCrystal.CertificatePostResponse s = SwaggerCall.call("bluc-certificate", null, "POST",
+				Utils.getUrlBluCServer() + "/certificate", q, IBlueCrystal.CertificatePostResponse.class);
+		String subject = s.subject;
+		String cn = s.cn;
+		String name = s.name;
+		String cpf = s.cpf;
+
+		// Build envelope
+		String envelope = null;
+		if (!"PKCS7".equals(policy)) {
+			IBlueCrystal.EnvelopePostRequest q2 = new IBlueCrystal.EnvelopePostRequest();
+			q2.certificate = SwaggerUtils.base64Decode(certificate);
+			q2.time = SwaggerUtils.parse(time);
+			q2.policy = policy;
+			q2.sha1 = SwaggerUtils.base64Decode(sha1);
+			q2.sha256 = SwaggerUtils.base64Decode(sha256);
+			q2.crl = true;
+			q2.signature = SwaggerUtils.base64Decode(signature);
+			IBlueCrystal.EnvelopePostResponse s2 = SwaggerCall.call("bluc-envelope", null, "POST",
+					Utils.getUrlBluCServer() + "/envelope", q2, IBlueCrystal.EnvelopePostResponse.class);
+			envelope = SwaggerUtils.base64Encode(s2.envelope);
+		} else {
+			envelope = signature;
+		}
+
+		// Validate: call bluc-server validate webservice. If there is an error,
+		// it will throw an exception.
+		IBlueCrystal.ValidatePostRequest q3 = new IBlueCrystal.ValidatePostRequest();
+		q3.time = SwaggerUtils.parse(time);
+		q3.sha1 = SwaggerUtils.base64Decode(sha1);
+		q3.sha256 = SwaggerUtils.base64Decode(sha256);
+		q3.crl = true;
+		q3.envelope = SwaggerUtils.base64Decode(envelope);
+		IBlueCrystal.ValidatePostResponse s3 = SwaggerCall.call("bluc-validate", null, "POST",
+				Utils.getUrlBluCServer() + "/validate", q3, IBlueCrystal.ValidatePostResponse.class);
+
+		// Return the envelope
+		resp.envelope = SwaggerUtils.base64Decode(envelope);
+		resp.time = SwaggerUtils.parse(time);
+		resp.name = name;
+		resp.cpf = cpf;
+		resp.sha1 = SwaggerUtils.base64Decode(sha1);
+		resp.sha256 = SwaggerUtils.base64Decode(sha256);
+	}
+
+	@Override
+	public String getContext() {
+		return "produzir o envelope";
+	}
+
+}

@@ -6,19 +6,22 @@ frameSrc = "http://localhost:8080/assijus/index.html";
 frameSrc = "http://localhost:8080/assijus/popup.html";
 
 function receiveMessageAssinaturaDigital(event) {
-	if (event.origin !== "http://localhost:8080")
-		return;
-
-	// console.log('Sistema recebeu mensagem: ', event)
-
 	var iframe = document.getElementById('iframeAssinaturaDigital');
 	var iframeWindow = iframe.contentWindow;
 
 	if (event.data.command === '<READY>') {
 		iframeWindow.postMessage({
-			command : '<BEGIN>',
+			command : '<GO>',
 			docs : window._AssinaturaDigitalParametros.docs
 		}, '*');
+	}
+
+	if (event.data.command === '<BEGIN-REQUEST>') {
+		window._AssinaturaDigitalParametros.beginCallback(function(params) {
+			iframeWindow.postMessage({
+				command : '<BEGIN-RESPONSE>'
+			}, '*');
+		})
 	}
 
 	if (event.data.command === '<HASH-REQUEST>') {
@@ -49,14 +52,6 @@ function receiveMessageAssinaturaDigital(event) {
 		})
 	}
 
-	if (event.data.command === '<END-REQUEST>') {
-		window._AssinaturaDigitalParametros.dismissCallback(function(params) {
-			iframeWindow.postMessage({
-				command : '<END-RESPONSE>'
-			}, '*');
-		})
-	}
-
 	if (event.data.command === '<SET-HEIGHT>') {
 		iframe.style.height = event.data.height;
 	}
@@ -64,8 +59,15 @@ function receiveMessageAssinaturaDigital(event) {
 
 var produzirAssinaturaDigital = function(params) {
 	window._AssinaturaDigitalParametros = params;
-
 	window.addEventListener("message", receiveMessageAssinaturaDigital, false);
+
+	if (!params.beginCallback)
+		params.beginCallback = function() {
+		};
+
+	if (!params.endCallback)
+		params.endCallback = function() {
+		};
 
 	var popupTemplate = '<div class="modal fade">'
 			+ '  <div class="modal-dialog">'
@@ -73,9 +75,9 @@ var produzirAssinaturaDigital = function(params) {
 			+ '      <div class="modal-header">'
 			+ '        <button type="button" class="close" data-dismiss="modal">&times;</button>'
 			+ '        <h4 class="modal-title">Assinatura Digital</h4>'
-			+ '      </div>' + '      <div class="modal-body">'
+			+ '      </div><div class="modal-body">'
 			+ '        <iframe id="iframeAssinaturaDigital" src="' + frameSrc
-			+ '" width="99.6%" frameborder="0"></iframe>' + '      </div>';
+			+ '" width="99.6%" frameborder="0"></iframe></div>';
 
 	var dlg = $(popupTemplate);
 	dlg.modal({
@@ -83,6 +85,7 @@ var produzirAssinaturaDigital = function(params) {
 	});
 
 	params.dismissCallback = function() {
+		params.endCallback();
 		dlg.modal('hide');
 		setTimeout(function() {
 			dlg.remove();

@@ -61,13 +61,11 @@
 	<input type="hidden" id="native-client-active" value="0" />
 
 	<div class="container content">
-		<h4>{{parentUrl}}</h4>
-
 		<div class="row" ng-show="pinDialog">
 			<div class="col-xs-12">
 				<form ng-keyup="$event.keyCode == 13 && pinProsseguir()">
 					<label class="control-label" for="userPIN" style="width: 100%">Entre
-						o PIN do Certificado Digital <input type="text"
+						o PIN do Certificado Digital <input type="password"
 						class="form-control" style="width: 100%" id="userPIN"
 						ng-model="pinField" placeholder="PIN" autofocus />
 					</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>

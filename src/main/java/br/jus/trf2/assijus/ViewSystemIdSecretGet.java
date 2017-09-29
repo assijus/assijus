@@ -1,5 +1,7 @@
 package br.jus.trf2.assijus;
 
+import java.io.ByteArrayInputStream;
+
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 
@@ -15,8 +17,10 @@ public class ViewSystemIdSecretGet implements IViewSystemIdSecretGet {
 		IAssijusSystem.DocIdPdfGetResponse s = getPdf(req);
 
 		// Produce response
-		resp.payload = s.doc;
+		resp.contentdisposition = "inline;filename=" + req.id + ".pdf";
+		resp.contentlength = (long) s.doc.length;
 		resp.contenttype = "application/pdf";
+		resp.inputstream = new ByteArrayInputStream(s.doc);
 	}
 
 	public static IAssijusSystem.DocIdPdfGetResponse getPdf(ViewSystemIdSecretGetRequest req)

@@ -1,5 +1,6 @@
 package br.jus.trf2.assijus;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import com.crivano.swaggerservlet.ISwaggerMethod;
 import com.crivano.swaggerservlet.ISwaggerModel;
 import com.crivano.swaggerservlet.ISwaggerRequest;
 import com.crivano.swaggerservlet.ISwaggerResponse;
-import com.crivano.swaggerservlet.ISwaggerResponsePayload;
+import com.crivano.swaggerservlet.ISwaggerResponseFile;
 
 public interface IAssijus {
 	public class Document implements ISwaggerModel {
@@ -66,6 +67,9 @@ public interface IAssijus {
 	}
 
 	public class Hash implements ISwaggerModel {
+	}
+
+	public class Envelope implements ISwaggerModel {
 	}
 
 	public class Sha1 implements ISwaggerModel {
@@ -158,9 +162,44 @@ public interface IAssijus {
 		public String secret;
 	}
 
-	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponsePayload {
-		public byte[] payload;
-		public String contenttype;
+	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponseFile {
+		public String contenttype = "application/pdf";
+		public String contentdisposition = "attachment";
+
+		public Long contentlength;
+		public InputStream inputstream;
+
+		public String getContenttype() {
+			return contenttype;
+		}
+
+		public void setContenttype(String contenttype) {
+			this.contenttype = contenttype;
+		}
+
+		public String getContentdisposition() {
+			return contentdisposition;
+		}
+
+		public void setContentdisposition(String contentdisposition) {
+			this.contentdisposition = contentdisposition;
+		}
+
+		public Long getContentlength() {
+			return contentlength;
+		}
+
+		public void setContentlength(Long contentlength) {
+			this.contentlength = contentlength;
+		}
+
+		public InputStream getInputstream() {
+			return inputstream;
+		}
+
+		public void setInputstream(InputStream inputstream) {
+			this.inputstream = inputstream;
+		}
 	}
 
 	public interface IViewPost extends ISwaggerMethod {
@@ -173,9 +212,44 @@ public interface IAssijus {
 		public String secret;
 	}
 
-	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse, ISwaggerResponsePayload {
-		public byte[] payload;
-		public String contenttype;
+	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse, ISwaggerResponseFile {
+		public String contenttype = "application/pdf";
+		public String contentdisposition = "attachment";
+
+		public Long contentlength;
+		public InputStream inputstream;
+
+		public String getContenttype() {
+			return contenttype;
+		}
+
+		public void setContenttype(String contenttype) {
+			this.contenttype = contenttype;
+		}
+
+		public String getContentdisposition() {
+			return contentdisposition;
+		}
+
+		public void setContentdisposition(String contentdisposition) {
+			this.contentdisposition = contentdisposition;
+		}
+
+		public Long getContentlength() {
+			return contentlength;
+		}
+
+		public void setContentlength(Long contentlength) {
+			this.contentlength = contentlength;
+		}
+
+		public InputStream getInputstream() {
+			return inputstream;
+		}
+
+		public void setInputstream(InputStream inputstream) {
+			this.inputstream = inputstream;
+		}
 	}
 
 	public interface IViewSystemIdSecretGet extends ISwaggerMethod {
@@ -239,6 +313,31 @@ public interface IAssijus {
 
 	public interface ISignedAttrsPost extends ISwaggerMethod {
 		public void run(SignedAttrsPostRequest req, SignedAttrsPostResponse resp) throws Exception;
+	}
+
+	public class EnvelopePostRequest implements ISwaggerRequest {
+		public byte[] certificate;
+		public String policy;
+		public String policyversion;
+		public byte[] signature;
+		public byte[] sha1;
+		public byte[] sha256;
+		public Date time;
+	}
+
+	public class EnvelopePostResponse implements ISwaggerResponse {
+		public byte[] envelope;
+		public String policy;
+		public String policyversion;
+		public Date time;
+		public byte[] sha1;
+		public byte[] sha256;
+		public String cpf;
+		public String name;
+	}
+
+	public interface IEnvelopePost extends ISwaggerMethod {
+		public void run(EnvelopePostRequest req, EnvelopePostResponse resp) throws Exception;
 	}
 
 	public class SavePostRequest implements ISwaggerRequest {

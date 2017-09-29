@@ -231,14 +231,14 @@ app
 							var doc = docs[i];
 							var operacao = {
 								codigo : doc.id,
-								nome : doc.nome,
+								nome : doc.code,
 								extra : doc.extra
 							};
 							$scope.operacoes.push(operacao);
 						}
 
 						progress.start($scope.PROCESSING,
-								$scope.operacoes.length * 8 + 6, 20, 100);
+								$scope.operacoes.length * 10 + 6, 20, 100);
 						$scope.validarAuthKey(progress, $scope.executar);
 					}
 
@@ -359,7 +359,7 @@ app
 											$scope.clearError(state.codigo);
 											if (progress.active) {
 												$scope.executar(progress);
-												$scope.gravarAssinatura(state,
+												$scope.obterEnvelope(state,
 														progress);
 											}
 										},
@@ -377,6 +377,52 @@ app
 										});
 					}
 
+					$scope.obterEnvelope = function(state, progress) {
+						progress
+								.step(state.nome + ": Preparando o envelope...");
+						$http({
+							url : $scope.urlBaseAPI + "/envelope",
+							method : "POST",
+							data : {
+								certificate : $scope.cert.certificate,
+								policy : state.policy,
+								policyversion : state.policyversion,
+								signature : state.assinaturaB64,
+								sha1 : state.sha1,
+								sha256 : state.sha256,
+								time : state.time
+							}
+						})
+								.then(
+										function successCallback(response) {
+											progress
+													.step(state.nome
+															+ ": Envelope preparado...");
+											var data = response.data;
+											state.envelopeB64 = data.envelope;
+											state.cpf = data.cpf;
+											state.name = data.name;
+											if (progress.active)
+												$scope.gravarAssinatura(state,
+														progress);
+										},
+										function errorCallback(response) {
+											progress
+													.step(
+															state.nome
+																	+ ": Envelope não preparado...",
+															4);
+											logEvento("erro",
+													"obtendo o envelope",
+													state.system);
+											$scope.reportErrorAndResume(
+													state.codigo,
+													"obtendo o envelope",
+													response);
+											$scope.executar(progress);
+										});
+					}
+
 					// 2
 					$scope.gravarAssinatura = function(state, progress) {
 						progress.step(state.nome + ": Gravando assinatura...");
@@ -384,14 +430,16 @@ app
 							command : '<SAVE-REQUEST>',
 							id : state.codigo,
 							sign : {
-								signature : state.assinaturaB64,
+								envelope : state.envelopeB64,
 								time : state.time,
 								policy : state.policy,
 								policyversion : state.policyversion,
 								sha1 : state.sha1,
 								sha256 : state.sha256,
 								certificate : $scope.cert.certificate,
-								code : state.nome
+								code : state.nome,
+								cpf : $scope.cpf,
+								extra : state.extra
 							}
 						},
 								function(success) {
@@ -452,6 +500,7 @@ app
 								var data = response.data;
 								progress.step("Chave de autenticação obtida.");
 								$scope.setAuthKey(data.authkey);
+								$scope.cpf = data.cpf;
 								cont(progress);
 							}, function errorCallback(response) {
 								delete $scope.documentos;
@@ -505,6 +554,7 @@ app
 							}
 						}).then(function successCallback(response) {
 							progress.step("Chave de autenticação válida.", 4);
+							$scope.cpf = response.data.cpf;
 							cont(progress);
 						}, function errorCallback(response) {
 							progress.step("Chave de autenticação inválida.");
@@ -558,7 +608,7 @@ app
 													err = "PIN incorreto. Atenção: muitas tentativas incorretas podem bloquear seu token!";
 												if (err == "CKR_PIN_LOCKED")
 													err = "Seu token está bloqueado por excesso de tentativas incorretas de informar o PIN.";
-												$scope.showDialogForPIN(err);
+												$scope.showDialogForPIN(err, cont);
 												return;
 											}
 											$scope.setError(response);
@@ -566,6 +616,7 @@ app
 					}
 
 					$scope.pinProsseguir = function() {
+						delete $scope.errormsg;
 						if (($scope.pinField || "") == "") {
 							delete $scope.userPIN;
 							return;
@@ -573,11 +624,11 @@ app
 						$scope.userPIN = $scope.pinField;
 						$scope.pinDialog = false;
 						$scope.progress.start("Inicializando", 10);
-						$scope.selecionarCertificado($scope.progress,
-								$scope.cont);
+						$scope.selecionarCertificado($scope.progress, $scope.cont);
 					}
 
-					$scope.showDialogForPIN = function(cont) {
+					$scope.showDialogForPIN = function(err, cont) {
+						$scope.errormsg = err;
 						$scope.cont = cont;
 						$scope.pinDialog = true;
 					}
@@ -697,12 +748,16 @@ app
 							return;
 						// console.log('Assijus AngularJS recebeu mensagem: ',
 						// data)
-						if (data.command === '<BEGIN>') {
+						if (data.command === '<GO>') {
 							delete $scope.documentos;
 							$scope.params.documentos = data.docs;
 							$scope.progress.start("Inicializando", 14, 0, 20);
-							$scope.testarSigner($scope.progress,
-									$scope.assinarDocumentos);
+							$scope.testarSigner($scope.progress, function() {
+								$scope.postMessage({
+									command : '<BEGIN-REQUEST>'
+								});
+								$scope.assinarDocumentos($scope.progress)
+							});
 						}
 						if (data.command === '<HASH-RESPONSE>') {
 							$scope.cont(data.params);
@@ -716,7 +771,7 @@ app
 								command : '<SET-HEIGHT>',
 								height : document.body.scrollHeight + 'px'
 							}, $scope.parentUrl)
-						});
+						}, 100);
 					});
 
 					$scope.postMessage({

@@ -21,35 +21,35 @@
 
 <script>
 function assinar() {
-	var params = {};
+	produzirAssinaturaDigital({
+		ui: 'bootstrap-3',
 
-	params.docs = [
-		{id: 1, nome: 'TRF-MEM-2017/00001'},
-		{id: 2, nome: 'TRF-MEM-2017/00002'}
-	];
+		docs: [
+			{id: 1, nome: 'TRF-MEM-2017/00001'},
+			{id: 2, nome: 'TRF-MEM-2017/00002'}
+		],
 
-	params.hashCallback = function(id, cont) {
-		console.log(id, ' solicitou hash');
-		cont({sha1: 'vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d', sha256: '9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d'});
-	};
-	
-	params.saveCallback = function(id, sign, cont) {
-		console.log(id, ' recebeu a assinatura: ', sign);
-		var success = true;
-		cont({success: success});
-	};
-	
-	params.errorCallback = function(id, err, cont) {
-		console.log(id, ' deu erro: ', err);
-		cont();
-	};
-	
-	params.endCallback = function(cont) {
-		console.log('finalizou');
-		cont();
-	};
-	
-	produzirAssinaturaDigital(params);
+		hashCallback: function(id, cont) {
+			console.log(id, ' solicitou hash');
+			cont({sha1: 'vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d', sha256: '9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d'});
+		},
+		
+		saveCallback: function(id, sign, cont) {
+			console.log(id, ' recebeu a assinatura: ', sign);
+			var success = true;
+			cont({success: success});
+		},
+		
+		errorCallback: function(id, err, cont) {
+			console.log(id, ' deu erro: ', err);
+			cont();
+		},
+		
+		endCallback: function(cont) {
+			console.log('finalizou');
+			cont();
+		}
+	});
 }
 </script>
 

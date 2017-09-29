@@ -1,23 +1,27 @@
 package br.jus.trf2.assijus;
 
-import br.jus.trf2.assijus.IAssijus.IViewPost;
-import br.jus.trf2.assijus.IAssijus.ViewPostRequest;
-import br.jus.trf2.assijus.IAssijus.ViewPostResponse;
-import br.jus.trf2.assijus.system.api.IAssijusSystem;
+import java.io.ByteArrayInputStream;
 
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
+
+import br.jus.trf2.assijus.IAssijus.IViewPost;
+import br.jus.trf2.assijus.IAssijus.ViewPostRequest;
+import br.jus.trf2.assijus.IAssijus.ViewPostResponse;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
 public class ViewPost implements IViewPost {
 
 	@Override
 	public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception {
 		IAssijusSystem.DocIdPdfGetResponse s = getPdf(req);
-
+		
 		// Produce response
-		resp.payload = s.doc;
+		resp.contentdisposition = "inline;filename=" + req.id + ".pdf";
+		resp.contentlength = (long) s.doc.length;
 		resp.contenttype = "application/pdf";
+		resp.inputstream = new ByteArrayInputStream(s.doc);
 	}
 
 	public static IAssijusSystem.DocIdPdfGetResponse getPdf(ViewPostRequest req)
