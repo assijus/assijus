@@ -801,7 +801,7 @@ app
 									function successCallback(response) {
 										$scope.test = response.data;
 										var popupUrls = response.data.properties['assijus.popup.urls'];
-										$scope.allowedParents = popupUrls ? popupUrls
+										$scope.allowedParents = popupUrls !== '[undefined]' ? popupUrls
 												.split(';')
 												: [];
 										$scope.postMessage({
