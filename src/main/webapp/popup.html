@@ -101,7 +101,6 @@
 
 		<div class="row" ng-show="showErrorDetails">
 			<div class="col-md-12">
-				<h1>Detalhamento de Problema</h1>
 				<div id="error-detail">
 					<div class="headline">
 						<h4>{{errorDetails[currentErrorId].errormsg}}</h4>
@@ -113,7 +112,8 @@
 						</li>
 					</ol>
 				</div>
-				<button ng-click="showErrorDetails = false">Fechar</button>
+				<button class="btn btn-primary" style="margin-bottom: 2em;"
+					ng-click="showErrorDetails = false">Fechar</button>
 			</div>
 		</div>
 		<div class="row">
@@ -177,7 +177,8 @@
 						caso, por favor, tente reiniciar o Windows.</p>
 				</div>
 
-				<div ng-repeat="(key, value) in errorDetails">
+				<div ng-if="!showErrorDetails"
+					ng-repeat="(key, value) in errorDetails">
 					<div class="alert alert-danger fade in"
 						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>

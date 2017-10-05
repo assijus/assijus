@@ -27,6 +27,7 @@ public class AssijusServlet extends SwaggerServlet {
 		super.setActionPackage("br.jus.trf2.assijus");
 
 		super.addProperty(new PublicProperty("assijus.systems"));
+		super.addProperty(new PublicProperty("assijus.popup.urls"));
 		super.addProperty(new RestrictedProperty("blucservice.url"));
 		for (String system : Utils.getSystems()) {
 			super.addProperty(new RestrictedProperty(system + ".url"));

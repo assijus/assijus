@@ -25,29 +25,33 @@ function assinar() {
 		ui: 'bootstrap-3',
 
 		docs: [
-			{id: 1, nome: 'TRF-MEM-2017/00001'},
-			{id: 2, nome: 'TRF-MEM-2017/00002'}
+			{id: 1, code: 'TRF-MEM-2017/00001'},
+			{id: 2, code: 'TRF-MEM-2017/00002'}
 		],
 
+		beginCallback: function() {
+			$( "#log" ).append( "<li>Início</li>" );
+		},
+		
 		hashCallback: function(id, cont) {
-			console.log(id, ' solicitou hash');
-			cont({sha1: 'vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d', sha256: '9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d'});
+			var hash = {sha1: 'vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d', sha256: '9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d'};
+			$( "#log" ).append( "<li>Fornecendo hash para " +  id + ": " +  JSON.stringify(hash) + "</li>" );
+			cont(hash);
 		},
 		
 		saveCallback: function(id, sign, cont) {
-			console.log(id, ' recebeu a assinatura: ', sign);
+			$( "#log" ).append( "<li>Gravando assinatura de " +  id + ": " +  JSON.stringify(sign) + "</li>" );
 			var success = true;
 			cont({success: success});
 		},
 		
 		errorCallback: function(id, err, cont) {
-			console.log(id, ' deu erro: ', err);
+			$( "#log" ).append( "<li>Erro assinando " +  id + ": " +  JSON.stringify(err) + "</li>" );
 			cont();
 		},
 		
-		endCallback: function(cont) {
-			console.log('finalizou');
-			cont();
+		endCallback: function() {
+			$( "#log" ).append( "<li>Fim</li>" );
 		}
 	});
 }
@@ -55,9 +59,12 @@ function assinar() {
 
 </head>
 <body>
-	<h4>Sistema de Exemplo</h4>
-	<p>Apresenta um documento e pede para clicar abaixo para assinar.</p>
-	<button class="btn" onclick="assinar()">Assinar</button>
+	<div class="container">
+		<h4>Sistema de Exemplo</h4>
+		<p>Apresenta um documento e pede para clicar para assinar.</p>
+		<button class="btn" onclick="assinar()">Assinar</button>
+		<ul id="log" style="margin-top: 2em"></ul>
+	</div>
 
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script
@@ -69,9 +76,8 @@ function assinar() {
 		integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
 		crossorigin="anonymous"></script>
 
-
 	<!-- JS Assijus Popup -->
 	<script type="text/javascript"
-		src="http://localhost:8080/assijus/resources/popup-api.js"></script>
+		src="http://localhost:8080/assijus/popup-api.js"></script>
 </body>
 </html>

@@ -608,7 +608,8 @@ app
 													err = "PIN incorreto. Atenção: muitas tentativas incorretas podem bloquear seu token!";
 												if (err == "CKR_PIN_LOCKED")
 													err = "Seu token está bloqueado por excesso de tentativas incorretas de informar o PIN.";
-												$scope.showDialogForPIN(err, cont);
+												$scope.showDialogForPIN(err,
+														cont);
 												return;
 											}
 											$scope.setError(response);
@@ -624,7 +625,8 @@ app
 						$scope.userPIN = $scope.pinField;
 						$scope.pinDialog = false;
 						$scope.progress.start("Inicializando", 10);
-						$scope.selecionarCertificado($scope.progress, $scope.cont);
+						$scope.selecionarCertificado($scope.progress,
+								$scope.cont);
 					}
 
 					$scope.showDialogForPIN = function(err, cont) {
@@ -746,6 +748,23 @@ app
 					$scope.$root.$on('$messageIncoming', function(event, data) {
 						if (data.origin !== $scope.parentUrl)
 							return;
+						var permitido = false;
+						console.log(data.origin)
+						console.log($scope.allowedParents)
+						for (var i = 0; i < $scope.allowedParents.length; i++) {
+							if (data.origin
+									.startsWith($scope.allowedParents[i])) {
+								permitido = true;
+								continue;
+							}
+						}
+						if (!permitido) {
+							$scope.setError('Assijus não está configurado'
+									+ 'para permitir assinaturas do site '
+									+ data.origin);
+							$scope.presentError('geral');
+							return;
+						}
 						// console.log('Assijus AngularJS recebeu mensagem: ',
 						// data)
 						if (data.command === '<GO>') {
@@ -774,7 +793,20 @@ app
 						}, 100);
 					});
 
-					$scope.postMessage({
-						command : '<READY>'
-					});
+					$http({
+						url : 'api/v1/test?skip=all',
+						method : "GET"
+					})
+							.then(
+									function successCallback(response) {
+										$scope.test = response.data;
+										var popupUrls = response.data.properties['assijus.popup.urls'];
+										$scope.allowedParents = popupUrls ? popupUrls
+												.split(';')
+												: [];
+										$scope.postMessage({
+											command : '<READY>'
+										});
+									}, function errorCallback(response) {
+									});
 				});
