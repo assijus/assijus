@@ -1,21 +1,17 @@
 package br.jus.trf2.assijus;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 import com.crivano.swaggerservlet.dependency.SwaggerServletDependency;
 import com.crivano.swaggerservlet.dependency.TestableDependency;
-
-import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
+import com.crivano.swaggerservlet.property.PrivateProperty;
+import com.crivano.swaggerservlet.property.PublicProperty;
+import com.crivano.swaggerservlet.property.RestrictedProperty;
 
 public class AssijusServlet extends SwaggerServlet {
 	private static final long serialVersionUID = 1756711359239182178L;
@@ -29,6 +25,14 @@ public class AssijusServlet extends SwaggerServlet {
 		super.setAPI(IAssijus.class);
 
 		super.setActionPackage("br.jus.trf2.assijus");
+
+		super.addProperty(new PublicProperty("assijus.systems"));
+		super.addProperty(new RestrictedProperty("blucservice.url"));
+		for (String system : Utils.getSystems()) {
+			super.addProperty(new RestrictedProperty(system + ".url"));
+			super.addProperty(new PrivateProperty(system + ".password"));
+		}
+		super.setAuthorizationToProperties(SwaggerUtils.getProperty("assijus.properties.secret", null));
 
 		addDependency(new SwaggerServletDependency("webservice", "blucservice", false, 0, 10000) {
 

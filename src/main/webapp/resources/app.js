@@ -78,7 +78,16 @@ app
 									}
 								});
 						return deferred.promise;
-					}
+					};
+
+					$http({
+						url : 'api/v1/test?skip=all',
+						method : "GET"
+					}).then(function successCallback(response) {
+						$scope.test = response.data;
+					}, function errorCallback(response) {
+					});
+
 				});
 
 app
