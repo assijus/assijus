@@ -16,7 +16,7 @@ public class ViewPost implements IViewPost {
 	@Override
 	public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception {
 		IAssijusSystem.DocIdPdfGetResponse s = getPdf(req);
-		
+
 		// Produce response
 		resp.contentdisposition = "inline;filename=" + req.id + ".pdf";
 		resp.contentlength = (long) s.doc.length;
@@ -31,7 +31,9 @@ public class ViewPost implements IViewPost {
 		String password = Utils.getPassword(system);
 
 		String authkey = req.authkey;
-		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
+		String cpf = req.cpf;
+		if (authkey != null)
+			cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
 		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";
 
@@ -46,6 +48,8 @@ public class ViewPost implements IViewPost {
 			if (!Utils.makeSecret(s.secret).equals(req.secret))
 				throw new PresentableException("Não autorizado.");
 		} else {
+			if (authkey == null)
+				throw new PresentableException("CPF não foi validado por uma chave de autenticação.");
 			if (SwaggerUtils.memCacheRetrieve(cpf + "-" + system + "-" + id) == null)
 				throw new PresentableException("CPF não autorizado.");
 		}

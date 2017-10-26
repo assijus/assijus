@@ -140,6 +140,7 @@ paths:
         - $ref: "#/parameters/system"
         - $ref: "#/parameters/id"
         - $ref: "#/parameters/secret"
+        - $ref: "#/parameters/cpf"
       responses:
         200:
           description: Successful response

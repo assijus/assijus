@@ -160,6 +160,7 @@ public interface IAssijus {
 		public String system;
 		public String id;
 		public String secret;
+		public String cpf;
 	}
 
 	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponseFile {

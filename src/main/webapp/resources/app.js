@@ -203,6 +203,8 @@ app
 							$scope.endpoint.list = JSON
 									.parse($scope.$parent.querystring.endpointlist);
 						$scope.endpoint.callback = $scope.$parent.querystring.endpointcallback;
+						if ($scope.endpoint.callback !== undefined)
+							$scope.endpoint.callback = $scope.endpoint.callback.replace('__hashsign__', '#')
 						$scope.endpoint.autostart = $scope.$parent.querystring.endpointautostart == "true";
 					}
 					$scope.urlBaseAPI = "/assijus/api/v1";
