@@ -5,7 +5,7 @@
 	<groupId>br.jus.trf2</groupId>
 	<artifactId>assijus</artifactId>
 	<packaging>war</packaging>
-	<version>2.0.2</version>
+	<version>2.0.3</version>
 	<name>Assijus Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 
