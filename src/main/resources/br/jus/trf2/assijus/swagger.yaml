@@ -141,6 +141,7 @@ paths:
         - $ref: "#/parameters/id"
         - $ref: "#/parameters/secret"
         - $ref: "#/parameters/cpf"
+        - $ref: "#/parameters/disposition"
       responses:
         200:
           description: Successful response
@@ -582,6 +583,12 @@ parameters:
     in: formData
     type: string
     description: Parametros adicionais obtidos durante o hash e necessarios para a gravacao da assinatura
+  disposition:
+    name: disposition
+    in: query
+    description: Informar attachment se desejar receber como um download
+    required: false
+    type: string
             
 definitions:
   Document:

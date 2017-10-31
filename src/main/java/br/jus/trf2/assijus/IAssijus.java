@@ -161,6 +161,7 @@ public interface IAssijus {
 		public String id;
 		public String secret;
 		public String cpf;
+		public String disposition;
 	}
 
 	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponseFile {

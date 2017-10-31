@@ -17,8 +17,10 @@ public class ViewPost implements IViewPost {
 	public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception {
 		IAssijusSystem.DocIdPdfGetResponse s = getPdf(req);
 
+		String disposition = "attachment".equals(req.disposition) ? "attachment" : "inline";
+
 		// Produce response
-		resp.contentdisposition = "inline;filename=" + req.id + ".pdf";
+		resp.contentdisposition = disposition + ";filename=" + req.id + ".pdf";
 		resp.contentlength = (long) s.doc.length;
 		resp.contenttype = "application/pdf";
 		resp.inputstream = new ByteArrayInputStream(s.doc);
