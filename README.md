@@ -19,7 +19,7 @@ Para incluir um novo sistema, é necessário apenas que ele seja capaz de respon
 
 Completamente baseado em micro-serviços, o Assijus é composto dos seguintes componentes:
 - Site do Assijus: desenvolvido em AngularJS e Java.
-- Assijus.exe: um assinador REST que roda em http://localhost:8612 e foi desenvolvido em .NET
+- Assijus Chrome Extension: um assinador REST que se comunica com o navegador Chrome através de Native Messaging API e foi desenvolvido em .NET
 - BluCService: Servidor REST do BlueCrystalSign, serviço que auxilia na criação do pacote assinável no padrão da ICP-Brasil, além de produzir o envelope e validar assinaturas.
 - Sistemas integrados: qualquer sistema que implemente os 4 métodos REST descritos acima
 
