@@ -1,9 +1,4 @@
-var frameSrc = "http://localhost:8080/assijus/popup.html";
-frameSrc = "https://ittrufusion.appspot.com";
-frameSrc = "https://assijus.trf2.jus.br/assijus";
-frameSrc = "http://localhost:8080/assijus/index1.html";
-frameSrc = "http://localhost:8080/assijus/index.html";
-frameSrc = "http://localhost:8080/assijus/popup.html";
+var frameSrc = "https://assijus.trf2.jus.br/assijus/popup.html";
 
 function receiveMessageAssinaturaDigital(event) {
 	var iframe = document.getElementById('iframeAssinaturaDigital');
