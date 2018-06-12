@@ -515,69 +515,6 @@ app
 						}
 					}
 
-					//
-					// View
-					//
-					$scope.view = function(doc) {
-						$scope.progress.start("Preparando Visualização", 6, 0,
-								100);
-						$scope
-								.validarAuthKey(
-										$scope.progress,
-										function(progress) {
-											progress.stop();
-											var form = document
-													.createElement('form');
-											form.action = $scope.urlBaseAPI
-													+ "/view";
-											form.method = 'POST';
-											form.target = '_blank';
-											form.style.display = 'none';
-
-											var authkey = document
-													.createElement('input');
-											authkey.type = 'text';
-											authkey.name = 'authkey';
-											authkey.value = $scope.getAuthKey();
-
-											var system = document
-													.createElement('input');
-											system.type = 'text';
-											system.name = 'system';
-											system.value = doc.system;
-
-											var docid = document
-													.createElement('input');
-											docid.type = 'text';
-											docid.name = 'id';
-											docid.value = doc.id;
-
-											var docsecret = document
-													.createElement('input');
-											docsecret.type = 'text';
-											docsecret.name = 'secret';
-											docsecret.value = doc.secret;
-
-											var submit = document
-													.createElement('input');
-											submit.type = 'submit';
-											submit.id = 'submitView';
-
-											form.appendChild(authkey);
-											form.appendChild(system);
-											form.appendChild(docid);
-											form.appendChild(docsecret);
-											form.appendChild(submit);
-											document.body.appendChild(form);
-
-											$('#submitView').click();
-
-											document.body.removeChild(form);
-
-											logEvento("visualização",
-													"visualizar", doc.system);
-										});
-					}
 
 					//
 					// Sign

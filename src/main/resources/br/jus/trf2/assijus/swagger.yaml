@@ -131,35 +131,7 @@ paths:
           schema:
             $ref: "#/definitions/error"
             
-  /view:
-    post:
-      description: Obter o PDF de um documento para visualização
-      tags: [view]
-      parameters:
-        - $ref: "#/parameters/authkey"
-        - $ref: "#/parameters/system"
-        - $ref: "#/parameters/id"
-        - $ref: "#/parameters/secret"
-        - $ref: "#/parameters/cpf"
-        - $ref: "#/parameters/disposition"
-      responses:
-        200:
-          description: Successful response
-          schema:
-            type: file
-          headers:
-            Content-Type:
-              type: string
-              description: application/pdf
-            Content-Disposition:
-              type: string
-              description: attachment
-        500:
-          description: Error ocurred
-          schema:
-            $ref: "#/definitions/error"
-            
-  /view/{system}/{id}/{secret}:
+  /view/{system}/{id}/{secret}/{authkey}:
     get:
       description: Obter o PDF de um documento para visualização
       tags: [view]
@@ -177,7 +149,12 @@ paths:
         - name: secret
           in: path
           description: Segredo do documento
-          required: false
+          required: true
+          type: string
+        - name: cpf
+          in: path
+          description: CPF do usuário que está consultando
+          required: true
           type: string
       responses:
         200:

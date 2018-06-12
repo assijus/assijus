@@ -85,10 +85,4 @@ public class AssijusServlet extends SwaggerServlet {
 			}
 		});
 	}
-
-	@Override
-	public String getService() {
-		return "assijus";
-	}
-
 }

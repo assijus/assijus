@@ -3,6 +3,7 @@ package br.jus.trf2.assijus;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.crivano.swaggerservlet.ISwaggerMethod;
 import com.crivano.swaggerservlet.ISwaggerModel;
@@ -155,21 +156,19 @@ public interface IAssijus {
 		public void run(ListPostRequest req, ListPostResponse resp) throws Exception;
 	}
 
-	public class ViewPostRequest implements ISwaggerRequest {
+	public class ViewSystemIdSecretAuthkeyGetRequest implements ISwaggerRequest {
+		public String system;
+		public String id;
+		public String secret;
 		public String authkey;
-		public String system;
-		public String id;
-		public String secret;
-		public String cpf;
-		public String disposition;
 	}
 
-	public class ViewPostResponse implements ISwaggerResponse, ISwaggerResponseFile {
+	public class ViewSystemIdSecretAuthkeyGetResponse implements ISwaggerResponse, ISwaggerResponseFile {
 		public String contenttype = "application/pdf";
 		public String contentdisposition = "attachment";
-
 		public Long contentlength;
 		public InputStream inputstream;
+		public Map<String, List<String>> headerFields;
 
 		public String getContenttype() {
 			return contenttype;
@@ -202,60 +201,18 @@ public interface IAssijus {
 		public void setInputstream(InputStream inputstream) {
 			this.inputstream = inputstream;
 		}
-	}
 
-	public interface IViewPost extends ISwaggerMethod {
-		public void run(ViewPostRequest req, ViewPostResponse resp) throws Exception;
-	}
-
-	public class ViewSystemIdSecretGetRequest implements ISwaggerRequest {
-		public String system;
-		public String id;
-		public String secret;
-	}
-
-	public class ViewSystemIdSecretGetResponse implements ISwaggerResponse, ISwaggerResponseFile {
-		public String contenttype = "application/pdf";
-		public String contentdisposition = "attachment";
-
-		public Long contentlength;
-		public InputStream inputstream;
-
-		public String getContenttype() {
-			return contenttype;
+		public Map<String, List<String>> getHeaderFields() {
+			return headerFields;
 		}
 
-		public void setContenttype(String contenttype) {
-			this.contenttype = contenttype;
-		}
-
-		public String getContentdisposition() {
-			return contentdisposition;
-		}
-
-		public void setContentdisposition(String contentdisposition) {
-			this.contentdisposition = contentdisposition;
-		}
-
-		public Long getContentlength() {
-			return contentlength;
-		}
-
-		public void setContentlength(Long contentlength) {
-			this.contentlength = contentlength;
-		}
-
-		public InputStream getInputstream() {
-			return inputstream;
-		}
-
-		public void setInputstream(InputStream inputstream) {
-			this.inputstream = inputstream;
+		public void setHeaderFields(Map<String, List<String>> headerFields) {
+			this.headerFields = headerFields;
 		}
 	}
 
-	public interface IViewSystemIdSecretGet extends ISwaggerMethod {
-		public void run(ViewSystemIdSecretGetRequest req, ViewSystemIdSecretGetResponse resp) throws Exception;
+	public interface IViewSystemIdSecretAuthkeyGet extends ISwaggerMethod {
+		public void run(ViewSystemIdSecretAuthkeyGetRequest req, ViewSystemIdSecretAuthkeyGetResponse resp) throws Exception;
 	}
 
 	public class InfoSystemIdSecretGetRequest implements ISwaggerRequest {

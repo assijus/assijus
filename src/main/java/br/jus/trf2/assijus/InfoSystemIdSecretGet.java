@@ -51,7 +51,7 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		String urlInfo = Utils.getUrl(system) + "/doc/" + id + "/info";
 
 		// Call document repository hash webservice
-		IAssijusSystem.DocIdPdfGetRequest q = new IAssijusSystem.DocIdPdfGetRequest();
+		IAssijusSystem.DocIdInfoGetRequest q = new IAssijusSystem.DocIdInfoGetRequest();
 		q.id = id;
 		IAssijusSystem.DocIdInfoGetResponse s = SwaggerCall.call(system + "-info", password, "GET", urlInfo, q,
 				IAssijusSystem.DocIdInfoGetResponse.class);
