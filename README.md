@@ -8,26 +8,86 @@ Assijus é um site que produz assinaturas digitais no padrão da ICP-Brasil (AD-
 [![Apresentação do Assijus](https://img.youtube.com/vi/5qRObgaNG-E/0.jpg)](https://www.youtube.com/watch?v=5qRObgaNG-E)
 
 ## Integrando com um novo sistema
-Para incluir um novo sistema, é necessário apenas que ele seja capaz de responder a 4 métodos REST:
 
-1. list: a partir do CPF do usuário, faz uma pesquisa no banco de dados e retorna a lista de documentos a serem assinados. Para cada documento, deve ser informado o identificador, o número, a descrição e o tipo.
-2. hash: a partir do identificador do documento, retornar os hashes SHA1 e SHA256 do PDF. Além disso, se houver interesse em produzir assinaturas sem política no padrão PKCS7, retornar o conteúdo do PDF se for solicitado.
-3. save: a partir do identificador do documento e de uma assintura, gravar essa assinatura no banco de dados.
-4. view: a partir do identificador do documento, retornar o conteúdo do PDF.
+### Utilizando Modal
+A maneira mais simples de integrar um novo sistema ao Assijus é utilizando uma modal do Bootstrap, veja as instruções abaixo:
+
+* Inclua CSS e JS do Bootstrap 3 na sua página (atualmente só está disponível a integração via Bootstrap 3)
+* Carregue o JS: https://assijus.trf2.jus.br/assijus/popup-api.js
+* Execute o método produzirAssinaturaDigital passando os parâmetros conforme o exemplo abaixo:
+
+```JS
+produzirAssinaturaDigital({
+		ui: 'bootstrap-3',
+		
+		docs: [
+			{id: 1, code: 'TRF-MEM-2017/00001'},
+			{id: 2, code: 'TRF-MEM-2017/00002'}
+		],
+
+		beginCallback: function() {
+			// código de inicialização (opcional)
+		},
+		
+		hashCallback: function(id, cont) {
+			// retorna o hashes sha1 e sha256 de um documento a partir da id		
+			var hash = {
+				sha1: 'vBpvCtThfEl+PXn6ZpkQEcWEIyw\u003d', 
+				sha256: '9wjEyeorr2HA78aSNQNK7OqZ/rkhw/Br+0BzwAO2TYQ\u003d'
+			};
+			cont(hash);
+		},
+
+		saveCallback: function(id, sign, cont) {
+			// grava a assinatura recebida no parâmetro sign.envelope		
+			cont({success: true});
+		},
+
+		errorCallback: function(id, err, cont) {
+			// apresenta mensagem de erro		
+			cont();
+		},
+
+		endCallback: function() {
+			// código de finalização (opcional)		
+		}
+	});
+```
+
+### Utilizando Webservices
+
+Também é possível conectar um sistema através de webservices. Para tanto, é necessário apenas que o sistema implemente 6 métodos REST:
+
+1. /doc/list: a partir do CPF do usuário, faz uma pesquisa no banco de dados e retorna a lista de documentos a serem assinados. Para cada documento, deve ser informado o identificador, o número, a descrição e o tipo.
+2. /doc/{id}/hash: a partir do identificador do documento, retornar os hashes SHA1 e SHA256 do PDF.
+3. /doc/{id}/pdf: obtem o PDF a partir do identificador do documento. O Assijus só repassará o documento se o usuário tiver permissão para visualizá-lo.
+4. /doc/{id}/sign: a partir do identificador do documento e de uma assintura, gravar essa assinatura no banco de dados.
+5. /doc/{id}/info: obtém informações sobre o documento.
+6. /sign/{ref}: a partir do identificador de uma assinatura, o pacote CMS.
+
+A documentação detalhada dos métodos pode ser vista no arquivo [swagger.yaml](https://github.com/assijus/assijus-system-api/blob/master/src/main/resources/br/jus/trf2/assijus/system/api/swagger.yaml).
+
+Quando é feita a integração via webservices, o Assijus ganha a capacidade de listar todos os documentos do sistema que estão pendentes em sua página inicial. Dessa forma, o Assijus funciona como um concentrador e o usuário não precisa entrar em vários sistemas diferentes só para assinar seus documentos.
+
+Exemplos de integração podem ser vistos no [repositório](https://github.com/assijus) do projeto.
 
 ## Arquitetura
 
 Completamente baseado em micro-serviços, o Assijus é composto dos seguintes componentes:
 - Site do Assijus: desenvolvido em AngularJS e Java.
-- Assijus Chrome Extension: um assinador REST que se comunica com o navegador Chrome através de Native Messaging API e foi desenvolvido em .NET
-- BluCService: Servidor REST do BlueCrystalSign, serviço que auxilia na criação do pacote assinável no padrão da ICP-Brasil, além de produzir o envelope e validar assinaturas.
-- Sistemas integrados: qualquer sistema que implemente os 4 métodos REST descritos acima
+- Assijus Chrome Extension: um assinador que se comunica com o navegador Chrome através de Native Messaging API. Existem duas versões: a versão Windows que foi desenvolvida em .NET e a versão MacOS que foi desenvolvida em Java.
+- BluCService: Servidor REST do [BlueCrystalSign](https://github.com/bluecrystalsign/signer-source), serviço que auxilia na criação do pacote assinável no padrão da ICP-Brasil, além de produzir o envelope e validar assinaturas.
+- Sistemas integrados: qualquer sistema que chame o Assijus via JavaScript ou implemente os métodos REST descritos acima
 
 ## Ambiente
 
 Para executar o Assijus, é necessário que algumas propriedades sejam definidas.
 
-Por exemplo, se estivermos operando com as 3 integrações abaixo, devemos configurar a propriedade assijus.systems para indicar o nome de cada sistema provedor de documentos e depois especificar em nome_do_sistema.url a localização do respectivo webservice:
+Para habilitar um novo sistema a utlizar a integração via Modal, é necessário incluir sua URL em uma propriedade, conforme exemplo abaixo:
+
+- assijus.popup.urls=http://siga.jfrj.jus.br;https://siga.jfrj.jus.br
+
+Por exemplo, se estivermos operando com 3 integrações via webservices, devemos configurar a propriedade assijus.systems para indicar o nome de cada sistema provedor de documentos e depois especificar em nome_do_sistema.url a localização do respectivo webservice:
 - assijus.systems=sigadocsigner,apolosigner,textowebsigner
 - sigadocsigner.url=http://macmini.local/sigaex/public/app/assinador
 - apolosigner.url=http://apolosigner:8080/apolosigner/api/v1
@@ -47,3 +107,9 @@ Para iniciar com o Docker, gere o assijus.war usando ```mvn clean install``` e d
 ```
 docker run -d -p 5001:8080 --name assijus --read-only -v /tmp/jetty -v /run/jetty -v /Users/user/warpath:/var/lib/jetty/webapps -e "PROP_BLUCSERVICE_URL=http://blucservice:8080/blucservice/api/v1" -e "PROP_APOLOSIGNER_URL=http://apolosigner:8080/apolosigner/api/v1" -e "PROP_SIGADOCSIGNER_URL=http://macmini.local/sigaex/public/app/assinador-externo" --link blucservice --link apolosigner jetty
 ```
+
+## Recompilando o Assijus
+
+Embora o Assijus seja uma aplicação open-source, não é muito fácil instalá-lo em outro ambiente que não seja o do TRF2 pois cada extensão do Chrome tem um identificador único. Uma nova implantação iria gerar um novo identificador e vários dos componentes trazem dentro de si referências para esse número e precisariam ser recompilados também. Além disso, seria necessário pagar para abrir uma conta na Chrome Web Store e cadastrar lá a nova versão da extensão. Ou seja, é perfeitamente possível, mas é bem trabalhoso.
+
+Uma alternativa para simplificar esse procedimento consiste em utilizar, o [Fusion](https://ittrufusion.appspot.com/#/about), um site desenvolvido pela empresa Ittru, que é compatível com o Assijus, é gratuito para assinaturas AD-RB e funciona 100% na nuvem.
