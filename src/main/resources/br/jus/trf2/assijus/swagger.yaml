@@ -136,6 +136,7 @@ paths:
       description: Obter o PDF de um documento para visualização
       tags: [view]
       parameters:
+        - $ref: "#/parameters/authkey"
         - name: system
           in: path
           description: Identificador do systema integrado
@@ -448,6 +449,77 @@ paths:
                 type: string
               key:
                 type: string
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  /timestamp:
+    post:
+      description: Produz e armazena um JWT que atesta um hash e um horário
+      tags: [timestamp]
+      parameters:
+        - $ref: "#/parameters/system"
+        - $ref: "#/parameters/sha256"
+        - name: tipo
+          in: formData
+          description: Tipo que pode ser sign ou auth
+          required: true
+          type: string
+        - name: nome
+          in: formData
+          description: Nome do assinate
+          required: false
+          type: string
+        - name: cpf
+          in: formData
+          description: CPF
+          required: false
+          type: string
+        - name: json
+          in: formData
+          description: JSON com dados adicionais
+          required: false
+          type: string
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              jwt:
+                type: string
+              id:
+                type: string
+              time:
+                $ref: "#/definitions/Time"
+              url:
+                type: string
+              host:
+                type: string
+                description: IP da máquina do usuário
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"            
+            
+  /timestamp/generate-key-pair:
+    post:
+      description: Produz e armazena um JWT que atesta um hash e um horário
+      tags: [timestamp]
+      parameters: []
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              publickey:
+                type: string
+                format: byte
+              privatekey:
+                type: string
+                format: byte
         500:
           description: Error ocurred
           schema:
