@@ -116,11 +116,7 @@ Quando se trata de um servidor que não é de produção, precisamos informar on
 
 ## Docker
 
-Para iniciar com o Docker, gere o assijus.war usando ```mvn clean install``` e depois execute algo parecido com:
-
-```
-docker run -d -p 5001:8080 --name assijus --read-only -v /tmp/jetty -v /run/jetty -v /Users/user/warpath:/var/lib/jetty/webapps -e "PROP_BLUCSERVICE_URL=http://blucservice:8080/blucservice/api/v1" -e "PROP_APOLOSIGNER_URL=http://apolosigner:8080/apolosigner/api/v1" -e "PROP_SIGADOCSIGNER_URL=http://macmini.local/sigaex/public/app/assinador-externo" --link blucservice --link apolosigner jetty
-```
+O Assijus pode ser facilmente instalado a partir do Docker. Para maiores informações, acesse o repositório [assijus-docker](https://github.com/assijus/assijus-docker).
 
 ## Recompilando o Assijus
 
