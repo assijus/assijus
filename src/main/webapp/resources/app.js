@@ -159,7 +159,6 @@ app
 				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
-	$scope.versionAssijus = "1.2.9.0";
 	$scope.versionAssijusChromeExtension = document
 			.getElementById("chrome-extension-active").value;
 	$scope.versionAssijusNativeClient = document
