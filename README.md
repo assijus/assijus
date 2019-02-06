@@ -65,6 +65,20 @@ Também é possível conectar um sistema através de webservices. Para tanto, é
 5. /doc/{id}/info: obtém informações sobre o documento.
 6. /sign/{ref}: a partir do identificador de uma assinatura, o pacote CMS.
 
+
+Além dos métodos acima, é importante que os sistemas conectados respondam ao método "/test" com um JSON semelhante a este:
+
+```JSON
+{
+  "service": "AssijusSystem",
+  "url": "/testsigner/api/v1/test",
+  "partial": false,
+  "available": true,
+  "pass": true,
+  "ms": 0
+}
+```
+
 A documentação detalhada dos métodos pode ser vista no arquivo [swagger.yaml](https://github.com/assijus/assijus-system-api/blob/master/src/main/resources/br/jus/trf2/assijus/system/api/swagger.yaml).
 
 Quando é feita a integração via webservices, o Assijus ganha a capacidade de listar todos os documentos do sistema que estão pendentes em sua página inicial. Dessa forma, o Assijus funciona como um concentrador e o usuário não precisa entrar em vários sistemas diferentes só para assinar seus documentos.
