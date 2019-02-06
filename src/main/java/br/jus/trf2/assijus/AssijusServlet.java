@@ -29,9 +29,26 @@ public class AssijusServlet extends SwaggerServlet {
 		super.addProperty(new PublicProperty("assijus.systems"));
 		super.addProperty(new PublicProperty("assijus.popup.urls"));
 		super.addProperty(new RestrictedProperty("blucservice.url"));
-		for (String system : Utils.getSystems()) {
-			super.addProperty(new RestrictedProperty(system + ".url"));
-			super.addProperty(new PrivateProperty(system + ".password"));
+
+		String[] systems = Utils.getSystems();
+		if (systems != null) {
+			for (final String system : systems) {
+				super.addProperty(new RestrictedProperty(system + ".url"));
+				super.addProperty(new PrivateProperty(system + ".password"));
+				addDependency(new SwaggerServletDependency("webservice", system, false, 0, 10000) {
+
+					@Override
+					public String getUrl() {
+						return Utils.getUrl(system);
+					}
+
+					@Override
+					public String getResponsable() {
+						return null;
+					}
+
+				});
+			}
 		}
 		super.addProperty(new PublicProperty("assijus.timestamp.public.key"));
 		super.addProperty(new PrivateProperty("assijus.timestamp.private.key"));
@@ -50,23 +67,6 @@ public class AssijusServlet extends SwaggerServlet {
 			}
 
 		});
-
-		String[] systems = Utils.getSystems();
-		for (final String system : systems) {
-			addDependency(new SwaggerServletDependency("webservice", system, false, 0, 10000) {
-
-				@Override
-				public String getUrl() {
-					return Utils.getUrl(system);
-				}
-
-				@Override
-				public String getResponsable() {
-					return null;
-				}
-
-			});
-		}
 
 		addDependency(new TestableDependency("cache", "redis", false, 0, 10000) {
 

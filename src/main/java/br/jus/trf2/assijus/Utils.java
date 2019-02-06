@@ -41,19 +41,25 @@ public class Utils {
 	}
 
 	public static String fixUrl(String url) {
-		for (String system : getSystems()) {
-			if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
-				String urlSystem = Utils.getUrl(system);
-				return urlSystem + url.substring(url.indexOf("/"));
+		String[] systems = getSystems();
+		if (systems != null) {
+			for (String system : getSystems()) {
+				if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
+					String urlSystem = Utils.getUrl(system);
+					return urlSystem + url.substring(url.indexOf("/"));
+				}
 			}
 		}
 		return url;
 	}
 
 	public static String chooseSystem(String url) {
-		for (String system : getSystems()) {
-			if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
-				return system;
+		String[] systems = getSystems();
+		if (systems != null) {
+			for (String system : systems) {
+				if (url.startsWith(system.replace("signer", "") + "/") || url.startsWith(system + "/")) {
+					return system;
+				}
 			}
 		}
 		return null;

@@ -55,6 +55,8 @@ public class ListPost implements IListPost {
 		} else {
 			// Read list from connected systems
 			String[] systems = Utils.getSystems();
+			if (systems == null)
+				return;
 
 			final CountDownLatch responseWaiter = new CountDownLatch(systems.length);
 			Map<String, Future<SwaggerAsyncResponse<DocListGetResponse>>> map = new HashMap<>();
