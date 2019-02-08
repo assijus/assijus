@@ -85,6 +85,13 @@ Quando é feita a integração via webservices, o Assijus ganha a capacidade de 
 
 Exemplos de integração podem ser vistos no [repositório](https://github.com/assijus) do projeto.
 
+## Carimbo de Tempo e Autenticação de Usuário
+
+Além da produção de assinaturas digitais, o Assijus também pode ser usado para outras funções, conforme especificações abaixo:
+
+- [Documentação do carimbo de tempo](https://github.com/assijus/assijus/wiki/Carimbo-de-Tempo)
+- [Documentação da autenticação de usuário](https://github.com/assijus/assijus/wiki/Login-com-Certificado-Digital)
+
 ## Arquitetura
 
 Completamente baseado em micro-serviços, o Assijus é composto dos seguintes componentes:
