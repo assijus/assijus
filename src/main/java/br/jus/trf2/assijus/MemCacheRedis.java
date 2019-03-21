@@ -1,13 +1,13 @@
 package br.jus.trf2.assijus;
 
+import com.crivano.swaggerservlet.IMemCache;
+import com.crivano.swaggerservlet.SwaggerServlet;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 import redis.clients.util.SafeEncoder;
-
-import com.crivano.swaggerservlet.IMemCache;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class MemCacheRedis implements IMemCache {
 	private static JedisPool poolMaster;
@@ -25,43 +25,38 @@ public class MemCacheRedis implements IMemCache {
 		String password = getPassword();
 		int database = getDatabase();
 
-		poolMaster = new JedisPool(new JedisPoolConfig(), masterhost,
-				masterport, Protocol.DEFAULT_TIMEOUT, password, database);
+		poolMaster = new JedisPool(new JedisPoolConfig(), masterhost, masterport, Protocol.DEFAULT_TIMEOUT, password,
+				database);
 
 		if (slavehost != null)
-			poolSlave = new JedisPool(new JedisPoolConfig(), slavehost,
-					slaveport, Protocol.DEFAULT_TIMEOUT, password, database);
+			poolSlave = new JedisPool(new JedisPoolConfig(), slavehost, slaveport, Protocol.DEFAULT_TIMEOUT, password,
+					database);
 		else
 			poolSlave = poolMaster;
 	}
 
 	public static int getDatabase() {
-		return Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.database", "10"));
+		return Integer.parseInt(SwaggerServlet.getProperty("redis.database"));
 	}
 
 	public static String getPassword() {
-		return SwaggerUtils.getProperty("assijus.redis.password", null);
+		return SwaggerServlet.getProperty("redis.password");
 	}
 
 	public static int getSlavePort() {
-		return Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.slave.port", "0"));
+		return Integer.parseInt(SwaggerServlet.getProperty("redis.slave.port"));
 	}
 
 	public static String getSlaveHost() {
-		return SwaggerUtils.getProperty("assijus.redis.slave.host",
-				null);
+		return SwaggerServlet.getProperty("redis.slave.host");
 	}
 
 	public static String getMasterHost() {
-		return SwaggerUtils.getProperty("assijus.redis.master.host",
-				"localhost");
+		return SwaggerServlet.getProperty("redis.master.host");
 	}
 
 	public static int getMasterPort() {
-		return Integer.parseInt(SwaggerUtils.getProperty(
-				"assijus.redis.master.port", "6379"));
+		return Integer.parseInt(SwaggerServlet.getProperty("redis.master.port"));
 	}
 
 	@Override

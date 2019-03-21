@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.auth0.jwt.JWTSigner;
 import com.crivano.swaggerservlet.PresentableException;
+import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.ILoginPost;
@@ -27,19 +28,15 @@ public class LoginPost implements ILoginPost {
 		String authkey = req.authkey;
 		AuthKeyFields akf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
-		String systems = SwaggerUtils.getRequiredProperty("assijus.login.systems",
-				"Nenhum sistema configurado para login", true);
+		String systems = SwaggerServlet.getProperty("login.systems");
 
 		for (String system : systems.split(",")) {
-			String urlBase = SwaggerUtils.getRequiredProperty(system + ".login.url.base",
-					"Nenhuma URL base configurada para " + system, true);
+			String urlBase = SwaggerServlet.getProperty(system + ".login.url.base");
 
 			if (req.callback.startsWith(urlBase)) {
-				String urlRedirect = SwaggerUtils.getRequiredProperty(system + ".login.url.redirect",
-						"Nenhuma URL de redirecionamento configurada para " + system, true);
+				String urlRedirect = SwaggerServlet.getProperty(system + ".login.url.redirect");
 
-				String password = SwaggerUtils.getRequiredProperty(system + ".login.password",
-						"Nenhuma senha de login configurada para " + system, true);
+				String password = SwaggerServlet.getProperty(system + ".login.password");
 
 				String jwt = jwt(akf.cpf, akf.cn, akf.email, password);
 				resp.url = urlRedirect + "?callback=" + URLEncoder.encode(req.callback, StandardCharsets.UTF_8.name())
@@ -51,7 +48,7 @@ public class LoginPost implements ILoginPost {
 	}
 
 	private String jwt(String cpf, String name, String email, String password) {
-		final String issuer = SwaggerUtils.getProperty("assijus.login.issuer", null);
+		final String issuer = SwaggerServlet.getProperty("login.issuer");
 		final String secret = password;
 
 		final long iat = System.currentTimeMillis() / 1000L; // issued at claim

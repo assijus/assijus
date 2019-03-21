@@ -2,6 +2,12 @@ package br.jus.trf2.assijus;
 
 import org.json.JSONException;
 
+import com.crivano.swaggerservlet.HTTPMockFromJSON;
+import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerServlet;
+import com.crivano.swaggerservlet.SwaggerTestSupport;
+import com.crivano.swaggerservlet.SwaggerUtils;
+
 import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
 import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
 import br.jus.trf2.assijus.IAssijus.HashPostRequest;
@@ -14,11 +20,6 @@ import br.jus.trf2.assijus.IAssijus.StorePostRequest;
 import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
 import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
-
-import com.crivano.swaggerservlet.HTTPMockFromJSON;
-import com.crivano.swaggerservlet.SwaggerCall;
-import com.crivano.swaggerservlet.SwaggerTestSupport;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class AssijusServiceTest extends SwaggerTestSupport {
 
@@ -52,12 +53,12 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 	protected void setUp() throws Exception {
 		super.setUp();
 		HTTPMockFromJSON http = new HTTPMockFromJSON();
-		http.add("http://localhost:8080/blucservice/api/v1", this.getClass()
-				.getResourceAsStream("blucservice.mock.json"));
-		http.add("http://localhost:8080/testesigner/api/v1", this.getClass()
-				.getResourceAsStream("testesigner.mock.json"));
+		http.add("http://localhost:8080/blucservice/api/v1",
+				this.getClass().getResourceAsStream("blucservice.mock.json"));
+		http.add("http://localhost:8080/testesigner/api/v1",
+				this.getClass().getResourceAsStream("testesigner.mock.json"));
 		SwaggerCall.setHttp(http);
-		SwaggerUtils.setProperty("assijus.systems", "testesigner");
+		SwaggerServlet.setProperty("systems", "testesigner");
 	}
 
 	@Override

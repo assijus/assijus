@@ -18,23 +18,31 @@ import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
 	public static String getUrl(String system) {
-		return SwaggerUtils.getProperty(system + ".url", "http://localhost:8080/" + system + "/api/v1");
+		return SwaggerServlet.getProperty(system + ".url");
 	}
 
 	public static String getPassword(String system) {
-		return SwaggerUtils.getProperty(system + ".password", null);
+		return SwaggerServlet.getProperty(system + ".password");
 	}
 
 	public static String getUrlBluCServer() {
-		return SwaggerUtils.getProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
+		return SwaggerServlet.getProperty("blucservice.url");
 	}
 
 	public static String[] getSystems() {
-		String systems = SwaggerUtils.getProperty("assijus.systems", null);
+		String systems = SwaggerServlet.getProperty("systems");
+		if (systems == null)
+			return null;
+		return systems.split(",");
+	}
+
+	public static String[] getLoginSystems() {
+		String systems = SwaggerServlet.getProperty("login.systems");
 		if (systems == null)
 			return null;
 		return systems.split(",");
