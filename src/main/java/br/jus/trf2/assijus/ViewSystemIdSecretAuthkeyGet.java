@@ -2,6 +2,9 @@ package br.jus.trf2.assijus;
 
 import java.util.concurrent.Future;
 
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypes;
+
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerCall;
@@ -51,8 +54,13 @@ public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyG
 				throw new PresentableException("Não autorizado.");
 			}
 		}
-
-		resp.contentdisposition = "inline;filename=" + req.id + ".pdf";
+		
+		String ext = null;
+		MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+		MimeType mt = allTypes.forName(r.contenttype);
+		if (mt != null) 
+			ext = mt.getExtension();
+		resp.contentdisposition = "inline;filename=" + req.id + (ext != null ? ext : ".bin");
 		resp.contentlength = r.contentlength;
 		resp.contenttype = r.contenttype;
 		resp.inputstream = r.inputstream;
