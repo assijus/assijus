@@ -74,8 +74,6 @@ public class AssijusServlet extends SwaggerServlet {
 		}
 		addPublicProperty("timestamp.public.key");
 		addPrivateProperty("timestamp.private.key");
-		addPrivateProperty("properties.secret");
-		super.setAuthorizationToProperties(getProperty("properties.secret"));
 
 		addDependency(new SwaggerServletDependency("webservice", "blucservice", false, 0, 10000) {
 

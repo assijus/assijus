@@ -760,7 +760,7 @@ app
 						}
 						if (!permitido) {
 							$scope.setError('Assijus não está configurado'
-									+ 'para permitir assinaturas do site '
+									+ ' para permitir assinaturas do site '
 									+ data.origin);
 							$scope.presentError('geral');
 							return;

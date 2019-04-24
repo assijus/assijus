@@ -67,16 +67,24 @@ var produzirAssinaturaDigital = function(params) {
 	var popupTemplate = '<div class="modal fade">'
 			+ '  <div class="modal-dialog">'
 			+ '    <div class="modal-content">'
-			+ '      <div class="modal-header">'
-			+ '        <button type="button" class="close" data-dismiss="modal">&times;</button>'
-			+ '        <h4 class="modal-title">Assinatura Digital</h4>'
-			+ '      </div><div class="modal-body">'
+			+ '       <div class="modal-header">'
+			+ '          <h5 class="modal-title">Assinatura Digital</h5>'
+			+ '          <button type="button" class="close" data-dismiss="modal" aria-label="Close">'
+			+ '            <span aria-hidden="true">&times;</span>'
+			+ '          </button>'
+			+ '       </div><div class="modal-body">'
 			+ '        <iframe id="iframeAssinaturaDigital" src="' + frameSrc
 			+ '" width="99.6%" frameborder="0"></iframe></div>';
 
 	var dlg = $(popupTemplate);
 	dlg.modal({
 		show : true
+	});
+	
+	dlg.on('hidden.bs.modal', function (e) {
+		setTimeout(function() {
+			dlg.remove();
+		}, 1000);
 	});
 
 	params.dismissCallback = function() {

@@ -52,13 +52,18 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		setProperty("systems", "testesigner");
+		setProperty("swaggerservlet.threadpool.size", "20");
+		setProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
+		setProperty("testesigner.url", "http://localhost:8080/testesigner/api/v1");
+		setProperty("testesigner.password", null);
+
 		HTTPMockFromJSON http = new HTTPMockFromJSON();
 		http.add("http://localhost:8080/blucservice/api/v1",
 				this.getClass().getResourceAsStream("blucservice.mock.json"));
 		http.add("http://localhost:8080/testesigner/api/v1",
 				this.getClass().getResourceAsStream("testesigner.mock.json"));
 		SwaggerCall.setHttp(http);
-		SwaggerServlet.setProperty("systems", "testesigner");
 	}
 
 	@Override
