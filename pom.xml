@@ -48,13 +48,6 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
-		<dependency>
-		    <groupId>org.apache.tika</groupId>
-		    <artifactId>tika-core</artifactId>
-		    <version>1.17</version>
-		</dependency>
 	</dependencies>
 
 	<properties>
