@@ -14,16 +14,19 @@ public class SignedAttrsPost implements ISignedAttrsPost {
 
 	@Override
 	public void run(SignedAttrsPostRequest req, SignedAttrsPostResponse resp) throws Exception {
-		String certificate = SwaggerUtils.base64Encode(req.certificate);
 		String authkey = req.authkey;
 		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
+		buildSignedAttrs(req, resp);
+	}
+
+	public void buildSignedAttrs(SignedAttrsPostRequest req, SignedAttrsPostResponse resp) throws Exception {
 		String time = SwaggerUtils.format(new Date());
 		String policy = req.policy;
 		if (policy == null && req.sha256 != null)
 			policy = "AD-RB";
 
 		IBlueCrystal.HashPostRequest q = new IBlueCrystal.HashPostRequest();
-		q.certificate = SwaggerUtils.base64Decode(certificate);
+		q.certificate = req.certificate;
 		q.time = SwaggerUtils.parse(time);
 		q.policy = policy;
 		q.sha1 = req.sha1;

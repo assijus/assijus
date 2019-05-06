@@ -99,11 +99,16 @@ public interface IAssijus {
 	}
 
 	public class TokenPostRequest implements ISwaggerRequest {
+		public byte[] certificate;
 	}
 
 	public class TokenPostResponse implements ISwaggerResponse {
 		public String token;
 		public String policy;
+		public String policyversion;
+		public Date time;
+		public byte[] hash;
+
 	}
 
 	public interface ITokenPost extends ISwaggerMethod {
@@ -114,6 +119,11 @@ public interface IAssijus {
 	public class AuthPostRequest implements ISwaggerRequest {
 		public String authkey;
 		public String token;
+		public byte[] certificate;
+		public String policy;
+		public String policyversion;
+		public byte[] signature;
+		public Date time;
 	}
 
 	public class AuthPostResponse implements ISwaggerResponse {

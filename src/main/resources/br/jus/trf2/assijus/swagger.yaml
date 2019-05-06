@@ -26,7 +26,8 @@ paths:
     post:
       description: Obter um token que deverá ser assinado para comprovar a identidade do usuário
       tags: [auth]
-      parameters: []
+      parameters: 
+        - $ref: "#/parameters/certificate"
       responses:
         200:
           description: Successful response
@@ -34,11 +35,15 @@ paths:
             type: object
             properties:
               token:
-                type: string
-                description: Token que deve ser assinado para autenticar o usuário
+                $ref: "#/definitions/Token"
               policy:
-                type: string
-                description: Código da política usada na assinatura digital (PKCS7, AD-RB)
+                $ref: "#/definitions/Policy"
+              policyversion:
+                $ref: "#/definitions/PolicyVersion"
+              time:
+                $ref: "#/definitions/Time"
+              hash:
+                $ref: "#/definitions/Hash"
             example:
               policy: AD-RB
               token: TOKEN-2016-05-24T14:05:11.248-03:00
@@ -54,6 +59,10 @@ paths:
       parameters:
         - $ref: "#/parameters/authkey"
         - $ref: "#/parameters/token"
+        - $ref: "#/parameters/certificate"
+        - $ref: "#/parameters/policy"
+        - $ref: "#/parameters/policyversion"
+        - $ref: "#/parameters/signature"
       responses:
         200:
           description: Successful response
