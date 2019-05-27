@@ -8,9 +8,7 @@
 				<modal title="Detalhamento de Problema"
 					on-hide="showErrorDetails = false" visible="showErrorDetails">
 				<div id="error-detail">
-					<div class="headline">
-						<h4>{{errorDetails[currentErrorId].errormsg}}</h4>
-					</div>
+					<h6>{{errorDetails[currentErrorId].errormsg}}</h6>
 					<ol>
 						<li ng-repeat="ed in errorDetails[currentErrorId].errordetails">
 							{{ed.service}} ({{ed.context}}) <br /> <pre
@@ -21,7 +19,7 @@
 				</modal>
 
 				<modal title="{{progressbarTitle}}" visible="progressbarShow"
-					on-hide="progressbarHide()" backdrop="static">
+					on-hide="progressbarHide()" backdrop="true">
 				<div>
 					<p>{{progressbarCaption}}</p>
 
@@ -41,7 +39,7 @@
 					<strong>{{w.title}}</strong> {{w.description}}
 				</div>
 
-				<div class="alert alert-danger fade in"
+				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
 					<p>Não foi possível detectar a extensão do Chrome que é
 						utilizada para produzir as assinaturas digitais.</p>
@@ -80,7 +78,7 @@
 					</ol>
 				</div>
 
-				<div class="alert alert-danger fade in"
+				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingCertificate">
 					<p>Não foi possível detectar nenhum token contendo certificado
 						digital válido.</p>
@@ -95,7 +93,7 @@
 				</div>
 
 				<div ng-repeat="(key, value) in errorDetails">
-					<div class="alert alert-danger fade in"
+					<div class="alert alert-danger"
 						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>
 							<strong>Problema - {{key}}:</strong>
@@ -119,8 +117,8 @@
 		<div class="row" ng-show="documentosCarregados()">
 			<div class="col-sm-7">
 				<div class="input-group">
-					<div class="input-group-addon">&#128273;</div>
-					<input type="text" class="form-control" readonly="yes"
+					<div class="input-group-prepend"><span class="input-group-text">&#128273;</span></div>
+						<input type="text" class="form-control" readonly="yes"
 						ng-model="assinante">
 				</div>
 				<!-- 
@@ -131,7 +129,7 @@
 			</div>
 			<div class="col-sm-3">
 				<div class="input-group">
-					<div class="input-group-addon">&#128269;</div>
+					<div class="input-group-prepend"><span class="input-group-text">&#128269;</span></div>
 					<input type="text" class="form-control" placeholder="Filtrar"
 						ng-model="filtro">
 
@@ -140,20 +138,13 @@
 			<div class="col-sm-2">
 				<button id="reload" class="btn btn-primary" style="width: 100%"
 					data-style="expand-left" ng-click="assinarDocumentos(progress)">
-					Assinar&nbsp;&nbsp;<span class="badge">{{contarChecked()}}</span>
+					Assinar&nbsp;&nbsp;<span class="badge badge-light">{{contarChecked()}}</span>
 				</button>
 			</div>
 			<div class="col-sm-12" style="padding-top: 1em;">
 				<input type="hidden" name="ad_url_base" value="" /> <input
 					type="hidden" name="ad_url_next" value="" />
-
-				<!-- 
-						<div class="headline"
-							style="border-bottom-width: 0px; margin-bottom: 0px;">
-							<h2 style="margin-bottom: 15px;">Documentos do Siga-Doc</h2>
-						</div>
-						 -->
-				<table class="table table-striped">
+				<table class="table table-striped table-sm">
 					<thead>
 						<tr>
 							<th style="text-align: center"><input type="checkbox"

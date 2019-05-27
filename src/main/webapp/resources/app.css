@@ -42,7 +42,6 @@ em.invalid {
 
 .status-pending {
 	color: blue;
-	font-size: 170%;
 }
 
 .status-removed {
@@ -52,7 +51,6 @@ em.invalid {
 .status-ok {
 	color: lime;
 	font-weight: bold;
-	font-size: 120%;
 }
 
 .status-alert {

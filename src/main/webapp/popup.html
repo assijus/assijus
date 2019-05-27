@@ -122,7 +122,7 @@
 					<strong>{{w.title}}</strong> {{w.description}}
 				</div>
 
-				<div class="alert alert-danger fade in"
+				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
 					<p>Não foi possível detectar a extensão do Chrome que é
 						utilizada para produzir as assinaturas digitais.</p>
@@ -161,7 +161,7 @@
 					</ol>
 				</div>
 
-				<div class="alert alert-danger fade in"
+				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingCertificate">
 					<p>Não foi possível detectar nenhum token contendo certificado
 						digital válido.</p>
@@ -177,7 +177,7 @@
 
 				<div ng-if="!showErrorDetails"
 					ng-repeat="(key, value) in errorDetails">
-					<div class="alert alert-danger fade in"
+					<div class="alert alert-danger"
 						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>
 							<strong>Problema - {{key}}:</strong>

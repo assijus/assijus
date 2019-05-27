@@ -1364,11 +1364,11 @@ app
 								+ '<div class="modal-dialog">'
 								+ '<div class="modal-content">'
 								+ '<div class="modal-header">'
+								+ '<h5 class="modal-title">{{ title }}</h5>'
 								+ '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>'
-								+ '<h4 class="modal-title">{{ title }}</h4>'
 								+ '</div>'
 								+ '<div class="modal-body" ng-transclude></div>'
-								+ '<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button></div>'
+								+ '<div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button></div>'
 								+ '</div>' + '</div>' + '</div>',
 						restrict : 'E',
 						transclude : true,
@@ -1383,8 +1383,8 @@ app
 
 							$(element).modal({
 								show : false,
-								keyboard : attrs.keyboard,
-								backdrop : attrs.backdrop,
+								keyboard : attrs.keyboard == undefined ? true : attrs.keyboard,
+								backdrop : attrs.backdrop == undefined ? true : attrs.backdrop,
 								title : attrs.title
 							});
 
