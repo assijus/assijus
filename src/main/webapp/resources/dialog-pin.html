@@ -2,13 +2,13 @@
 	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
 			<div class="modal-header">
+				<h5 class="modal-title">{{title}}</h5>
 				<button type="button" class="close" ng-click="close()"
 					data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">{{title}}</h4>
 			</div>
 			<div class="modal-body">
 				<div class="row">
-					<div class="col-xs-12">
+					<div class="col-12">
 						<form ng-keyup="$event.keyCode == 13 && clickclose()">
 							<label class="control-label" for="userPIN" style="width: 100%">Entre
 								o PIN do Certificado Digital <input type="password"
