@@ -1,5 +1,7 @@
 package br.jus.trf2.assijus;
 
+import java.util.concurrent.TimeUnit;
+
 import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
@@ -12,24 +14,24 @@ import br.jus.trf2.assijus.system.api.IAssijusSystem;
 public class VerifyPost implements IVerifyPost {
 
 	@Override
-	public void run(VerifyPostRequest req, VerifyPostResponse resp)
-			throws Exception {
+	public void run(VerifyPostRequest req, VerifyPostResponse resp) throws Exception {
 		String urlHash = Utils.getUrl(req.system) + "/doc/" + req.id + "/hash";
 
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
-		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall.call(
-				"system-hash", Utils.getPassword(req.system), "GET", urlHash,
-				systemreq, IAssijusSystem.DocIdHashGetResponse.class);
+		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall
+				.callAsync("system-hash", Utils.getPassword(req.system), "GET", urlHash, systemreq,
+						IAssijusSystem.DocIdHashGetResponse.class)
+				.get(AssijusServlet.SYSTEM_HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String urlSignature = Utils.getUrl(req.system) + "/sign/" + req.ref;
 
 		// Call document repository hash webservice
 		IAssijusSystem.SignRefGetRequest systemsignreq = new IAssijusSystem.SignRefGetRequest();
-		IAssijusSystem.SignRefGetResponse systemsignresp = SwaggerCall.call(
-				"system-signature", Utils.getPassword(req.system), "GET",
-				urlSignature, systemreq,
-				IAssijusSystem.SignRefGetResponse.class);
+		IAssijusSystem.SignRefGetResponse systemsignresp = SwaggerCall
+				.callAsync("system-signature", Utils.getPassword(req.system), "GET", urlSignature, systemreq,
+						IAssijusSystem.SignRefGetResponse.class)
+				.get(AssijusServlet.SYSTEM_SIGNATURE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		// Parse request
 		String envelope = SwaggerUtils.base64Encode(systemsignresp.envelope);
@@ -45,9 +47,10 @@ public class VerifyPost implements IVerifyPost {
 		q.sha256 = SwaggerUtils.base64Decode(sha256);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(envelope);
-		IBlueCrystal.ValidatePostResponse s = SwaggerCall.call("bluc-validate",
-				null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-				IBlueCrystal.ValidatePostResponse.class);
+		IBlueCrystal.ValidatePostResponse s = SwaggerCall
+				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
+						IBlueCrystal.ValidatePostResponse.class)
+				.get(AssijusServlet.SYSTEM_SIGNATURE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String policy = s.policy;
 		String policyversion = s.policyversion;

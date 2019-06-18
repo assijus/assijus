@@ -1,6 +1,7 @@
 package br.jus.trf2.assijus;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,7 @@ public class SavePost implements ISavePost {
 	private static final Logger log = LoggerFactory.getLogger(SavePost.class);
 
 	@Override
-	public void run(SavePostRequest req, SavePostResponse resp)
-			throws Exception {
+	public void run(SavePostRequest req, SavePostResponse resp) throws Exception {
 
 		String code = req.code;
 		String system = req.system;
@@ -43,10 +43,10 @@ public class SavePost implements ISavePost {
 		// Parse certificate
 		IBlueCrystal.CertificatePostRequest q = new IBlueCrystal.CertificatePostRequest();
 		q.certificate = SwaggerUtils.base64Decode(certificate);
-		IBlueCrystal.CertificatePostResponse s = SwaggerCall.call(
-				"bluc-certificate", null, "POST", Utils.getUrlBluCServer()
-						+ "/certificate", q,
-				IBlueCrystal.CertificatePostResponse.class);
+		IBlueCrystal.CertificatePostResponse s = SwaggerCall
+				.callAsync("bluc-certificate", null, "POST", Utils.getUrlBluCServer() + "/certificate", q,
+						IBlueCrystal.CertificatePostResponse.class)
+				.get(AssijusServlet.CERTIFICATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		String subject = s.subject;
 		String cn = s.cn;
 		String name = s.name;
@@ -54,7 +54,8 @@ public class SavePost implements ISavePost {
 
 		// Build envelope
 		String envelope = null;
-		if (!"PKCS7".equals(policy)) {
+		// Test if we received a full envelope or just the signature
+		if (signature.length() < 2000) {
 			IBlueCrystal.EnvelopePostRequest q2 = new IBlueCrystal.EnvelopePostRequest();
 			q2.certificate = SwaggerUtils.base64Decode(certificate);
 			q2.time = SwaggerUtils.parse(time);
@@ -63,10 +64,12 @@ public class SavePost implements ISavePost {
 			q2.sha256 = SwaggerUtils.base64Decode(sha256);
 			q2.crl = true;
 			q2.signature = SwaggerUtils.base64Decode(signature);
-			IBlueCrystal.EnvelopePostResponse s2 = SwaggerCall.call(
-					"bluc-envelope", null, "POST", Utils.getUrlBluCServer()
-							+ "/envelope", q2,
-					IBlueCrystal.EnvelopePostResponse.class);
+			if ("PKCS7".equals(q2.policy))
+				q2.policy = "PKCS#7";
+			IBlueCrystal.EnvelopePostResponse s2 = SwaggerCall
+					.callAsync("bluc-envelope", null, "POST", Utils.getUrlBluCServer() + "/envelope", q2,
+							IBlueCrystal.EnvelopePostResponse.class)
+					.get(AssijusServlet.ENVELOPE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 			envelope = SwaggerUtils.base64Encode(s2.envelope);
 		} else {
 			envelope = signature;
@@ -80,10 +83,10 @@ public class SavePost implements ISavePost {
 		q3.sha256 = SwaggerUtils.base64Decode(sha256);
 		q3.crl = true;
 		q3.envelope = SwaggerUtils.base64Decode(envelope);
-		IBlueCrystal.ValidatePostResponse s3 = SwaggerCall.call(
-				"bluc-validate", null, "POST", Utils.getUrlBluCServer()
-						+ "/validate", q3,
-				IBlueCrystal.ValidatePostResponse.class);
+		IBlueCrystal.ValidatePostResponse s3 = SwaggerCall
+				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q3,
+						IBlueCrystal.ValidatePostResponse.class)
+				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		// Store the signature
 		IAssijusSystem.DocIdSignPutRequest q4 = new IAssijusSystem.DocIdSignPutRequest();
@@ -94,9 +97,9 @@ public class SavePost implements ISavePost {
 		q4.sha1 = SwaggerUtils.base64Decode(sha1);
 		q4.extra = extra;
 		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";
-		IAssijusSystem.DocIdSignPutResponse s4 = SwaggerCall.call(
-				"system-save", password, "PUT", urlSave, q4,
-				IAssijusSystem.DocIdSignPutResponse.class);
+		IAssijusSystem.DocIdSignPutResponse s4 = SwaggerCall
+				.callAsync("system-save", password, "PUT", urlSave, q4, IAssijusSystem.DocIdSignPutResponse.class)
+				.get(AssijusServlet.SYSTEM_SAVE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		// Produce response
 		resp.warning = new ArrayList<IAssijus.Warning>();
@@ -120,8 +123,7 @@ public class SavePost implements ISavePost {
 
 		resp.status = s4.status;
 
-		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", "
-				+ resp.status);
+		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", " + resp.status);
 	}
 
 	@Override

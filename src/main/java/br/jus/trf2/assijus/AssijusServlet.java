@@ -12,6 +12,14 @@ import com.crivano.swaggerservlet.dependency.TestableDependency;
 
 public class AssijusServlet extends SwaggerServlet {
 	private static final long serialVersionUID = 1756711359239182178L;
+	static final int CERTIFICATE_TIMEOUT = 30;
+	static final int VALIDATE_TIMEOUT = 30;
+	static final int HASH_TIMEOUT = 30;
+	static final int ENVELOPE_TIMEOUT = 30;
+	static final int SYSTEM_HASH_TIMEOUT = 30;
+	static final int SYSTEM_LIST_TIMEOUT = 30;
+	static final int SYSTEM_SAVE_TIMEOUT = 30;
+	static final int SYSTEM_SIGNATURE_TIMEOUT = 30;
 
 	@Override
 	public void initialize(ServletConfig config) throws ServletException {
@@ -30,7 +38,9 @@ public class AssijusServlet extends SwaggerServlet {
 		addRestrictedProperty("redis.slave.host", null);
 		addRestrictedProperty("redis.master.host", "localhost");
 		addRestrictedProperty("redis.master.port", "6379");
-		SwaggerUtils.setCache(new MemCacheRedis());
+
+		// TODO: Removi a utilização do REDIS mas precisa voltar depois.
+		// SwaggerUtils.setCache(new MemCacheRedis());
 
 		addPrivateProperty("timestamp.issuer", null);
 		if (getProperty("timestamp.issuer") != null) {

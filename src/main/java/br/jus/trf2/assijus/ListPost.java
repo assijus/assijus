@@ -84,7 +84,7 @@ public class ListPost implements IListPost {
 						timeout = 0;
 					SwaggerAsyncResponse<DocListGetResponse> futureresponse = map.get(system).get(timeout,
 							TimeUnit.MILLISECONDS);
-					DocListGetResponse o = (DocListGetResponse) futureresponse.getResp();
+					DocListGetResponse o = (DocListGetResponse) futureresponse.getRespOrThrowException();
 					ListStatus ls = new ListStatus();
 					ls.system = system;
 					resp.status.add(ls);

@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
@@ -94,8 +95,10 @@ public class Utils {
 		q.sha256 = calcSha256(tokenAsBytes);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(signB64);
-		return SwaggerCall.call("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-				IBlueCrystal.ValidatePostResponse.class);
+		return SwaggerCall
+				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
+						IBlueCrystal.ValidatePostResponse.class)
+				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 	}
 
 	public static AuthKeyFields validateAuthKey(String authkey, String urlblucserver) throws Exception {

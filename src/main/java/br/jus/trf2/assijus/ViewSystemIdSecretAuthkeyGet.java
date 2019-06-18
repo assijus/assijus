@@ -33,7 +33,7 @@ public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyG
 		SwaggerAsyncResponse<IAssijusSystem.DocIdPdfGetResponse> sar = future.get();
 		if (sar.getException() != null)
 			throw sar.getException();
-		IAssijusSystem.DocIdPdfGetResponse r = (IAssijusSystem.DocIdPdfGetResponse) sar.getResp();
+		IAssijusSystem.DocIdPdfGetResponse r = (IAssijusSystem.DocIdPdfGetResponse) sar.getRespOrThrowException();
 
 		String secret = null;
 		if (r.getHeaderFields().get("Doc-Secret") != null)

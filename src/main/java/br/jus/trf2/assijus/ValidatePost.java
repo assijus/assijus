@@ -4,6 +4,8 @@ import br.jus.trf2.assijus.IAssijus.IValidatePost;
 import br.jus.trf2.assijus.IAssijus.ValidatePostRequest;
 import br.jus.trf2.assijus.IAssijus.ValidatePostResponse;
 
+import java.util.concurrent.TimeUnit;
+
 import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
@@ -11,8 +13,7 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 public class ValidatePost implements IValidatePost {
 
 	@Override
-	public void run(ValidatePostRequest req, ValidatePostResponse resp)
-			throws Exception {
+	public void run(ValidatePostRequest req, ValidatePostResponse resp) throws Exception {
 		// Parse request
 		String envelope = SwaggerUtils.base64Encode(req.envelope);
 		String time = SwaggerUtils.format(req.time);
@@ -27,9 +28,10 @@ public class ValidatePost implements IValidatePost {
 		q.sha256 = SwaggerUtils.base64Decode(sha256);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(envelope);
-		IBlueCrystal.ValidatePostResponse s = SwaggerCall.call("bluc-validate",
-				null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-				IBlueCrystal.ValidatePostResponse.class);
+		IBlueCrystal.ValidatePostResponse s = SwaggerCall
+				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
+						IBlueCrystal.ValidatePostResponse.class)
+				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String policy = s.policy;
 		String policyversion = s.policyversion;

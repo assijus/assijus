@@ -28,6 +28,7 @@ paths:
       tags: [auth]
       parameters: 
         - $ref: "#/parameters/certificate"
+        - $ref: "#/parameters/digest"
       responses:
         200:
           description: Successful response
@@ -234,6 +235,7 @@ paths:
         - $ref: "#/parameters/system"
         - $ref: "#/parameters/id"
         - $ref: "#/parameters/secret"
+        - $ref: "#/parameters/digest"
       responses:
         200:
           description: Successful response
@@ -542,6 +544,12 @@ parameters:
     required: true
     type: string
     format: byte
+  digest:
+    name: digest
+    in: formData
+    description: Indica se o hash deve ser passado por um algoritmo de sha1 ou sha256
+    required: true
+    type: boolean
   key:
     name: key
     in: formData

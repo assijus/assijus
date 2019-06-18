@@ -1,6 +1,7 @@
 package br.jus.trf2.assijus;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.SwaggerCall;
@@ -32,8 +33,10 @@ public class SignedAttrsPost implements ISignedAttrsPost {
 		q.sha1 = req.sha1;
 		q.sha256 = req.sha256;
 		q.crl = true;
-		IBlueCrystal.HashPostResponse s = SwaggerCall.call("bluc-hash", null, "POST",
-				Utils.getUrlBluCServer() + "/hash", q, IBlueCrystal.HashPostResponse.class);
+		IBlueCrystal.HashPostResponse s = SwaggerCall
+				.callAsync("bluc-hash", null, "POST", Utils.getUrlBluCServer() + "/hash", q,
+						IBlueCrystal.HashPostResponse.class)
+				.get(AssijusServlet.HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		resp.hash = s.hash;
 		resp.policyversion = s.policyversion;
 		resp.policy = s.policy;

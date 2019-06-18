@@ -100,6 +100,7 @@ public interface IAssijus {
 
 	public class TokenPostRequest implements ISwaggerRequest {
 		public byte[] certificate;
+		public Boolean digest;
 	}
 
 	public class TokenPostResponse implements ISwaggerResponse {
@@ -258,6 +259,7 @@ public interface IAssijus {
 		public String system;
 		public String id;
 		public String secret;
+		public Boolean digest;
 	}
 
 	public class HashPostResponse implements ISwaggerResponse {

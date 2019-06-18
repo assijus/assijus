@@ -1,6 +1,7 @@
 package br.jus.trf2.assijus;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
@@ -53,8 +54,9 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdInfoGetRequest q = new IAssijusSystem.DocIdInfoGetRequest();
 		q.id = id;
-		IAssijusSystem.DocIdInfoGetResponse s = SwaggerCall.call(system + "-info", password, "GET", urlInfo, q,
-				IAssijusSystem.DocIdInfoGetResponse.class);
+		IAssijusSystem.DocIdInfoGetResponse s = SwaggerCall.callAsync(system + "-info", password, "GET", urlInfo, q,
+				IAssijusSystem.DocIdInfoGetResponse.class)
+				.get(AssijusServlet.SYSTEM_LIST_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		if (s.secret != null) {
 			if (req.secret == null)
