@@ -88,7 +88,7 @@ public class AuthPost implements IAuthPost {
 		}
 
 		throw new PresentableException(
-				"Não foi possível realizar a autenticação. Por favor, lance novamente o aplicativo Assijus.Exe. Se o problema persistir, tente reiniciar o computador");
+				"Não foi possível realizar a autenticação.");
 	}
 
 	@Override
