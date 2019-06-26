@@ -39,8 +39,7 @@ public class AssijusServlet extends SwaggerServlet {
 		addRestrictedProperty("redis.master.host", "localhost");
 		addRestrictedProperty("redis.master.port", "6379");
 
-		// TODO: Removi a utilização do REDIS mas precisa voltar depois.
-		// SwaggerUtils.setCache(new MemCacheRedis());
+		SwaggerUtils.setCache(new MemCacheRedis());
 
 		addPrivateProperty("timestamp.issuer", null);
 		if (getProperty("timestamp.issuer") != null) {
