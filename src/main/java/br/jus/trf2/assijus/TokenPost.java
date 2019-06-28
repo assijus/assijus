@@ -34,7 +34,7 @@ public class TokenPost implements ITokenPost {
 			sareq.sha256 = Utils.calcSha256(bytes);
 			sa.buildSignedAttrs(sareq, saresp);
 			resp.hash = saresp.hash;
-			if (req.digest)
+			if (req.digest != null && req.digest)
 				resp.hash = Utils.calcSha256(resp.hash);
 			resp.time = saresp.time;
 		}
