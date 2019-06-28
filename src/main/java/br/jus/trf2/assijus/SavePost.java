@@ -123,7 +123,7 @@ public class SavePost implements ISavePost {
 
 		resp.status = s4.status;
 
-		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", " + resp.status);
+		log.info("*** Assinatura: " + name + ", " + system + ", " + code + ", sha1:" + sha1 + ", sha256:" + sha256 + ", " + resp.status);
 	}
 
 	@Override
