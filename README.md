@@ -104,22 +104,31 @@ Completamente baseado em micro-serviços, o Assijus é composto dos seguintes co
 
 Para executar o Assijus, é necessário que algumas propriedades sejam definidas.
 
-Para habilitar um novo sistema a utlizar a integração via Modal, é necessário incluir sua URL em uma propriedade, conforme exemplo abaixo:
+Para habilitar um novo sistema a utlizar a integração popup (via Modal), é necessário incluir sua URL em uma propriedade, conforme exemplo abaixo:
 
 - assijus.popup.urls=http://siga.jfrj.jus.br;https://siga.jfrj.jus.br
 
-Por exemplo, se estivermos operando com 3 integrações via webservices, devemos configurar a propriedade assijus.systems para indicar o nome de cada sistema provedor de documentos e depois especificar em nome_do_sistema.url a localização do respectivo webservice:
+Por exemplo, se estivermos operando com 3 integrações via webservices, devemos configurar a propriedade assijus.systems para indicar o nome de cada sistema provedor de documentos e depois especificar em assijus.nome_do_sistema.url a localização do respectivo webservice:
 - assijus.systems=sigadocsigner,apolosigner,textowebsigner
-- sigadocsigner.url=http://macmini.local/sigaex/public/app/assinador
-- apolosigner.url=http://apolosigner:8080/apolosigner/api/v1
-- textowebsigner.url=http://textoweb.jfrj.jus.br:8080/textowebsigner/api/v1
+- assijus.sigadocsigner.url=http://macmini.local/sigaex/public/app/assinador
+- assijus.apolosigner.url=http://apolosigner:8080/apolosigner/api/v1
+- assijus.textowebsigner.url=http://textoweb.jfrj.jus.br:8080/textowebsigner/api/v1
+
+Além da URL, é possível informar uma senha que será enviada no HTTP Header Authorization, por exemplo:
+- assijus.sigadocsigner.password=375258df-d2fe-46c1-a976-61102546d451 (use uma [GUID aleatória](https://www.guidgenerator.com/) e secreta)
 
 Além disso, precisamos indicar onde está o serviço BluCService:
-- blucservice.url=http://blucservice:8080/blucservice/api/v1
+- assijus.blucservice.url=http://blucservice:8080/blucservice/api/v1
 
 Quando se trata de um servidor que não é de produção, precisamos informar onde fica a produção para que ele consiga recuperar a assinatura que foi enviada pelo assijus.exe
 - assijus.keyvalue.url=http://assijus.jfrj.jus.br/assijus/api/v1
-- assijus.keyvalue.password=375258df-d2fe-46c1-a976-61102546d451
+- assijus.keyvalue.password=375258df-d2fe-46c1-a976-61102546d451 (use uma [GUID aleatória](https://www.guidgenerator.com/) e secreta)
+
+No caso da instalação em um servidor de aplicação, os parâmetros devem ser informados como descrito acima, mas quando a instalação do
+Assijus é feita utilizando o Docker, sugerimos que os parâmetros sejam substituídos por propriedades do ambiente. As propriedades
+terão os mesmos nomes que os parâmetros, mas todos em letras maíusculas, com os pontos trocados por _under scores_ e precedidos de PROP_. Conforme exemplos abaixo:
+- assijus.systems -> PROP_ASSIJUS_SYSTEMS
+- assijus.sigadocsigner.url -> PROP_ASSIJUS_SIGADOCSIGNER_URL
 
 ## Docker
 
