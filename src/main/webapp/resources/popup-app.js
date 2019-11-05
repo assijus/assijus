@@ -246,8 +246,7 @@ app
 						if (!$scope.progress.active)
 							return;
 
-						for (i = $scope.iOperacao + 1,
-								len = $scope.operacoes.length; i < len; i++) {
+						for (i = $scope.iOperacao + 1; i < $scope.operacoes.length; i++) {
 							var o = $scope.operacoes[i];
 							$scope.iOperacao = i;
 
@@ -358,7 +357,7 @@ app
 											}
 											$scope.clearError(state.codigo);
 											if (progress.active) {
-												$scope.executar(progress);
+												// $scope.executar(progress);
 												$scope.obterEnvelope(state,
 														progress);
 											}
@@ -451,8 +450,8 @@ app
 									} else {
 										progress.step(state.nome
 												+ ": Assinatura não gravada.");
-
 									}
+									$scope.executar(progress);
 								})
 					}
 
@@ -741,16 +740,13 @@ app
 
 					$scope.postMessage = function(data, cont) {
 						parent.postMessage(data, $scope.parentUrl);
-						if (cont)
-							$scope.cont = cont;
+						$scope.cont = cont;
 					};
 
 					$scope.$root.$on('$messageIncoming', function(event, data) {
 						if (data.origin !== $scope.parentUrl)
 							return;
 						var permitido = false;
-						console.log(data.origin)
-						console.log($scope.allowedParents)
 						for (var i = 0; i < $scope.allowedParents.length; i++) {
 							if (data.origin
 									.startsWith($scope.allowedParents[i])) {
