@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +20,8 @@ import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerCallStatus;
+import com.crivano.swaggerservlet.SwaggerMultipleCallResult;
 import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
@@ -215,5 +218,18 @@ public class Utils {
 			return null;
 		byte[] bytes = s.getBytes();
 		return bytesToHex(calcSha1(bytes));
+	}
+
+	public static ArrayList<IAssijus.ListStatus> getStatus(SwaggerMultipleCallResult mcr) {
+		ArrayList<IAssijus.ListStatus> l = new ArrayList<IAssijus.ListStatus>();
+		for (SwaggerCallStatus sts : mcr.status) {
+			IAssijus.ListStatus lsts = new IAssijus.ListStatus();
+			lsts.system = sts.system;
+			lsts.errormsg = sts.errormsg;
+			lsts.stacktrace = sts.stacktrace;
+			lsts.miliseconds = sts.miliseconds;
+			l.add(lsts);
+		}
+		return l;
 	}
 }

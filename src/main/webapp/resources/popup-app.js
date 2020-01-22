@@ -75,8 +75,6 @@ app
 							if (response.data.hasOwnProperty("errormsg")
 									&& detail.presentable)
 								msg = response.data.errormsg;
-							if (detail.logged)
-								msg += ", a TI já foi notificada.";
 						} catch (err) {
 
 						}

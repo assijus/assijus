@@ -1,28 +1,21 @@
 package br.jus.trf2.assijus;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerCall;
-import com.crivano.swaggerservlet.SwaggerException;
+import com.crivano.swaggerservlet.SwaggerCallParameters;
+import com.crivano.swaggerservlet.SwaggerMultipleCallResult;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.Document;
 import br.jus.trf2.assijus.IAssijus.IListPost;
 import br.jus.trf2.assijus.IAssijus.ListPostRequest;
 import br.jus.trf2.assijus.IAssijus.ListPostResponse;
-import br.jus.trf2.assijus.IAssijus.ListStatus;
-import br.jus.trf2.assijus.system.api.IAssijusSystem;
 import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetRequest;
 import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
 
@@ -58,66 +51,35 @@ public class ListPost implements IListPost {
 			if (systems == null)
 				return;
 
-			final CountDownLatch responseWaiter = new CountDownLatch(systems.length);
-			Map<String, Future<SwaggerAsyncResponse<DocListGetResponse>>> map = new HashMap<>();
-
-			// Call Each System
+			Map<String, SwaggerCallParameters> mapp = new HashMap<>();
 			for (String system : systems) {
-				final String context = system.replace("signer", "");
 				String urlsys = Utils.getUrl(system);
-
 				DocListGetRequest q = new DocListGetRequest();
 				q.cpf = cpf;
 				q.urlapi = urlsys;
-				Future<SwaggerAsyncResponse<DocListGetResponse>> future = SwaggerCall.callAsync(system + "-list",
-						Utils.getPassword(system), "GET", urlsys + "/doc/list", q, DocListGetResponse.class);
-				map.put(system, future);
+				mapp.put(system, new SwaggerCallParameters(system + "-list", Utils.getPassword(system), "GET",
+						urlsys + "/doc/list", q, DocListGetResponse.class));
+
 			}
+			SwaggerMultipleCallResult mcr = SwaggerCall.callMultiple(mapp, 15000);
+			resp.status = Utils.getStatus(mcr);
+			resp.list = new ArrayList<>();
 
-			Date dt1 = new Date();
-
-			for (String system : systems) {
-				final String context = system.replace("signer", "");
-				try {
-					long timeout = TIMEOUT_MILLISECONDS - ((new Date()).getTime() - dt1.getTime());
-					if (timeout < 0L)
-						timeout = 0;
-					SwaggerAsyncResponse<DocListGetResponse> futureresponse = map.get(system).get(timeout,
-							TimeUnit.MILLISECONDS);
-					DocListGetResponse o = (DocListGetResponse) futureresponse.getRespOrThrowException();
-					ListStatus ls = new ListStatus();
-					ls.system = system;
-					resp.status.add(ls);
-					SwaggerException ex = futureresponse.getException();
-					if (ex != null) {
-						log.error("Erro obtendo a lista de {}", system, ex);
-						ls.errormsg = SwaggerUtils.messageAsString(ex);
-						ls.stacktrace = SwaggerUtils.stackAsString(ex);
-					}
-					if (o != null && o.list != null) {
-						for (IAssijusSystem.Document d : o.list) {
-							Document doc = new Document();
-							doc.code = d.code;
-							doc.descr = d.descr;
-							doc.id = d.id;
-							doc.secret = Utils.makeSecret(d.secret);
-							doc.kind = d.kind;
-							doc.origin = d.origin;
-							doc.system = system;
-							resp.list.add(doc);
-							SwaggerUtils.memCacheStore(cpf + "-" + system + "-" + doc.id, new byte[] { 1 });
-						}
-					}
-				} catch (Exception ex) {
-					ListStatus ls = new ListStatus();
-					ls.system = system;
-					ls.errormsg = SwaggerUtils.messageAsString(ex);
-					if (ls.errormsg == null)
-						ls.errormsg = ex.getClass().getName();
-					ls.stacktrace = SwaggerUtils.stackAsString(ex);
-					resp.status.add(ls);
-					if (ex instanceof TimeoutException)
-						map.get(system).cancel(true);
+			for (String system : mcr.responses.keySet()) {
+				DocListGetResponse rl = (DocListGetResponse) mcr.responses.get(system);
+				if (rl.list == null || rl.list.size() == 0)
+					continue;
+				for (br.jus.trf2.assijus.system.api.IAssijusSystem.Document r : rl.list) {
+					Document doc = new Document();
+					doc.code = r.code;
+					doc.descr = r.descr;
+					doc.id = r.id;
+					doc.secret = Utils.makeSecret(r.secret);
+					doc.kind = r.kind;
+					doc.origin = r.origin;
+					doc.system = system;
+					resp.list.add(doc);
+					SwaggerUtils.memCacheStore(cpf + "-" + system + "-" + doc.id, new byte[] { 1 });
 				}
 			}
 		}

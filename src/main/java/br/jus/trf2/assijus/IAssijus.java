@@ -27,6 +27,7 @@ public interface IAssijus {
 		public String system;
 		public String errormsg;
 		public String stacktrace;
+		public Long miliseconds;
 	}
 
 	public class Warning implements ISwaggerModel {

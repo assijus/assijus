@@ -265,8 +265,6 @@ app
 							if (response.data.hasOwnProperty("errormsg")
 									&& detail.presentable)
 								msg = response.data.errormsg;
-							if (detail.logged)
-								msg += ", a TI já foi notificada.";
 						} catch (err) {
 
 						}
@@ -297,8 +295,6 @@ app
 								if (errordata.hasOwnProperty("errormsg")
 										&& detail.presentable)
 									msg = errordata.errormsg;
-								if (detail.logged)
-									msg += ", a TI já foi notificada.";
 							} else if (errordata.hasOwnProperty("errormsg")) {
 								msg = errormsg;
 							}
@@ -423,6 +419,10 @@ app
 						stop : function() {
 							$scope.progressbarTitle = '';
 							$scope.progressbarWidth = this.maxwidth;
+							if (this.maxwidth == 100) 
+								$timeout(function() {
+									$scope.progressbarWidth = 0;
+								}, 500);
 							$scope.progressbarShow = false;
 							$scope.progressbarCaption = '';
 							this.active = false;
@@ -1360,7 +1360,7 @@ app
 				'modal',
 				function($parse) {
 					return {
-						template : '<div class="modal fade">'
+						template : '<div class="modal">'
 								+ '<div class="modal-dialog">'
 								+ '<div class="modal-content">'
 								+ '<div class="modal-header">'

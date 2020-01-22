@@ -700,6 +700,9 @@ definitions:
       stacktrace:
         type: string
         description: Detalhamento do erro
+      miliseconds:
+        type: number
+        description: Tempo de execução em milissegundos
 
   Warning:
     type: object
