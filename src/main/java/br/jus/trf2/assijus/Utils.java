@@ -227,7 +227,8 @@ public class Utils {
 			lsts.system = sts.system;
 			lsts.errormsg = sts.errormsg;
 			lsts.stacktrace = sts.stacktrace;
-			lsts.miliseconds = sts.miliseconds;
+			if (sts.miliseconds != null)
+				lsts.miliseconds = sts.miliseconds.doubleValue();
 			l.add(lsts);
 		}
 		return l;

@@ -20,6 +20,8 @@ tags:
     description: Obter hash, gravar assinatura digital e validar assinatura digital
   - name: store
     description: Armazenar operações de assinatura em lote (modo EndPoint)
+  - name: support
+    description: Rotinas destinadas à manutenção e suporte
 
 paths:
   /token:
@@ -64,6 +66,7 @@ paths:
         - $ref: "#/parameters/policy"
         - $ref: "#/parameters/policyversion"
         - $ref: "#/parameters/signature"
+        - $ref: "#/parameters/time"
       responses:
         200:
           description: Successful response
@@ -113,7 +116,6 @@ paths:
           schema:
             $ref: "#/definitions/error"
 
-
   /list:
     post:
       description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
@@ -141,6 +143,32 @@ paths:
           schema:
             $ref: "#/definitions/error"
             
+  /support/list/{cpf}:
+    get:
+      description: Obter a lista de documentos a serem assinados pelo usuário portador do CPF informado
+      tags: [support]
+      parameters:
+        - $ref: "#/parameters/cpf"
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: object
+            properties:
+              list:
+                type: array
+                items:
+                  $ref: "#/definitions/SupportDocument"
+              status:
+                type: array
+                items:
+                  $ref: "#/definitions/ListStatus"
+        500:
+          description: Error ocurred
+          schema:
+            $ref: "#/definitions/error"
+            
+  
   /view/{system}/{id}/{secret}/{authkey}:
     get:
       description: Obter o PDF de um documento para visualização
@@ -655,6 +683,12 @@ parameters:
     description: Informar attachment se desejar receber como um download
     required: false
     type: string
+  cpf:
+    name: cpf
+    in: path
+    description: CPF da pessoa
+    required: true
+    type: string
             
 definitions:
   Document:
@@ -687,6 +721,27 @@ definitions:
       urlView: apolo/view/00489623760_2_67631650_1460490840000_0_0
       urlHash: apolo/hash/00489623760_2_67631650_1460490840000_0_0
       urlSave: apolo/save/00489623760_2_67631650_1460490840000_0_0
+      
+  SupportDocument:
+    type: object
+    properties:
+      system: 
+        type: string
+      id:
+        type: string
+        description: identificador do documento
+      code: 
+        type: string
+      kind: 
+        type: string
+      origin: 
+        type: string
+    example:
+      system: br.jus.trf2.eproc
+      id: 00489623760_2_67631650_1460490840000_0_0
+      code: 0100222-90.2014.4.02.0000
+      kind: Decisão
+      origin: Apolo
       
   ListStatus:
     type: object

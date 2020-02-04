@@ -30,10 +30,10 @@ public class ListPost implements IListPost {
 		String authkey = req.authkey;
 		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
-		resp.list = new ArrayList<>();
-		resp.status = new ArrayList<IAssijus.ListStatus>();
-
 		if (listkey != null) {
+			resp.list = new ArrayList<>();
+			resp.status = new ArrayList<IAssijus.ListStatus>();
+			
 			// Read list from cache
 			String payload = null;
 			if (listkey != null)
@@ -46,41 +46,45 @@ public class ListPost implements IListPost {
 					d.secret = Utils.makeSecret(d.secret);
 			}
 		} else {
-			// Read list from connected systems
-			String[] systems = Utils.getSystems();
-			if (systems == null)
-				return;
+			produceListPostResponse(cpf, resp);
+		}
+	}
 
-			Map<String, SwaggerCallParameters> mapp = new HashMap<>();
-			for (String system : systems) {
-				String urlsys = Utils.getUrl(system);
-				DocListGetRequest q = new DocListGetRequest();
-				q.cpf = cpf;
-				q.urlapi = urlsys;
-				mapp.put(system, new SwaggerCallParameters(system + "-list", Utils.getPassword(system), "GET",
-						urlsys + "/doc/list", q, DocListGetResponse.class));
+	public static void produceListPostResponse(String cpf, ListPostResponse resp) throws Exception {
+		// Read list from connected systems
+		String[] systems = Utils.getSystems();
+		if (systems == null)
+			return;
 
-			}
-			SwaggerMultipleCallResult mcr = SwaggerCall.callMultiple(mapp, 15000);
-			resp.status = Utils.getStatus(mcr);
-			resp.list = new ArrayList<>();
+		Map<String, SwaggerCallParameters> mapp = new HashMap<>();
+		for (String system : systems) {
+			String urlsys = Utils.getUrl(system);
+			DocListGetRequest q = new DocListGetRequest();
+			q.cpf = cpf;
+			q.urlapi = urlsys;
+			mapp.put(system, new SwaggerCallParameters(system + "-list", Utils.getPassword(system), "GET",
+					urlsys + "/doc/list", q, DocListGetResponse.class));
 
-			for (String system : mcr.responses.keySet()) {
-				DocListGetResponse rl = (DocListGetResponse) mcr.responses.get(system);
-				if (rl.list == null || rl.list.size() == 0)
-					continue;
-				for (br.jus.trf2.assijus.system.api.IAssijusSystem.Document r : rl.list) {
-					Document doc = new Document();
-					doc.code = r.code;
-					doc.descr = r.descr;
-					doc.id = r.id;
-					doc.secret = Utils.makeSecret(r.secret);
-					doc.kind = r.kind;
-					doc.origin = r.origin;
-					doc.system = system;
-					resp.list.add(doc);
-					SwaggerUtils.memCacheStore(cpf + "-" + system + "-" + doc.id, new byte[] { 1 });
-				}
+		}
+		SwaggerMultipleCallResult mcr = SwaggerCall.callMultiple(mapp, 15000);
+		resp.status = Utils.getStatus(mcr);
+		resp.list = new ArrayList<>();
+
+		for (String system : mcr.responses.keySet()) {
+			DocListGetResponse rl = (DocListGetResponse) mcr.responses.get(system);
+			if (rl.list == null || rl.list.size() == 0)
+				continue;
+			for (br.jus.trf2.assijus.system.api.IAssijusSystem.Document r : rl.list) {
+				Document doc = new Document();
+				doc.code = r.code;
+				doc.descr = r.descr;
+				doc.id = r.id;
+				doc.secret = Utils.makeSecret(r.secret);
+				doc.kind = r.kind;
+				doc.origin = r.origin;
+				doc.system = system;
+				resp.list.add(doc);
+				SwaggerUtils.memCacheStore(cpf + "-" + system + "-" + doc.id, new byte[] { 1 });
 			}
 		}
 	}

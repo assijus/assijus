@@ -23,11 +23,19 @@ public interface IAssijus {
 		public String extra;
 	}
 
+	public class SupportDocument implements ISwaggerModel {
+		public String system;
+		public String id;
+		public String code;
+		public String kind;
+		public String origin;
+	}
+
 	public class ListStatus implements ISwaggerModel {
 		public String system;
 		public String errormsg;
 		public String stacktrace;
-		public Long miliseconds;
+		public Double miliseconds;
 	}
 
 	public class Warning implements ISwaggerModel {
@@ -110,12 +118,10 @@ public interface IAssijus {
 		public String policyversion;
 		public Date time;
 		public byte[] hash;
-
 	}
 
 	public interface ITokenPost extends ISwaggerMethod {
-		public void run(TokenPostRequest req, TokenPostResponse resp)
-				throws Exception;
+		public void run(TokenPostRequest req, TokenPostResponse resp) throws Exception;
 	}
 
 	public class AuthPostRequest implements ISwaggerRequest {
@@ -138,8 +144,7 @@ public interface IAssijus {
 	}
 
 	public interface IAuthPost extends ISwaggerMethod {
-		public void run(AuthPostRequest req, AuthPostResponse resp)
-				throws Exception;
+		public void run(AuthPostRequest req, AuthPostResponse resp) throws Exception;
 	}
 
 	public class LoginPostRequest implements ISwaggerRequest {
@@ -152,8 +157,7 @@ public interface IAssijus {
 	}
 
 	public interface ILoginPost extends ISwaggerMethod {
-		public void run(LoginPostRequest req, LoginPostResponse resp)
-				throws Exception;
+		public void run(LoginPostRequest req, LoginPostResponse resp) throws Exception;
 	}
 
 	public class ListPostRequest implements ISwaggerRequest {
@@ -168,8 +172,20 @@ public interface IAssijus {
 	}
 
 	public interface IListPost extends ISwaggerMethod {
-		public void run(ListPostRequest req, ListPostResponse resp)
-				throws Exception;
+		public void run(ListPostRequest req, ListPostResponse resp) throws Exception;
+	}
+
+	public class SupportListCpfGetRequest implements ISwaggerRequest {
+		public String cpf;
+	}
+
+	public class SupportListCpfGetResponse implements ISwaggerResponse {
+		public List<SupportDocument> list;
+		public List<ListStatus> status;
+	}
+
+	public interface ISupportListCpfGet extends ISwaggerMethod {
+		public void run(SupportListCpfGetRequest req, SupportListCpfGetResponse resp) throws Exception;
 	}
 
 	public class ViewSystemIdSecretAuthkeyGetRequest implements ISwaggerRequest {
@@ -180,11 +196,9 @@ public interface IAssijus {
 		public String cpf;
 	}
 
-	public class ViewSystemIdSecretAuthkeyGetResponse implements
-			ISwaggerResponse, ISwaggerResponseFile {
+	public class ViewSystemIdSecretAuthkeyGetResponse implements ISwaggerResponse, ISwaggerResponseFile {
 		public String contenttype = "application/pdf";
 		public String contentdisposition = "attachment";
-
 		public Long contentlength;
 		public InputStream inputstream;
 		public Map<String, List<String>> headerFields;
@@ -192,49 +206,37 @@ public interface IAssijus {
 		public String getContenttype() {
 			return contenttype;
 		}
-
 		public void setContenttype(String contenttype) {
 			this.contenttype = contenttype;
 		}
-
 		public String getContentdisposition() {
 			return contentdisposition;
 		}
-
 		public void setContentdisposition(String contentdisposition) {
 			this.contentdisposition = contentdisposition;
 		}
-
 		public Long getContentlength() {
 			return contentlength;
 		}
-
 		public void setContentlength(Long contentlength) {
 			this.contentlength = contentlength;
 		}
-
 		public InputStream getInputstream() {
 			return inputstream;
 		}
-
 		public void setInputstream(InputStream inputstream) {
 			this.inputstream = inputstream;
 		}
-
-		@Override
 		public Map<String, List<String>> getHeaderFields() {
 			return headerFields;
 		}
-
-		@Override
 		public void setHeaderFields(Map<String, List<String>> headerFields) {
 			this.headerFields = headerFields;
 		}
 	}
 
 	public interface IViewSystemIdSecretAuthkeyGet extends ISwaggerMethod {
-		public void run(ViewSystemIdSecretAuthkeyGetRequest req,
-				ViewSystemIdSecretAuthkeyGetResponse resp) throws Exception;
+		public void run(ViewSystemIdSecretAuthkeyGetRequest req, ViewSystemIdSecretAuthkeyGetResponse resp) throws Exception;
 	}
 
 	public class InfoSystemIdSecretGetRequest implements ISwaggerRequest {
@@ -250,8 +252,7 @@ public interface IAssijus {
 	}
 
 	public interface IInfoSystemIdSecretGet extends ISwaggerMethod {
-		public void run(InfoSystemIdSecretGetRequest req,
-				InfoSystemIdSecretGetResponse resp) throws Exception;
+		public void run(InfoSystemIdSecretGetRequest req, InfoSystemIdSecretGetResponse resp) throws Exception;
 	}
 
 	public class HashPostRequest implements ISwaggerRequest {
@@ -274,8 +275,7 @@ public interface IAssijus {
 	}
 
 	public interface IHashPost extends ISwaggerMethod {
-		public void run(HashPostRequest req, HashPostResponse resp)
-				throws Exception;
+		public void run(HashPostRequest req, HashPostResponse resp) throws Exception;
 	}
 
 	public class SignedAttrsPostRequest implements ISwaggerRequest {
@@ -296,8 +296,7 @@ public interface IAssijus {
 	}
 
 	public interface ISignedAttrsPost extends ISwaggerMethod {
-		public void run(SignedAttrsPostRequest req, SignedAttrsPostResponse resp)
-				throws Exception;
+		public void run(SignedAttrsPostRequest req, SignedAttrsPostResponse resp) throws Exception;
 	}
 
 	public class EnvelopePostRequest implements ISwaggerRequest {
@@ -322,8 +321,7 @@ public interface IAssijus {
 	}
 
 	public interface IEnvelopePost extends ISwaggerMethod {
-		public void run(EnvelopePostRequest req, EnvelopePostResponse resp)
-				throws Exception;
+		public void run(EnvelopePostRequest req, EnvelopePostResponse resp) throws Exception;
 	}
 
 	public class SavePostRequest implements ISwaggerRequest {
@@ -346,8 +344,7 @@ public interface IAssijus {
 	}
 
 	public interface ISavePost extends ISwaggerMethod {
-		public void run(SavePostRequest req, SavePostResponse resp)
-				throws Exception;
+		public void run(SavePostRequest req, SavePostResponse resp) throws Exception;
 	}
 
 	public class ValidatePostRequest implements ISwaggerRequest {
@@ -367,8 +364,7 @@ public interface IAssijus {
 	}
 
 	public interface IValidatePost extends ISwaggerMethod {
-		public void run(ValidatePostRequest req, ValidatePostResponse resp)
-				throws Exception;
+		public void run(ValidatePostRequest req, ValidatePostResponse resp) throws Exception;
 	}
 
 	public class VerifyPostRequest implements ISwaggerRequest {
@@ -387,8 +383,7 @@ public interface IAssijus {
 	}
 
 	public interface IVerifyPost extends ISwaggerMethod {
-		public void run(VerifyPostRequest req, VerifyPostResponse resp)
-				throws Exception;
+		public void run(VerifyPostRequest req, VerifyPostResponse resp) throws Exception;
 	}
 
 	public class StorePostRequest implements ISwaggerRequest {
@@ -401,8 +396,7 @@ public interface IAssijus {
 	}
 
 	public interface IStorePost extends ISwaggerMethod {
-		public void run(StorePostRequest req, StorePostResponse resp)
-				throws Exception;
+		public void run(StorePostRequest req, StorePostResponse resp) throws Exception;
 	}
 
 	public class TimestampPostRequest implements ISwaggerRequest {
@@ -423,21 +417,19 @@ public interface IAssijus {
 	}
 
 	public interface ITimestampPost extends ISwaggerMethod {
-		public void run(TimestampPostRequest req, TimestampPostResponse resp)
-				throws Exception;
+		public void run(TimestampPostRequest req, TimestampPostResponse resp) throws Exception;
 	}
 
 	public class TimestampGenerateKeyPairPostRequest implements ISwaggerRequest {
 	}
 
-	public class TimestampGenerateKeyPairPostResponse implements
-			ISwaggerResponse {
+	public class TimestampGenerateKeyPairPostResponse implements ISwaggerResponse {
 		public byte[] publickey;
 		public byte[] privatekey;
 	}
 
 	public interface ITimestampGenerateKeyPairPost extends ISwaggerMethod {
-		public void run(TimestampGenerateKeyPairPostRequest req,
-				TimestampGenerateKeyPairPostResponse resp) throws Exception;
+		public void run(TimestampGenerateKeyPairPostRequest req, TimestampGenerateKeyPairPostResponse resp) throws Exception;
 	}
+
 }
