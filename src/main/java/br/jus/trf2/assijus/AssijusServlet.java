@@ -27,7 +27,7 @@ public class AssijusServlet extends SwaggerServlet {
 		setActionPackage("br.jus.trf2.assijus");
 
 		addPublicProperty("systems", null);
-		addPublicProperty("popup.urls", null);
+		addPublicProperty("popup.urls", "http://localhost:8080");
 		addRestrictedProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
 
 		// Redis
@@ -39,7 +39,8 @@ public class AssijusServlet extends SwaggerServlet {
 		addRestrictedProperty("redis.master.host", "localhost");
 		addRestrictedProperty("redis.master.port", "6379");
 
-		SwaggerUtils.setCache(new MemCacheRedis());
+		if (getProperty("redis.password") != null)
+			SwaggerUtils.setCache(new MemCacheRedis());
 
 		addPrivateProperty("timestamp.issuer", null);
 		if (getProperty("timestamp.issuer") != null) {
@@ -98,23 +99,24 @@ public class AssijusServlet extends SwaggerServlet {
 
 		});
 
-		addDependency(new TestableDependency("cache", "redis", false, 0, 10000) {
+		if (getProperty("redis.password") != null)
+			addDependency(new TestableDependency("cache", "redis", false, 0, 10000) {
 
-			@Override
-			public String getUrl() {
-				return "redis://" + MemCacheRedis.getMasterHost() + ":" + MemCacheRedis.getMasterPort() + "/"
-						+ MemCacheRedis.getDatabase() + " (" + "redis://" + MemCacheRedis.getSlaveHost() + ":"
-						+ MemCacheRedis.getSlavePort() + "/" + MemCacheRedis.getDatabase() + ")";
-			}
+				@Override
+				public String getUrl() {
+					return "redis://" + MemCacheRedis.getMasterHost() + ":" + MemCacheRedis.getMasterPort() + "/"
+							+ MemCacheRedis.getDatabase() + " (" + "redis://" + MemCacheRedis.getSlaveHost() + ":"
+							+ MemCacheRedis.getSlavePort() + "/" + MemCacheRedis.getDatabase() + ")";
+				}
 
-			@Override
-			public boolean test() throws Exception {
-				String uuid = UUID.randomUUID().toString();
-				MemCacheRedis mc = new MemCacheRedis();
-				mc.store("test", uuid.getBytes());
-				String uuid2 = new String(mc.retrieve("test"));
-				return uuid.equals(uuid2);
-			}
-		});
+				@Override
+				public boolean test() throws Exception {
+					String uuid = UUID.randomUUID().toString();
+					MemCacheRedis mc = new MemCacheRedis();
+					mc.store("test", uuid.getBytes());
+					String uuid2 = new String(mc.retrieve("test"));
+					return uuid.equals(uuid2);
+				}
+			});
 	}
 }
