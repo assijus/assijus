@@ -87,7 +87,27 @@ app
 						$scope.test = response.data;
 					}, function errorCallback(response) {
 					});
-
+					
+					$scope.versionAssijusNativeClient = "0";
+					$scope.myhttp({
+						url : $scope.urlBluCRESTSigner + '/test-extension',
+						method : "GET"
+					}).then(function successCallback(response) {
+						$scope.versionAssijusChromeExtension = response.data.version;
+						if ($scope.versionAssijusChromeExtension != "0"
+							&& $scope.versionAssijusNativeClient == "0") {
+							$scope.myhttp({
+								url : $scope.urlBluCRESTSigner + '/test',
+								method : "GET"
+							}).then(function successCallback(response) {
+								$scope.versionAssijusNativeClient = response.data.version;
+							}, function errorCallback(response) {
+								$scope.versionAssijusNativeClient = "-";
+							});
+						}
+					}, function errorCallback(response) {
+						$scope.versionAssijusChromeExtension = "0";
+					});
 				});
 
 app
@@ -159,21 +179,8 @@ app
 				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
-	$scope.versionAssijusChromeExtension = document
-			.getElementById("chrome-extension-active").value;
-	$scope.versionAssijusNativeClient = document
-			.getElementById("native-client-active").value;
-	if ($scope.versionAssijusChromeExtension != "0"
-			&& $scope.versionAssijusNativeClient == "0") {
-		$scope.myhttp({
-			url : $scope.urlBluCRESTSigner + '/test',
-			method : "GET"
-		}).then(function successCallback(response) {
-			$scope.versionAssijusNativeClient = response.data.version;
-		}, function errorCallback(response) {
-			$scope.versionAssijusNativeClient = "-";
-		});
-	}
+
+
 });
 
 app
