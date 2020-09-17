@@ -24,7 +24,7 @@ public class TimestampPost implements ITimestampPost {
 
 	@Override
 	public void run(TimestampPostRequest req, TimestampPostResponse resp) throws Exception {
-		final String issuer = SwaggerServlet.getProperty("timestamp.issuer");
+		final String issuer = AssijusServlet.getProp("timestamp.issuer");
 		if (issuer == null)
 			throw new PresentableException(
 					"Issuer não está corretamente definido no parâmetro assijus.timestamp.issuer");
@@ -36,8 +36,8 @@ public class TimestampPost implements ITimestampPost {
 		PublicKey publicKey = null;
 		PrivateKey privateKey = null;
 
-		byte[] publicKeyBytes = SwaggerUtils.base64Decode(SwaggerServlet.getProperty("timestamp.public.key"));
-		byte[] privateKeyBytes = SwaggerUtils.base64Decode(SwaggerServlet.getProperty("timestamp.private.key"));
+		byte[] publicKeyBytes = SwaggerUtils.base64Decode(AssijusServlet.getProp("timestamp.public.key"));
+		byte[] privateKeyBytes = SwaggerUtils.base64Decode(AssijusServlet.getProp("timestamp.private.key"));
 
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);

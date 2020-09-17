@@ -28,15 +28,15 @@ public class LoginPost implements ILoginPost {
 		String authkey = req.authkey;
 		AuthKeyFields akf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer());
 
-		String systems = SwaggerServlet.getProperty("login.systems");
+		String systems = AssijusServlet.getProp("login.systems");
 
 		for (String system : systems.split(",")) {
-			String urlBase = SwaggerServlet.getProperty(system + ".login.url.base");
+			String urlBase = AssijusServlet.getProp(system + ".login.url.base");
 
 			if (req.callback.startsWith(urlBase)) {
-				String urlRedirect = SwaggerServlet.getProperty(system + ".login.url.redirect");
+				String urlRedirect = AssijusServlet.getProp(system + ".login.url.redirect");
 
-				String password = SwaggerServlet.getProperty(system + ".login.password");
+				String password = AssijusServlet.getProp(system + ".login.password");
 
 				String jwt = jwt(akf.cpf, akf.cn, akf.email, password);
 				resp.url = urlRedirect + "?callback=" + URLEncoder.encode(req.callback, StandardCharsets.UTF_8.name())
@@ -48,7 +48,7 @@ public class LoginPost implements ILoginPost {
 	}
 
 	private String jwt(String cpf, String name, String email, String password) {
-		final String issuer = SwaggerServlet.getProperty("login.issuer");
+		final String issuer = AssijusServlet.getProp("login.issuer");
 		final String secret = password;
 
 		final long iat = System.currentTimeMillis() / 1000L; // issued at claim

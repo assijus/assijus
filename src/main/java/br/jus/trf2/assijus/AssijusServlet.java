@@ -21,8 +21,11 @@ public class AssijusServlet extends SwaggerServlet {
 	static final int SYSTEM_SAVE_TIMEOUT = 30;
 	static final int SYSTEM_SIGNATURE_TIMEOUT = 30;
 
+	static AssijusServlet INSTANCE = null;
+
 	@Override
 	public void initialize(ServletConfig config) throws ServletException {
+		INSTANCE = this;
 		setAPI(IAssijus.class);
 		setActionPackage("br.jus.trf2.assijus");
 
@@ -74,11 +77,6 @@ public class AssijusServlet extends SwaggerServlet {
 						return Utils.getUrl(system);
 					}
 
-					@Override
-					public String getResponsable() {
-						return null;
-					}
-
 				});
 			}
 		}
@@ -91,12 +89,6 @@ public class AssijusServlet extends SwaggerServlet {
 			public String getUrl() {
 				return Utils.getUrlBluCServer();
 			}
-
-			@Override
-			public String getResponsable() {
-				return null;
-			}
-
 		});
 
 		if (getProperty("redis.password") != null)
@@ -118,5 +110,9 @@ public class AssijusServlet extends SwaggerServlet {
 					return uuid.equals(uuid2);
 				}
 			});
+	}
+
+	public static String getProp(String propertyName) {
+		return INSTANCE.getProperty(propertyName);
 	}
 }

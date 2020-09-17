@@ -27,26 +27,26 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
 	public static String getUrl(String system) {
-		return SwaggerServlet.getProperty(system + ".url");
+		return AssijusServlet.getProp(system + ".url");
 	}
 
 	public static String getPassword(String system) {
-		return SwaggerServlet.getProperty(system + ".password");
+		return AssijusServlet.getProp(system + ".password");
 	}
 
 	public static String getUrlBluCServer() {
-		return SwaggerServlet.getProperty("blucservice.url");
+		return AssijusServlet.getProp("blucservice.url");
 	}
 
 	public static String[] getSystems() {
-		String systems = SwaggerServlet.getProperty("systems");
+		String systems = AssijusServlet.getProp("systems");
 		if (systems == null)
 			return null;
 		return systems.split(",");
 	}
 
 	public static String[] getLoginSystems() {
-		String systems = SwaggerServlet.getProperty("login.systems");
+		String systems = AssijusServlet.getProp("login.systems");
 		if (systems == null)
 			return null;
 		return systems.split(",");
