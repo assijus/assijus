@@ -54,9 +54,14 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdInfoGetRequest q = new IAssijusSystem.DocIdInfoGetRequest();
 		q.id = id;
-		IAssijusSystem.DocIdInfoGetResponse s = SwaggerCall.callAsync(system + "-info", password, "GET", urlInfo, q,
-				IAssijusSystem.DocIdInfoGetResponse.class)
-				.get(AssijusServlet.SYSTEM_LIST_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
+		IAssijusSystem.DocIdInfoGetResponse s;
+		try {
+			s = SwaggerCall
+					.callAsync(system + "-info", password, "GET", urlInfo, q, IAssijusSystem.DocIdInfoGetResponse.class)
+					.get(AssijusServlet.SYSTEM_LIST_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
+		} catch (Exception ex) {
+			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);
+		}
 
 		if (s.secret != null) {
 			if (req.secret == null)

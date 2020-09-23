@@ -31,8 +31,10 @@ public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyG
 		Future<SwaggerAsyncResponse<IAssijusSystem.DocIdPdfGetResponse>> future = SwaggerCall.callAsync(system + "-get",
 				password, "GET", urlView, q, IAssijusSystem.DocIdPdfGetResponse.class);
 		SwaggerAsyncResponse<IAssijusSystem.DocIdPdfGetResponse> sar = future.get();
-		if (sar.getException() != null)
-			throw sar.getException();
+		if (sar.getException() != null) {
+			throw new PresentableException("Problema reportado por " + system + ": " + sar.getException().getMessage(),
+					sar.getException());
+		}
 		IAssijusSystem.DocIdPdfGetResponse r = (IAssijusSystem.DocIdPdfGetResponse) sar.getRespOrThrowException();
 
 		String secret = null;
@@ -51,7 +53,6 @@ public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyG
 				throw new PresentableException("Não autorizado.");
 			}
 		}
-		
 
 		String ext = MimeTypeEnum.getByMimeType(r.contenttype);
 		resp.contentdisposition = "inline;filename=" + req.id + (ext != null ? ext : ".bin");

@@ -31,10 +31,15 @@ public class HashPost implements IHashPost {
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
 		systemreq.cpf = cpf;
-		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall
-				.callAsync("system-hash", password, "GET", urlHash, systemreq,
-						IAssijusSystem.DocIdHashGetResponse.class)
-				.get(AssijusServlet.SYSTEM_HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
+		IAssijusSystem.DocIdHashGetResponse systemresp;
+		try {
+			systemresp = SwaggerCall
+					.callAsync("system-hash", password, "GET", urlHash, systemreq,
+							IAssijusSystem.DocIdHashGetResponse.class)
+					.get(AssijusServlet.SYSTEM_HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
+		} catch (Exception ex) {
+			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);
+		}
 
 		// Produce response
 
@@ -58,7 +63,7 @@ public class HashPost implements IHashPost {
 							IBlueCrystal.HashPostResponse.class)
 					.get(AssijusServlet.HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 			resp.hash = s.hash;
-			if (req.digest != null && req.digest) 
+			if (req.digest != null && req.digest)
 				resp.hash = Utils.calcSha256(resp.hash);
 			resp.policyversion = s.policyversion;
 			resp.policy = s.policy;

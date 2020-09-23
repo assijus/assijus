@@ -6,15 +6,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.crivano.blucservice.api.IBlueCrystal;
+import com.crivano.swaggerservlet.PresentableException;
+import com.crivano.swaggerservlet.SwaggerCall;
+import com.crivano.swaggerservlet.SwaggerUtils;
+
 import br.jus.trf2.assijus.IAssijus.ISavePost;
 import br.jus.trf2.assijus.IAssijus.SavePostRequest;
 import br.jus.trf2.assijus.IAssijus.SavePostResponse;
 import br.jus.trf2.assijus.IAssijus.Warning;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
-
-import com.crivano.blucservice.api.IBlueCrystal;
-import com.crivano.swaggerservlet.SwaggerCall;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class SavePost implements ISavePost {
 	private static final Logger log = LoggerFactory.getLogger(SavePost.class);
@@ -97,10 +98,15 @@ public class SavePost implements ISavePost {
 		q4.sha1 = SwaggerUtils.base64Decode(sha1);
 		q4.extra = extra;
 		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";
-		IAssijusSystem.DocIdSignPutResponse s4 = SwaggerCall
+		IAssijusSystem.DocIdSignPutResponse s4;
+		try {
+			s4 = SwaggerCall
 				.callAsync("system-save", password, "PUT", urlSave, q4, IAssijusSystem.DocIdSignPutResponse.class)
 				.get(AssijusServlet.SYSTEM_SAVE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
-
+		} catch (Exception ex) {
+			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);
+		}
+		
 		// Produce response
 		resp.warning = new ArrayList<IAssijus.Warning>();
 		if (s4.warning != null) {
