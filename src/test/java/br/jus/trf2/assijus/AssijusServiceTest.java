@@ -1,11 +1,14 @@
 package br.jus.trf2.assijus;
 
+import java.util.concurrent.Executors;
+
 import org.json.JSONException;
 
 import com.crivano.swaggerservlet.HTTPMockFromJSON;
+import com.crivano.swaggerservlet.ISwaggerRequest;
+import com.crivano.swaggerservlet.ISwaggerResponse;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerServlet;
-import com.crivano.swaggerservlet.SwaggerTestSupport;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
@@ -20,8 +23,43 @@ import br.jus.trf2.assijus.IAssijus.StorePostRequest;
 import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
 import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
+import junit.framework.TestCase;
 
-public class AssijusServiceTest extends SwaggerTestSupport {
+public class AssijusServiceTest extends TestCase {
+	private AssijusServlet ss = null;
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+
+		ss = new AssijusServlet();
+		ss.INSTANCE = ss;
+		ss.setAPI(IAssijus.class);
+		ss.setActionPackage("br.jus.trf2.assijus");
+		SwaggerServlet.executor = Executors.newFixedThreadPool(10);
+
+		ss.addPublicProperty("systems", "testesigner");
+		ss.addPublicProperty("swaggerservlet.threadpool.size", "20");
+		ss.addPublicProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
+		ss.addPublicProperty("testesigner.url", "http://localhost:8080/testesigner/api/v1");
+		ss.addPublicProperty("testesigner.password", null);
+
+		HTTPMockFromJSON http = new HTTPMockFromJSON();
+		http.add("http://localhost:8080/blucservice/api/v1",
+				this.getClass().getResourceAsStream("blucservice.mock.json"));
+		http.add("http://localhost:8080/testesigner/api/v1",
+				this.getClass().getResourceAsStream("testesigner.mock.json"));
+		SwaggerCall.setHttp(http);
+	}
+
+	public void run(String method, String pathInfo, ISwaggerRequest req, ISwaggerResponse resp) {
+		try {
+			ss.prepare(method, pathInfo);
+			ss.run(req, resp);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	// Token
 	String time = "2016-03-16T19:13:36.428-03:00";
@@ -48,33 +86,6 @@ public class AssijusServiceTest extends SwaggerTestSupport {
 	String code = "0148053-07.2014.4.02.5151/01";
 	// signature foi alterado por questões de segurança
 	String signature = "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=";
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		setProperty("systems", "testesigner");
-		setProperty("swaggerservlet.threadpool.size", "20");
-		setProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
-		setProperty("testesigner.url", "http://localhost:8080/testesigner/api/v1");
-		setProperty("testesigner.password", null);
-
-		HTTPMockFromJSON http = new HTTPMockFromJSON();
-		http.add("http://localhost:8080/blucservice/api/v1",
-				this.getClass().getResourceAsStream("blucservice.mock.json"));
-		http.add("http://localhost:8080/testesigner/api/v1",
-				this.getClass().getResourceAsStream("testesigner.mock.json"));
-		SwaggerCall.setHttp(http);
-	}
-
-	@Override
-	protected Class getAPI() {
-		return IAssijus.class;
-	}
-
-	@Override
-	protected String getPackage() {
-		return "br.jus.trf2.assijus";
-	}
 
 	public void testToken_Simple_Success() throws JSONException {
 		TokenPostRequest req = new TokenPostRequest();
