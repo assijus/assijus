@@ -6,7 +6,7 @@
 	<groupId>br.jus.trf2</groupId>
 	<artifactId>assijus</artifactId>
 	<packaging>war</packaging>
-	<version>4.0.3</version>
+	<version>4.0.4</version>
 	<name>Assijus Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>com.crivano.blucservice</groupId>
 			<artifactId>blucservice-api</artifactId>
-			<version>1.1.1</version>
+			<version>1.1.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.crivano</groupId>
