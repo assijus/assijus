@@ -32,7 +32,10 @@ public class AssijusServlet extends SwaggerServlet {
 		addPublicProperty("systems", null);
 		addPublicProperty("popup.urls", "http://localhost:8080");
 		addRestrictedProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
-
+		addPublicProperty("siga.url", "http://siga.jfrj.jus.br");
+		addPublicProperty("dotnet.download.url", "http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe");
+		addPublicProperty("exibe.titulo.dr", "true");
+		
 		// Redis
 		//
 		addRestrictedProperty("redis.database", "10");

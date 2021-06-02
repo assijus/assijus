@@ -179,8 +179,17 @@ app
 				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
-
-
+	if ($scope.test.properties["assijus.siga.url"] !== undefined)	
+		$scope.sigaUrl =  $scope.test.properties["assijus.siga.url"]
+			.replace("[default: ", "")
+			.replace("]", "")
+			.replace("[undefined]", "");
+	
+	if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)	
+		$scope.dotNetUrl =  $scope.test.properties["assijus.dotnet.download.url"]
+			.replace("[default: ", "")
+			.replace("]", "")
+			.replace("[undefined]", "");			
 });
 
 app
@@ -1273,6 +1282,11 @@ app
 						// progressbar.
 						$scope.progress.start("Processando Login", 16, 0, 100);
 						$scope.testarSigner($scope.progress, $scope.login);
+					}
+					
+					$scope.apresentarTitulo = function() {
+						if ($scope.test.properties["assijus.exibe.titulo.dr"] !== undefined)
+							return $scope.test.properties["assijus.exibe.titulo.dr"].replace("[default: ", "").replace("]", "").replace("[undefined]", "") === "true";
 					}
 
 					if ($routeParams.logincallback) {

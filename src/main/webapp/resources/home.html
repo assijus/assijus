@@ -110,7 +110,7 @@
 		<div class="row margin-bottom-30"
 			ng-show="zeroDocumentosCarregados() && assinanteIdentificado()">
 			<div class="col-md-12">
-				<p style="font-size: 120%;">Dr(a). {{assinante}}, não
+				<p style="font-size: 120%;"><span ng-show="apresentarTitulo()">Dr(a).</span> {{assinante}}, não
 					localizamos nenhum documento pendente de assinatura.</p>
 			</div>
 		</div>
@@ -123,7 +123,8 @@
 				</div>
 				<!-- 
 				<p style="font-size: 120%;"
-					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">Dr.
+					ng-show="!apresentarProblema &amp;&amp; assinanteIdentificado() &amp;&amp; !zeroDocumentosCarregados()">
+					<span ng-show="apresentarTitulo()">Dr.</span>
 					{{assinante}}, por favor, verifique os documentos abaixo e clique
 					em "Assinar".</p> -->
 			</div>
