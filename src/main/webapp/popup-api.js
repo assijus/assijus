@@ -1,4 +1,4 @@
-var frameSrc = "/assijus/popup.html";
+var frameSrc = "${assijus-url}/assijus/popup.html";
 
 function receiveMessageAssinaturaDigital(event) {
 	var iframe = document.getElementById('iframeAssinaturaDigital');
