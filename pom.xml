@@ -74,6 +74,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>dd/MM/yyyy HH:mm</maven.build.timestamp.format>
+		<assijus-url>https://assijus.jfrj.jus.br</assijus-url>
 	</properties>
 
 	<build>
@@ -89,6 +90,12 @@
 							<Build-Label>${project.version}</Build-Label>
 						</manifestEntries>
 					</archive>
+				  	<webResources>
+			            <resource>
+			                <directory>src/main/webapp</directory>
+			                <filtering>true</filtering>
+			            </resource>
+		         	</webResources>
 				</configuration>
 			</plugin>
 		</plugins>
