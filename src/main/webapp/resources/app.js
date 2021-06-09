@@ -179,17 +179,25 @@ app
 				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
-	if ($scope.test.properties["assijus.siga.url"] !== undefined)
-		$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
-			.replace("[default: ", "")
-			.replace("]", "")
-			.replace("[undefined]", "");
-
-	if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
-		$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
-			.replace("[default: ", "")
-			.replace("]", "")
-			.replace("[undefined]", "");
+	$http({
+		url : 'api/v1/test?skip=all',
+		method : "GET"
+	}).then(function successCallback(response) {
+		$scope.test = response.data;
+		if ($scope.test.properties["assijus.siga.url"] !== undefined)
+			$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
+				.replace("[default: ", "")
+				.replace("]", "")
+				.replace("[undefined]", "");
+	
+		if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
+			$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
+				.replace("[default: ", "")
+				.replace("]", "")
+				.replace("[undefined]", "");
+	}, function errorCallback(response) {
+	});
+	
 });
 
 app
@@ -198,17 +206,28 @@ app
 				function($scope, $http, $interval, $window, $location, $filter,
 						$timeout, $routeParams, ModalService) {
 							
-					if ($scope.test.properties["assijus.siga.url"] !== undefined)
-						$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
-							.replace("[default: ", "")
-							.replace("]", "")
-							.replace("[undefined]", "");
-				
-					if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
-						$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
-							.replace("[default: ", "")
-							.replace("]", "")
-							.replace("[undefined]", "");
+						$http({
+							url : 'api/v1/test?skip=all',
+							method : "GET"
+						}).then(function successCallback(response) {
+							$scope.test = response.data;
+							if ($scope.test.properties["assijus.siga.url"] !== undefined)
+								$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
+									.replace("[default: ", "")
+									.replace("]", "")
+									.replace("[undefined]", "");
+						
+							if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
+								$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
+									.replace("[default: ", "")
+									.replace("]", "")
+									.replace("[undefined]", "");
+								$scope.apresentarTitulo = function() {
+									if ($scope.test.properties["assijus.exibe.titulo.dr"] !== undefined)
+										return $scope.test.properties["assijus.exibe.titulo.dr"].replace("[default: ", "").replace("]", "").replace("[undefined]", "") === "true";
+								}
+						}, function errorCallback(response) {
+						});
 
 					$scope.isChromeExtensionActive = function() {
 						return document.getElementById("chrome-extension-active").value != "0";
@@ -1297,11 +1316,6 @@ app
 						$scope.testarSigner($scope.progress, $scope.login);
 					}
 					
-					$scope.apresentarTitulo = function() {
-						if ($scope.test.properties["assijus.exibe.titulo.dr"] !== undefined)
-							return $scope.test.properties["assijus.exibe.titulo.dr"].replace("[default: ", "").replace("]", "").replace("[undefined]", "") === "true";
-					}
-
 					if ($routeParams.logincallback) {
 						$timeout($scope.startLogin, 10);
 					} else {
