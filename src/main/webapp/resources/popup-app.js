@@ -798,6 +798,18 @@ app
 										$scope.allowedParents = popupUrls !== '[undefined]' ? popupUrls
 												.split(';')
 												: [];
+												
+										if ($scope.test.properties["assijus.siga.url"] !== undefined)
+											$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
+												.replace("[default: ", "")
+												.replace("]", "")
+												.replace("[undefined]", "");
+									
+										if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
+											$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
+												.replace("[default: ", "")
+												.replace("]", "")
+												.replace("[undefined]", "");
 										$scope.postMessage({
 											command : '<READY>'
 										});

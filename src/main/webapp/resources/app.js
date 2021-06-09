@@ -179,17 +179,17 @@ app
 				});
 
 app.controller('ctrl2', function($scope, $http, $interval, $window) {
-	if ($scope.test.properties["assijus.siga.url"] !== undefined)	
-		$scope.sigaUrl =  $scope.test.properties["assijus.siga.url"]
+	if ($scope.test.properties["assijus.siga.url"] !== undefined)
+		$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
 			.replace("[default: ", "")
 			.replace("]", "")
 			.replace("[undefined]", "");
-	
-	if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)	
-		$scope.dotNetUrl =  $scope.test.properties["assijus.dotnet.download.url"]
+
+	if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
+		$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
 			.replace("[default: ", "")
 			.replace("]", "")
-			.replace("[undefined]", "");			
+			.replace("[undefined]", "");
 });
 
 app
@@ -197,11 +197,24 @@ app
 				'ctrl',
 				function($scope, $http, $interval, $window, $location, $filter,
 						$timeout, $routeParams, ModalService) {
+							
+					if ($scope.test.properties["assijus.siga.url"] !== undefined)
+						$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
+							.replace("[default: ", "")
+							.replace("]", "")
+							.replace("[undefined]", "");
+				
+					if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
+						$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
+							.replace("[default: ", "")
+							.replace("]", "")
+							.replace("[undefined]", "");
 
 					$scope.isChromeExtensionActive = function() {
-						return document
-								.getElementById("chrome-extension-active").value != "0";
+						return document.getElementById("chrome-extension-active").value != "0";
 					}
+					
+
 
 					$scope.PROCESSING = "Processando Assinaturas Digitais";
 					$scope.urlBluCRESTSigner = "http://localhost:8612";
