@@ -35,6 +35,8 @@ public class AssijusServlet extends SwaggerServlet {
 		addPublicProperty("siga.url", "http://siga.jfrj.jus.br");
 		addPublicProperty("dotnet.download.url", "http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe");
 		addPublicProperty("exibe.titulo.dr", "true");
+		addPublicProperty("extensao.macos.version", "2.0.1-PKCS");
+		addPublicProperty("extensao.windows.version", "2.0.0-PKCS");
 		
 		// Redis
 		//

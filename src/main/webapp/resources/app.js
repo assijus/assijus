@@ -94,6 +94,9 @@ app
 						method : "GET"
 					}).then(function successCallback(response) {
 						$scope.versionAssijusChromeExtension = response.data.version;
+						
+						
+
 						if ($scope.versionAssijusChromeExtension != "0"
 							&& $scope.versionAssijusNativeClient == "0") {
 							$scope.myhttp({
@@ -101,6 +104,17 @@ app
 								method : "GET"
 							}).then(function successCallback(response) {
 								$scope.versionAssijusNativeClient = response.data.version;
+								
+								$http({ 
+									url : 'api/v1/test?skip=all',
+									method : "GET"
+								}).then(function successCallback(response) {
+									$scope.test = response.data;
+									if ($scope.test.properties["assijus.extensao.macos.version"].indexOf($scope.versionAssijusNativeClient) === -1 ) {
+										//alert('Versão desatualizada'); 
+									}
+								}, function errorCallback(response) {
+								});
 							}, function errorCallback(response) {
 								$scope.versionAssijusNativeClient = "-";
 							});
@@ -498,6 +512,10 @@ app
 					$scope.documentosCarregados = function() {
 						return $scope.hasOwnProperty("documentos")
 								&& $scope.documentos.length != 0;
+					}
+					
+					$scope.permiteLogout = function() {
+						return $scope.clearCurrentCertificateEnable === true;  
 					}
 
 					$scope.zeroDocumentosCarregados = function() {
@@ -1056,32 +1074,68 @@ app
 							$scope.obterToken(progress, cont);
 						});
 					}
+					
+					$scope.logout = function(progress) {
+					
+						$scope.myhttp({
+							url : $scope.urlBluCRESTSigner + '/clearcurrentcert',
+							method : "POST",
+						}).then(function successCallback(response) {	
+							delete $scope.cert;
+							delete $scope.keystore;
+							delete $scope.userSubject;
+							delete $scope.userPIN;
+							//progress.start("Efetuando Logout...", 1);
+							$scope.forceRefresh();
+							console.log(response.data.errormsg);
+						},	function errorCallback(response) {
+							console.log(response.data.errormsg);
+						});
+					}
 
 					// 2 steps
 					$scope.selecionarCertificado = function(progress, cont) {
 						$scope.assertCont(cont);
 						progress.step("Selecionando certificado...");
-						$scope
-								.myhttp({
+						
+						if ($scope.keystore == null) {
+							if ($scope.keystoreSupported != null) {
+								if ($scope.keystoreSupported.length > 1) {
+									$scope.showDialogForKeytore($scope.keystoreSupported,cont);
+									progress.stop();
+									return;
+								} else {
+									$scope.keystore == $scope.keystoreSupported[0];
+								}
+							}
+						} 
+						
+						if (isPkcsEnabled($scope.keystore) && !$scope.hasOwnProperty('userPIN')) {
+							$scope.showDialogForPIN(undefined, cont);
+							progress.stop();
+							return;
+						}
+
+						$scope.myhttp({
 									url : $scope.urlBluCRESTSigner + '/cert',
 									method : "POST",
 									data : {
 										userPIN : $scope.userPIN,
-										subject : $scope.userSubject
+										subject : $scope.userSubject,
+										keystore : $scope.keystore
 									}
 								})
 								.then(
 										function successCallback(response) {
 											var data = response.data;
 
-											if ($scope.p11 && data && data.list) {
-												$scope
-														.showDialogForCerts(data.list);
+											if (data && data.list) {
+												$scope.showDialogForCerts(data.list,cont);
+												progress.stop();
 												return;
 											}
 
-											progress
-													.step("Certificado selecionado.");
+											progress.step("Certificado selecionado.");
 											if (data.hasOwnProperty('errormsg')
 													&& data.errormsg != null) {
 												delete $scope.documentos;
@@ -1090,10 +1144,9 @@ app
 												return;
 											}
 											$scope.setCert(data);
-											$scope.validarAuthKey(progress,
-													cont);
+											$scope.validarAuthKey(progress,cont);
 										},
-										function errorCallback(response) {
+										function successCallback(response) {
 											delete $scope.documentos;
 											progress.stop();
 											if (response.data
@@ -1115,6 +1168,7 @@ app
 						$scope.assertCont(cont);
 						if ((userPIN || "") == "") {
 							delete $scope.userPIN;
+							$scope.setError("PIN não informado. ");
 							return;
 						}
 						$scope.userPIN = userPIN;
@@ -1167,11 +1221,46 @@ app
 						}).then(
 								function(modal) {
 									modal.element.modal();
+									$('#modalDialogCerts').on('shown.bs.modal', function () {
+									    $('#certificadoList a').on('click', function (e) {
+										  	e.preventDefault(); 
+											$scope.setCert(JSON.parse($(this).attr("data-cert")));	     
+										}); 
+									});
 									modal.close.then(function(result) {
-										$scope.prosseguirComCertificado(
-												result.subject, cont);
+										$scope.prosseguirComCertificado($scope.cert.subject, cont);
 									});
 								});
+					};
+					
+					
+					$scope.showDialogForKeytore = function(list, cont) {
+						$scope.assertCont(cont);
+						ModalService.showModal({
+							templateUrl : "resources/dialog-keystore.html",
+							controller : "KeystoreController",
+							inputs : {
+								title : "Tipo de Certificado",
+								list : list
+							}
+						}).then(function(modal) {
+							modal.element.modal(); 
+							$('#modalDialogKeystore').on('shown.bs.modal', function () {
+								$('#keystoreList a').on('click', function (e) {
+								  	e.preventDefault(); 
+									$('#selectKeystore').val($(this).attr("data-keystore"));  
+								});
+							});
+							modal.close.then(function(result) {
+								if (result.keystore == null) {
+									$scope.setError("Nenhum certificado selecionado");
+									return;
+								}
+								$scope.keystore = result.keystore;
+								$scope.progress.start("Inicializando...", 10);
+								$scope.selecionarCertificado($scope.progress, cont);
+							});
+						});
 					};
 
 					// 3 steps
@@ -1198,11 +1287,8 @@ app
 												$scope.validarAuthKey(progress,
 														cont);
 											} else {
-												if ($scope.p11
-														&& !$scope
-																.hasOwnProperty('userPIN')) {
-													$scope.showDialogForPIN(
-															undefined, cont);
+												if (isPkcsEnabled($scope.keystore) && !$scope.hasOwnProperty('userPIN')) {
+													$scope.showDialogForPIN(undefined, cont);
 													progress.stop();
 													return;
 												}
@@ -1228,16 +1314,12 @@ app
 								})
 								.then(
 										function successCallback(response) {
-											progress
-													.step("Assijus.exe está ativo.");
+											progress.step("Assijus.exe está ativo.");
 											if (response.data.status == "OK") {
-												$scope.p11 = response.data.provider
-														.indexOf("PKCS#11") !== -1;
-												document
-														.getElementById("native-client-active").value = response.data.version;
-												$scope
-														.buscarCertificadoCorrente(
-																progress, cont);
+												$scope.keystoreSupported = response.data.keystoreSupported;
+												$scope.clearCurrentCertificateEnable = response.data.clearCurrentCertificateEnabled;
+												document.getElementById("native-client-active").value = response.data.version;
+												$scope.buscarCertificadoCorrente(progress, cont);
 											} else {
 												progress.stop();
 												$scope
@@ -1321,6 +1403,24 @@ app
 					} else {
 						$timeout($scope.forceRefresh, 10);
 					}
+					
+					function isPkcsEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("PKCS") !== -1; 
+						return false;
+					}
+					
+					function isAppleKeystoreEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("APPLE") !== -1; 
+						return false;
+					}
+					
+					function isMsCapiKeystoreEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("MSCAPI") !== -1; 
+						return false;
+					}
 				});
 app.controller('PINController', function($scope, $element, $timeout, title,
 		errormsg, close) {
@@ -1366,6 +1466,45 @@ app.controller('PINController', function($scope, $element, $timeout, title,
 
 });
 
+app.controller('KeystoreController', function($scope, $element, $timeout, title, list, close) {
+
+	$scope.keystore = null;
+	$scope.title = title;
+	$scope.list = list;
+	
+	keystore = list[0].value;
+
+	$scope.clickclose = function() {
+		$scope.close();
+		// Manually hide the modal.
+		$element.modal('hide');
+	};
+
+	// This close function doesn't need to use jQuery or bootstrap, because
+	// the button has the 'data-dismiss' attribute.
+	$scope.close = function() {
+		if (selectKeystore.value == "") {
+			console.log("Load default keystore")
+			selectKeystore.value = keystore;
+		}
+		close({
+			keystore : selectKeystore.value
+		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+	// This cancel function must use the bootstrap, 'modal' function because
+	// the doesn't have the 'data-dismiss' attribute.
+	$scope.cancel = function() {
+
+		// Manually hide the modal.
+		$element.modal('hide');
+		selectKeystore.value = "";
+		// Now call close, returning control to the caller.
+		close({}, 500); // close, but give 500ms for bootstrap to animate
+	};
+
+});
+
 app.controller('CertsController', function($scope, $element, $timeout, title,
 		list, close) {
 
@@ -1386,7 +1525,7 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 	// the button has the 'data-dismiss' attribute.
 	$scope.close = function() {
 		close({
-			subject : $scope.cert.subject
+			//subject : $scope.cert.subject
 		}, 500); // close, but give 500ms for bootstrap to animate
 	};
 
@@ -1403,8 +1542,7 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 
 });
 
-app
-		.directive(
+app.directive(
 				'modal',
 				function($parse) {
 					return {
