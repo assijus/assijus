@@ -561,28 +561,49 @@ app
 
 					// 2 steps
 					$scope.selecionarCertificado = function(progress, cont) {
-						progress.step("Selecionando certificado...");
-						$scope
-								.myhttp({
+						progress.step("Selecionando certificado..."); 
+						$scope.keystoreDialog = false; 
+						if ($scope.keystore == null) {
+							if ($scope.keystoreSupported != null) {
+								if ($scope.keystoreSupported.length > 1) {
+									$scope.showDialogForKeystore($scope.keystoreSupported,cont);
+									progress.stop();
+									return;
+								} else {
+									$scope.keystore == $scope.keystoreSupported[0];
+									$scope.keystoreDialog = false;
+								}
+							}
+						} 
+						
+						if (isPkcsEnabled($scope.keystore) && !$scope.hasOwnProperty('userPIN')) {
+							$scope.pinDialog = true;
+							progress.stop();
+							return;
+						} else {
+							$scope.pinDialog = false;
+						}
+						
+						$scope.myhttp({
 									url : $scope.urlBluCRESTSigner + '/cert',
 									method : "POST",
 									data : {
 										userPIN : $scope.userPIN,
-										subject : $scope.userSubject
+										subject : $scope.userSubject,
+										keystore : $scope.keystore
 									}
 								})
 								.then(
 										function successCallback(response) {
 											var data = response.data;
 
-											if ($scope.p11 && data && data.list) {
-												$scope
-														.showDialogForCerts(data.list);
+											if (data && data.list) {
+												$scope.showDialogForCerts(data.list,cont);
+												progress.stop();
 												return;
 											}
 
-											progress
-													.step("Certificado selecionado.");
+											progress.step("Certificado selecionado.");
 											if (data.hasOwnProperty('errormsg')
 													&& data.errormsg != null) {
 												delete $scope.documentos;
@@ -612,6 +633,27 @@ app
 											$scope.setError(response);
 										});
 					}
+					
+					/* Steps Control */
+					
+					$scope.closeModal = function() {
+						frameElement = $("#iframeAssinaturaDigital"); //Close modal if iframeAssinaturaDigital container
+						 if (frameElement) {
+					        var dialog = $(frameElement).closest(".modal");
+					        if (dialog.length > 0) {
+					            var modal = $('.close', dialog); 
+								modal.click(); 
+					        }
+					     }
+					}
+					
+					$scope.keystoreProsseguir = function() {
+						delete $scope.errormsg;
+						$scope.keystore = $('#selectKeystore').val();
+						$scope.keystoreDialog = false;
+						$scope.progress.start("Inicializando", 10);
+						$scope.selecionarCertificado($scope.progress,$scope.cont);
+					}
 
 					$scope.pinProsseguir = function() {
 						delete $scope.errormsg;
@@ -622,8 +664,31 @@ app
 						$scope.userPIN = $scope.pinField;
 						$scope.pinDialog = false;
 						$scope.progress.start("Inicializando", 10);
-						$scope.selecionarCertificado($scope.progress,
-								$scope.cont);
+						$scope.selecionarCertificado($scope.progress,$scope.cont);
+					}
+					
+					$scope.certsProsseguir = function() {
+						delete $scope.errormsg;
+						$scope.certsDialog = false;
+						$scope.progress.start("Inicializando", 10);
+						$scope.prosseguirComCertificado($scope.cert.subject, $scope.cont);
+					}
+					
+					$scope.prosseguirComCertificado = function(userSubject, cont) {
+						if ((userSubject || "") == "") {
+							delete $scope.userSubject;
+							return;
+						}
+						$scope.userSubject = userSubject;
+						if ($scope.hasOwnProperty('userSubject')) {
+							$scope.progress.start("Inicializando", 10);
+							$scope.selecionarCertificado($scope.progress, cont);
+						}
+					}
+					
+					$scope.assertCont = function(cont) {
+						if (typeof cont !== 'function')
+							throw "continuação deve ser informada";
 					}
 
 					$scope.showDialogForPIN = function(err, cont) {
@@ -631,24 +696,77 @@ app
 						$scope.cont = cont;
 						$scope.pinDialog = true;
 					}
+					
+					$scope.showDialogForKeystore = function(list,cont) {
+						$scope.keystoreDialog = true;
+						$scope.cont = cont;
+						$('#selectKeystore').val(list[0].value);
+						$timeout(function() {
+							$('#keystoreList a').on('click', function (e) {
+							  	e.preventDefault(); 
+								$('#selectKeystore').val($(this).attr("data-keystore"));  
+							});
+						}, 100);
 
-					$scope.certsProsseguir = function() {
-						if (($scope.userSubjectField || "") == "") {
-							delete $scope.userSubject;
-							return;
-						}
-						$scope.userSubject = $scope.userSubjectField;
-						if ($scope.hasOwnProperty('userSubject')) {
-							$scope.progress.start("Inicializando", 10);
-							$scope.selecionarCertificado($scope.progress,
-									$scope.cont);
-						}
 					}
 
 					$scope.showDialogForCerts = function(list, cont) {
 						$scope.cont = cont;
 						$scope.certsDialog = true;
-					};
+						$scope.listCert = list;
+						
+						  $timeout(function() {
+						    $('#certificadoList a').on('click', function (e) {
+							  	e.preventDefault(); 
+								$scope.setCert(JSON.parse($(this).attr("data-cert")));       
+							});  
+						  }, 100);
+
+					}; 
+
+					$scope.setCert = function(data) {
+						if (data === undefined) {
+							delete $scope.cert;
+							delete $scope.documentos;
+							return;
+						}
+						if (data.subject != ($scope.cert || {}).subject)
+							delete $scope.documentos;
+						$scope.cert = data;
+						var cn = '';
+						if ($scope.assinanteIdentificado()) {
+							cn = $scope.cert.subject;
+							cn = cn.split(",")[0];
+							cn = cn.split(":")[0];
+							cn = cn.replace("CN=", "");
+						}
+						$scope.assinante = cn;
+
+						window.wootricSettings = {
+							email : cn,
+							created_at : 1234567890,
+							account_token : 'NPS-0f40366d'
+						};
+						window.wootric('run');
+					}
+					
+					function isPkcsEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("PKCS") !== -1; 
+						return false;
+					}
+					
+					function isAppleKeystoreEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("APPLE") !== -1; 
+						return false;
+					}
+					
+					function isMsCapiKeystoreEnabled(keystoreSupported) {
+						if (keystoreSupported !== undefined)
+							return keystoreSupported.indexOf("MSCAPI") !== -1; 
+						return false;
+					}
 
 					// 3 steps
 					$scope.buscarCertificadoCorrente = function(progress, cont) {
@@ -704,13 +822,10 @@ app
 											progress
 													.step("Assijus.exe está ativo.");
 											if (response.data.status == "OK") {
-												$scope.p11 = response.data.provider
-														.indexOf("PKCS#11") !== -1;
-												document
-														.getElementById("native-client-active").value = response.data.version;
-												$scope
-														.buscarCertificadoCorrente(
-																progress, cont);
+												$scope.keystoreSupported = response.data.keystoreSupported;
+												$scope.clearCurrentCertificateEnable = response.data.clearCurrentCertificateEnabled;
+												document.getElementById("native-client-active").value = response.data.version;
+												$scope.buscarCertificadoCorrente(progress, cont);
 											} else {
 												progress.stop();
 												$scope
