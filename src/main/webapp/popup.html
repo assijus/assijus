@@ -60,6 +60,20 @@
 	<input type="hidden" id="native-client-active" value="0" />
 
 	<div class="container">
+		
+		<!-- Assinante -->
+		<div class="content" ng-show="assinante">
+			<div class="row">
+				<div class="col-12">
+					<div class="input-group mb-3">
+					  <div class="input-group-prepend">
+					    <span class="input-group-text">&#128273;</span>
+					  </div>
+					  <input type="text" class="form-control" readonly="yes" ng-model="assinante">
+					</div>
+				</div>
+			</div>
+		</div>
 	
 		<!-- Keytore Dialog -->
 		<div class="content" ng-show="keystoreDialog">
@@ -146,8 +160,6 @@
 		</div>
 		<!-- End -->
 		
-
-
 		<div class="row" ng-show="showErrorDetails">
 			<div class="col-md-12">
 				<div id="error-detail">

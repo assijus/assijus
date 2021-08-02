@@ -420,13 +420,15 @@ app
 							cn = cn.replace("CN=", "");
 						}
 						$scope.assinante = cn;
-
-						window.wootricSettings = {
-							email : cn,
-							created_at : 1234567890,
-							account_token : 'NPS-0f40366d'
-						};
-						window.wootric('run');
+						
+						if (window.wootric !== undefined) {
+							window.wootricSettings = {
+								email : cn,
+								created_at : 1234567890,
+								account_token : 'NPS-0f40366d'
+							};
+							window.wootric('run');
+						}
 					}
 
 					$scope.progress = {
@@ -1195,8 +1197,7 @@ app
 						});
 					};
 
-					$scope.prosseguirComCertificado = function(userSubject,
-							cont) {
+					$scope.prosseguirComCertificado = function(userSubject,cont) {
 						$scope.assertCont(cont);
 						if ((userSubject || "") == "") {
 							delete $scope.userSubject;
@@ -1223,11 +1224,17 @@ app
 									modal.element.modal();
 									$('#modalDialogCerts').on('shown.bs.modal', function () {
 									    $('#certificadoList a').on('click', function (e) {
-										  	e.preventDefault(); 
-											$scope.setCert(JSON.parse($(this).attr("data-cert")));	     
+										  	e.preventDefault();
+											$scope.cert($(this).attr("data-cert"));	     
 										}); 
 									});
 									modal.close.then(function(result) {
+										if (result.cert == null) {
+											$scope.setError("Nenhum certificado selecionado");
+											return;
+										} else {
+											$scope.setCert(result.cert);
+										}
 										$scope.prosseguirComCertificado($scope.cert.subject, cont);
 									});
 								});
@@ -1292,8 +1299,7 @@ app
 													progress.stop();
 													return;
 												}
-												$scope.selecionarCertificado(
-														progress, cont);
+												$scope.selecionarCertificado(progress, cont);
 											}
 										}, function errorCallback(response) {
 											delete $scope.documentos;
@@ -1422,6 +1428,7 @@ app
 						return false;
 					}
 				});
+				
 app.controller('PINController', function($scope, $element, $timeout, title,
 		errormsg, close) {
 
@@ -1511,9 +1518,11 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 	$scope.pin = null;
 	$scope.title = title;
 	$scope.list = list;
-	$scope.cert = {
-		subject : $scope.list[0].subject
-	};
+	
+	//Load first
+	if ($scope.list !== null) {
+		$scope.cert = $scope.list[0];
+	}
 
 	$scope.clickclose = function() {
 		$scope.close();
@@ -1525,14 +1534,15 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 	// the button has the 'data-dismiss' attribute.
 	$scope.close = function() {
 		close({
-			//subject : $scope.cert.subject
+			cert : $scope.cert
 		}, 500); // close, but give 500ms for bootstrap to animate
 	};
 
 	// This cancel function must use the bootstrap, 'modal' function because
 	// the doesn't have the 'data-dismiss' attribute.
 	$scope.cancel = function() {
-
+		$scope.list = null;
+		$scope.cert = null;
 		// Manually hide the modal.
 		$element.modal('hide');
 

@@ -439,8 +439,8 @@ app
 								extra : state.extra
 							}
 						},
-								function(success) {
-									if (success) {
+								function(result) {
+									if (result.success) {
 										progress.step(state.nome
 												+ ": Assinatura gravada.");
 										logEvento("assinatura", "assinar",
@@ -612,8 +612,7 @@ app
 												return;
 											}
 											$scope.setCert(data);
-											$scope.validarAuthKey(progress,
-													cont);
+											$scope.validarAuthKey(progress,cont);
 										},
 										function errorCallback(response) {
 											delete $scope.documentos;
@@ -668,6 +667,12 @@ app
 					}
 					
 					$scope.certsProsseguir = function() {
+						if ($scope.cert == null) {
+							$scope.setError("Nenhum certificado selecionado");
+							return;
+						} else {
+							$scope.setCert($scope.cert);
+						}
 						delete $scope.errormsg;
 						$scope.certsDialog = false;
 						$scope.progress.start("Inicializando", 10);
@@ -675,10 +680,6 @@ app
 					}
 					
 					$scope.prosseguirComCertificado = function(userSubject, cont) {
-						if ((userSubject || "") == "") {
-							delete $scope.userSubject;
-							return;
-						}
 						$scope.userSubject = userSubject;
 						if ($scope.hasOwnProperty('userSubject')) {
 							$scope.progress.start("Inicializando", 10);
@@ -715,12 +716,17 @@ app
 						$scope.certsDialog = true;
 						$scope.listCert = list;
 						
-						  $timeout(function() {
-						    $('#certificadoList a').on('click', function (e) {
-							  	e.preventDefault(); 
-								$scope.setCert(JSON.parse($(this).attr("data-cert")));       
+						//Load first
+						if ($scope.listCert !== null) {
+							$scope.cert = $scope.listCert[0];
+						}
+						
+						$timeout(function() {
+							$('#certificadoList a').on('click', function (e) {
+								e.preventDefault(); 
+								$scope.cert($(this).attr("data-cert"));	     
 							});  
-						  }, 100);
+						}, 100);
 
 					}; 
 
@@ -742,12 +748,14 @@ app
 						}
 						$scope.assinante = cn;
 
-						window.wootricSettings = {
-							email : cn,
-							created_at : 1234567890,
-							account_token : 'NPS-0f40366d'
-						};
-						window.wootric('run');
+						if (window.wootric !== undefined) {
+							window.wootricSettings = {
+								email : cn,
+								created_at : 1234567890,
+								account_token : 'NPS-0f40366d'
+							};
+							window.wootric('run');
+						}
 					}
 					
 					function isPkcsEnabled(keystoreSupported) {
@@ -771,8 +779,11 @@ app
 					// 3 steps
 					$scope.buscarCertificadoCorrente = function(progress, cont) {
 						progress.step("Buscando certificado corrente...");
-						$scope
-								.myhttp(
+						if ($scope.params.clearcurrentcertificate) {
+							$scope.logout(); 
+						}
+						
+						$scope.myhttp(
 										{
 											url : $scope.urlBluCRESTSigner
 													+ '/currentcert',
@@ -781,26 +792,18 @@ app
 								.then(
 										function successCallback(response) {
 											var data = response.data;
-											if (data.hasOwnProperty('subject')
-													&& data.subject !== null) {
-												progress
-														.step(
-																"Certificado corrente localizado.",
-																2);
+											
+											if (data.hasOwnProperty('subject') && data.subject !== null) {
 												$scope.setCert(data);
-												$scope.validarAuthKey(progress,
-														cont);
+												progress.step("Certificado corrente localizado.",2);
+												$scope.validarAuthKey(progress,cont);
 											} else {
-												if ($scope.p11
-														&& !$scope
-																.hasOwnProperty('userPIN')) {
-													$scope.showDialogForPIN(
-															undefined, cont);
+												if (isPkcsEnabled($scope.keystore) && !$scope.hasOwnProperty('userPIN')) {
+													$scope.showDialogForPIN(undefined, cont);
 													progress.stop();
 													return;
 												}
-												$scope.selecionarCertificado(
-														progress, cont);
+												$scope.selecionarCertificado(progress, cont);
 											}
 										}, function errorCallback(response) {
 											delete $scope.documentos;
@@ -819,8 +822,8 @@ app
 								})
 								.then(
 										function successCallback(response) {
-											progress
-													.step("Assijus.exe está ativo.");
+											progress.step("Assijus.exe está ativo.");
+											
 											if (response.data.status == "OK") {
 												$scope.keystoreSupported = response.data.keystoreSupported;
 												$scope.clearCurrentCertificateEnable = response.data.clearCurrentCertificateEnabled;
@@ -828,8 +831,7 @@ app
 												$scope.buscarCertificadoCorrente(progress, cont);
 											} else {
 												progress.stop();
-												$scope
-														.setError($scope.errorMsgMissingSigner)
+												$scope.setError($scope.errorMsgMissingSigner)
 											}
 										},
 										function errorCallback(response) {
