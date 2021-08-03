@@ -94,8 +94,7 @@ app
 						method : "GET"
 					}).then(function successCallback(response) {
 						$scope.versionAssijusChromeExtension = response.data.version;
-						
-						
+						var isMac = navigator.platform.toUpperCase().indexOf('MAC')>=0;
 
 						if ($scope.versionAssijusChromeExtension != "0"
 							&& $scope.versionAssijusNativeClient == "0") {
@@ -110,9 +109,32 @@ app
 									method : "GET"
 								}).then(function successCallback(response) {
 									$scope.test = response.data;
-									if ($scope.test.properties["assijus.extensao.macos.version"].indexOf($scope.versionAssijusNativeClient) === -1 ) {
-										//alert('Versão desatualizada'); 
+									
+									//Version Extension control
+									if (isMac) {
+										$scope.versionMacOsDesatualizada = false; 
+										if ($scope.test.properties["assijus.extensao.macos.version"] !== undefined) {
+											$scope.versionMacOsLatest = $scope.test.properties["assijus.extensao.macos.version"]
+												.replace("[default: ", "")
+												.replace("]", "")
+												.replace("[undefined]", "");
+											if ($scope.versionMacOsLatest.indexOf($scope.versionAssijusNativeClient) === -1 ) {
+												$scope.versionMacOsDesatualizada = true; 
+											}	
+										}		
+									} else {
+										$scope.versionWinDesatualizada = false;
+										if ($scope.test.properties["assijus.extensao.windows.version"] !== undefined) {
+											$scope.versionWinLastest = $scope.test.properties["assijus.extensao.windows.version"]
+												.replace("[default: ", "")
+												.replace("]", "")
+												.replace("[undefined]", "");
+											if ($scope.versionWinLastest.indexOf($scope.versionAssijusNativeClient) === -1 ) {
+												$scope.versionWinDesatualizada = true; 
+											}	
+										}
 									}
+	
 								}, function errorCallback(response) {
 								});
 							}, function errorCallback(response) {
