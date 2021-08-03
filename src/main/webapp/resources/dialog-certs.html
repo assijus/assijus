@@ -21,13 +21,14 @@
 							    <p><small>{{item.subject}}</small></p> 
 							  </a>
 							</div>
+							<input type="text" class="form-control d-none" id="selectCert" ng-model="selectCert" />
 						</form>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" ng-click="cancel()" class="btn">Cancelar</button>
-				<button type="button" ng-click="close()" id="prosseguir" class="btn btn-primary" data-dismiss="modal">Prosseguir</button>
+				<button type="button" ng-click="prosseguir()" id="prosseguir" class="btn btn-primary" data-dismiss="modal">Prosseguir</button>
 			</div>
 		</div>
 	</div>

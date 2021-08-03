@@ -1087,7 +1087,7 @@ app
 							delete $scope.keystore;
 							delete $scope.userSubject;
 							delete $scope.userPIN;
-							//progress.start("Efetuando Logout...", 1);
+							delete $scope.authkey;
 							$scope.forceRefresh();
 							console.log(response.data.errormsg);
 						},	function errorCallback(response) {
@@ -1225,7 +1225,7 @@ app
 									$('#modalDialogCerts').on('shown.bs.modal', function () {
 									    $('#certificadoList a').on('click', function (e) {
 										  	e.preventDefault();
-											$scope.cert($(this).attr("data-cert"));	     
+											$('#selectCert').val($(this).attr("data-cert"));     
 										}); 
 									});
 									modal.close.then(function(result) {
@@ -1233,7 +1233,7 @@ app
 											$scope.setError("Nenhum certificado selecionado");
 											return;
 										} else {
-											$scope.setCert(result.cert);
+											$scope.setCert(JSON.parse(result.cert));
 										}
 										$scope.prosseguirComCertificado($scope.cert.subject, cont);
 									});
@@ -1258,8 +1258,8 @@ app
 									$('#selectKeystore').val($(this).attr("data-keystore"));  
 								});
 							});
-							modal.close.then(function(result) {
-								if (result.keystore == null) {
+							modal.close.then(function(result) { 
+								if (result.keystore == null || result.keystore == "") {
 									$scope.setError("Nenhum certificado selecionado");
 									return;
 								}
@@ -1439,7 +1439,6 @@ app.controller('PINController', function($scope, $element, $timeout, title,
 	$scope.clickclose = function() {
 		if (($scope.pin || "") == "") {
 			$scope.errormsg = "PIN deve ser preenchido.";
-			return;
 		}
 		$scope.close();
 		// Manually hide the modal.
@@ -1451,7 +1450,6 @@ app.controller('PINController', function($scope, $element, $timeout, title,
 	$scope.close = function() {
 		if (($scope.pin || "") == "") {
 			$scope.errormsg = "PIN deve ser preenchido.";
-			return;
 		}
 		close({
 			pin : $scope.pin
@@ -1490,13 +1488,18 @@ app.controller('KeystoreController', function($scope, $element, $timeout, title,
 	// This close function doesn't need to use jQuery or bootstrap, because
 	// the button has the 'data-dismiss' attribute.
 	$scope.close = function() {
+		close({
+			keystore : selectKeystore.value
+		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+	
+	
+	$scope.prosseguir = function() {
 		if (selectKeystore.value == "") {
 			console.log("Load default keystore")
 			selectKeystore.value = keystore;
 		}
-		close({
-			keystore : selectKeystore.value
-		}, 500); // close, but give 500ms for bootstrap to animate
+		$scope.close();
 	};
 
 	// This cancel function must use the bootstrap, 'modal' function because
@@ -1518,11 +1521,6 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 	$scope.pin = null;
 	$scope.title = title;
 	$scope.list = list;
-	
-	//Load first
-	if ($scope.list !== null) {
-		$scope.cert = $scope.list[0];
-	}
 
 	$scope.clickclose = function() {
 		$scope.close();
@@ -1534,15 +1532,23 @@ app.controller('CertsController', function($scope, $element, $timeout, title,
 	// the button has the 'data-dismiss' attribute.
 	$scope.close = function() {
 		close({
-			cert : $scope.cert
+			cert : selectCert.value
 		}, 500); // close, but give 500ms for bootstrap to animate
+	};
+	
+	$scope.prosseguir = function() {
+		//Load first
+		if (selectCert.value == "" && $scope.list !== null) {
+			selectCert.value = JSON.stringify($scope.list[0]);
+		}
+		$scope.close();
 	};
 
 	// This cancel function must use the bootstrap, 'modal' function because
 	// the doesn't have the 'data-dismiss' attribute.
 	$scope.cancel = function() {
 		$scope.list = null;
-		$scope.cert = null;
+		selectCert.value = "";
 		// Manually hide the modal.
 		$element.modal('hide');
 

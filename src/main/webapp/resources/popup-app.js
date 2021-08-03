@@ -724,7 +724,7 @@ app
 						$timeout(function() {
 							$('#certificadoList a').on('click', function (e) {
 								e.preventDefault(); 
-								$scope.cert($(this).attr("data-cert"));	     
+								$scope.cert = JSON.parse($(this).attr("data-cert"));     
 							});  
 						}, 100);
 
@@ -779,10 +779,7 @@ app
 					// 3 steps
 					$scope.buscarCertificadoCorrente = function(progress, cont) {
 						progress.step("Buscando certificado corrente...");
-						if ($scope.params.clearcurrentcertificate) {
-							$scope.logout(); 
-						}
-						
+
 						$scope.myhttp(
 										{
 											url : $scope.urlBluCRESTSigner
