@@ -83,6 +83,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.1</version>
 				<configuration>
 					<archive>
 						<manifestEntries>
@@ -94,6 +95,9 @@
 			            <resource>
 			                <directory>src/main/webapp</directory>
 			                <filtering>true</filtering>
+			                <excludes>
+				            	<exclude>**/signer</exclude>
+				            </excludes>
 			            </resource>
 		         	</webResources>
 				</configuration>
