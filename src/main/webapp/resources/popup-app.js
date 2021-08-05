@@ -35,6 +35,19 @@ app
 								});
 						return deferred.promise;
 					}
+					
+					$scope.formatProperty = function(property) {
+						var propertyFormatted = "";
+
+						if (property !== undefined && property != null && property !== "") {
+							propertyFormatted = property
+								.replace("[default: ", "")
+								.replace("]", "")
+								.replace("[undefined]", "");
+						}
+
+						return propertyFormatted;
+					}
 
 					$scope.urlBaseAPI = "/assijus/api/v1";
 					$scope.showPIN = false;
@@ -914,16 +927,11 @@ app
 												: [];
 												
 										if ($scope.test.properties["assijus.siga.url"] !== undefined)
-											$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
-												.replace("[default: ", "")
-												.replace("]", "")
-												.replace("[undefined]", "");
+											$scope.sigaUrl = $scope.formatProperty($scope.test.properties["assijus.siga.url"]);
 									
 										if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
-											$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
-												.replace("[default: ", "")
-												.replace("]", "")
-												.replace("[undefined]", "");
+											$scope.dotNetUrl = $scope.formatProperty($scope.test.properties["assijus.dotnet.download.url"]);
+
 										$scope.postMessage({
 											command : '<READY>'
 										});

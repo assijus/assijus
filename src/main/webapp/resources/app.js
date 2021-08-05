@@ -33,6 +33,7 @@ app
 				'routerCtrl',
 				function($scope, $http, $window, $q, $location) {
 					$scope.assijusexe = "assijus-v0-9-3.exe";
+					$scope.isMacOs = navigator.platform.toUpperCase().indexOf('MAC')>=0;
 
 					$scope.parseLocation = function(location) {
 						var pairs = location.substring(1).split("&");
@@ -94,7 +95,6 @@ app
 						method : "GET"
 					}).then(function successCallback(response) {
 						$scope.versionAssijusChromeExtension = response.data.version;
-						var isMac = navigator.platform.toUpperCase().indexOf('MAC')>=0;
 
 						if ($scope.versionAssijusChromeExtension != "0"
 							&& $scope.versionAssijusNativeClient == "0") {
@@ -109,15 +109,12 @@ app
 									method : "GET"
 								}).then(function successCallback(response) {
 									$scope.test = response.data;
-									
+
 									//Version Extension control
-									if (isMac) {
+									if ($scope.isMacOs) {
 										$scope.versionMacOsDesatualizada = false; 
 										if ($scope.test.properties["assijus.extensao.macos.version"] !== undefined) {
-											$scope.versionMacOsLatest = $scope.test.properties["assijus.extensao.macos.version"]
-												.replace("[default: ", "")
-												.replace("]", "")
-												.replace("[undefined]", "");
+											$scope.versionMacOsLatest = $scope.formatProperty($scope.test.properties["assijus.extensao.macos.version"]);
 											if ($scope.versionMacOsLatest.indexOf($scope.versionAssijusNativeClient) === -1 ) {
 												$scope.versionMacOsDesatualizada = true; 
 											}	
@@ -125,15 +122,13 @@ app
 									} else {
 										$scope.versionWinDesatualizada = false;
 										if ($scope.test.properties["assijus.extensao.windows.version"] !== undefined) {
-											$scope.versionWinLastest = $scope.test.properties["assijus.extensao.windows.version"]
-												.replace("[default: ", "")
-												.replace("]", "")
-												.replace("[undefined]", "");
+											$scope.versionWinLastest = $scope.formatProperty($scope.test.properties["assijus.extensao.windows.version"]);
 											if ($scope.versionWinLastest.indexOf($scope.versionAssijusNativeClient) === -1 ) {
 												$scope.versionWinDesatualizada = true; 
 											}	
 										}
 									}
+									//---- END ----
 	
 								}, function errorCallback(response) {
 								});
@@ -144,6 +139,19 @@ app
 					}, function errorCallback(response) {
 						$scope.versionAssijusChromeExtension = "0";
 					});
+					
+					$scope.formatProperty = function(property) {
+						var propertyFormatted = "";
+
+						if (property !== undefined && property != null && property !== "") {
+							propertyFormatted = property
+								.replace("[default: ", "")
+								.replace("]", "")
+								.replace("[undefined]", "");
+						}
+
+						return propertyFormatted;
+					}
 				});
 
 app
@@ -220,17 +228,16 @@ app.controller('ctrl2', function($scope, $http, $interval, $window) {
 		method : "GET"
 	}).then(function successCallback(response) {
 		$scope.test = response.data;
+
 		if ($scope.test.properties["assijus.siga.url"] !== undefined)
-			$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
-				.replace("[default: ", "")
-				.replace("]", "")
-				.replace("[undefined]", "");
+			$scope.sigaUrl = $scope.formatProperty($scope.test.properties["assijus.siga.url"]);
 	
 		if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
-			$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
-				.replace("[default: ", "")
-				.replace("]", "")
-				.replace("[undefined]", "");
+			$scope.dotNetUrl =  $scope.formatProperty($scope.test.properties["assijus.dotnet.download.url"]);
+			
+		if ($scope.test.properties["assijus.java8.download.url"] !== undefined)
+			$scope.javatUrl =  $scope.formatProperty($scope.test.properties["assijus.java8.download.url"]);
+
 	}, function errorCallback(response) {
 	});
 	
@@ -248,19 +255,17 @@ app
 						}).then(function successCallback(response) {
 							$scope.test = response.data;
 							if ($scope.test.properties["assijus.siga.url"] !== undefined)
-								$scope.sigaUrl = $scope.test.properties["assijus.siga.url"]
-									.replace("[default: ", "")
-									.replace("]", "")
-									.replace("[undefined]", "");
-						
+								$scope.sigaUrl =  $scope.formatProperty($scope.test.properties["assijus.siga.url"]);
+					
 							if ($scope.test.properties["assijus.dotnet.download.url"] !== undefined)
-								$scope.dotNetUrl = $scope.test.properties["assijus.dotnet.download.url"]
-									.replace("[default: ", "")
-									.replace("]", "")
-									.replace("[undefined]", "");
+								$scope.dotNetUrl =  $scope.formatProperty($scope.test.properties["assijus.dotnet.download.url"]);
+								
+							if ($scope.test.properties["assijus.java8.download.url"] !== undefined)
+								$scope.javatUrl =  $scope.formatProperty($scope.test.properties["assijus.java8.download.url"]);
+
 								$scope.apresentarTitulo = function() {
 									if ($scope.test.properties["assijus.exibe.titulo.dr"] !== undefined)
-										return $scope.test.properties["assijus.exibe.titulo.dr"].replace("[default: ", "").replace("]", "").replace("[undefined]", "") === "true";
+										return  $scope.formatProperty($scope.test.properties["assijus.exibe.titulo.dr"]) === "true";
 								}
 						}, function errorCallback(response) {
 						});
@@ -963,7 +968,7 @@ app
 					$scope.update = function(l) {
 						$scope.lastUpdate = new Date();
 						var d = $scope.lastUpdate;
-						$scope.lastUpdateFormatted = "Última atualização: "
+						$scope.lastUpdateFormatted = ""
 								+ ("0" + d.getDate()).substr(-2) + "/"
 								+ ("0" + (d.getMonth() + 1)).substr(-2) + "/"
 								+ d.getFullYear() + " "

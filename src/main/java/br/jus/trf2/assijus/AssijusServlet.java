@@ -34,8 +34,9 @@ public class AssijusServlet extends SwaggerServlet {
 		addRestrictedProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
 		addPublicProperty("siga.url", "http://siga.jfrj.jus.br");
 		addPublicProperty("dotnet.download.url", "http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe");
+		addPublicProperty("java8.download.url", "resources/download/jre-8u301-macosx-x64.dmg");
 		addPublicProperty("exibe.titulo.dr", "true");
-		addPublicProperty("extensao.macos.version", "2.0.0-PKCS");
+		addPublicProperty("extensao.macos.version", "2.0.0");
 		addPublicProperty("extensao.windows.version", "1.2.10.6");
 		
 		// Redis

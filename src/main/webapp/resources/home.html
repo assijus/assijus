@@ -212,12 +212,17 @@
 				</table>
 			</div>
 		</div>
-		<div class="row" ng-show="lastUpdateFormatted != null">
+		<div class="row align-middle" ng-show="lastUpdateFormatted != null">
 			<div class="col-md-12">
-				<p>
-					{{lastUpdateFormatted}} <a class="refresh"
-						ng-click="forceRefresh()">&#9851;</a>
-				</p>
+				<span>Última atualização</span>
+				<span>
+					{{lastUpdateFormatted}} 
+				</span>
+				<span class="h4">
+					<a class="refresh" ng-click="forceRefresh()" title="Clique para atualizar a lista de documentos">				
+						&#128260;
+					</a>
+				</span>
 			</div>
 		</div>
 	</div>
