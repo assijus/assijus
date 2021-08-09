@@ -95,9 +95,10 @@
 			            <resource>
 			                <directory>src/main/webapp</directory>
 			                <filtering>true</filtering>
-			                <excludes>
-				            	<exclude>**/signer</exclude>
-				            </excludes>
+							<includes>
+							  <include>**/*.js</include>
+							  <include>**/*.html</include>
+							</includes>
 			            </resource>
 		         	</webResources>
 				</configuration>
