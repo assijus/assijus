@@ -21,19 +21,25 @@ app
 						var deferred = $q.defer();
 
 						// Make a simple request:
-						chrome.runtime.sendMessage(editorExtensionId, conf,
-								function(response) {
-									try {
-										if (response.success) {
-											deferred.resolve(response)
-										} else {
+						if (chrome.runtime !== undefined) {
+							// Make a simple request:
+							chrome.runtime.sendMessage(editorExtensionId, conf,
+									function(response) {
+										try {
+											if (response.success) {
+												deferred.resolve(response)
+											} else {
+												deferred.reject(response);
+											}
+										} catch (err) {
 											deferred.reject(response);
 										}
-									} catch (err) {
-										deferred.reject(response);
-									}
-								});
-						return deferred.promise;
+									});
+							return deferred.promise;
+						} else { 
+							deferred.reject(undefined);
+							return deferred.promise;
+						}
 					}
 					
 					$scope.formatProperty = function(property) {

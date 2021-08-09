@@ -21,6 +21,15 @@ app.config([ '$routeProvider', '$locationProvider',
 			}).when('/sobre', {
 				templateUrl : 'resources/sobre.html',
 				controller : 'ctrl2'
+			}).when('/instalacao', {
+				templateUrl : 'resources/instalacao.html',
+				controller : 'ctrl2'
+			}).when('/utilizacao', {
+				templateUrl : 'resources/comousar.html',
+				controller : 'ctrl2' 
+			}).when('/instalacao-a1', {
+				templateUrl : 'resources/instalacao-a1.html',
+				controller : 'ctrl2' 
 			}).otherwise({
 				redirectTo : '/home'
 			});
@@ -64,21 +73,27 @@ app
 						// editorExtensionId =
 						// "lnifncldepnkbfaedkdkcmbfbbfhhchm";
 						var deferred = $q.defer();
-
-						// Make a simple request:
-						chrome.runtime.sendMessage(editorExtensionId, conf,
-								function(response) {
-									try {
-										if (response.success) {
-											deferred.resolve(response)
-										} else {
+						
+						if (chrome.runtime !== undefined) {
+							// Make a simple request:
+							chrome.runtime.sendMessage(editorExtensionId, conf,
+									function(response) {
+										try {
+											if (response.success) {
+												deferred.resolve(response)
+											} else {
+												deferred.reject(response);
+											}
+										} catch (err) {
 											deferred.reject(response);
 										}
-									} catch (err) {
-										deferred.reject(response);
-									}
-								});
-						return deferred.promise;
+									});
+							return deferred.promise;
+						} else { 
+							deferred.reject(undefined);
+							return deferred.promise;
+						}
+
 					};
 
 					$http({
@@ -152,6 +167,11 @@ app
 
 						return propertyFormatted;
 					}
+					
+					$('ul.navbar-nav > li ').click(function() {
+					    $('ul.navbar-nav > li').removeClass('active');
+					    $(this).addClass('active'); 
+					}); 
 				});
 
 app

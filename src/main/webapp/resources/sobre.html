@@ -1,238 +1,75 @@
-<div
-	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+<div cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
 	
-	<div class="jumbotron ">
-       <div class="container">
-         <h1 class="display-3">Assijus - Assinador Digital</h1>
-         <p>Assinador Digital da Justiça - é um site que unifica documentos que precisam ser assinados digitalmente em diferentes sistemas, simplificando, e agilizando todo o processo de coleta de assinaturas.</p>
-       </div>
-     </div>
-
-<div class="container marketing">
-
-        <div class="row featurette">
-          <div class="col-md-7">
-            <h2 class="featurette-heading">Instalação</h2>
-            <p class="lead">No primeiro acesso ao Assijus, em cada equipamento, é necessária uma instalação prévia, conforme as orientações abaixo.</p>
-				<p class="lead">Para <strong>Certificados Digital A3</strong>, armazenados em <strong>Token</strong> ou
-					<strong>Smartcards</strong>, caso o equipamento nunca tenha sido utilizado para
-					assinar documentos, pode ser necessário instalar o driver do token
-					e a cadeia de certificados da Autoridade Certificadora.
-				</p>
-				<p class="lead">Para <strong>Certificados Digital A1</strong>, armazenados no <strong>próprio dispositivo</strong>, 
-					eles devem ser emitidos e instalados conforme <strong>Sistema Operacional</strong> e orientações da Autoridade Certificadora.
-				</p>
-				<a class="btn btn-lg btn-primary" href="#" role="button">Leia mais</a> 
-			</div>
-          <div class="col-md-5">
-            <img class="featurette-image img-fluid mx-auto" data-src="holder.js/500x500/auto" alt="500x500" style="height: 500px;" src="4530765.jpg" data-holder-rendered="true">
-          </div>
-        </div>
-        
-        
-
-        <hr class="featurette-divider">
-        
-        <div class="row featurette">
-          <div class="col-md-9 order-md-2">
-            <h2 class="featurette-heading"><span class="text-muted">Windows</span></h2>
-            <p class="lead">No sistema operacional Windows é necessário que o computador tenha previamente instalado o <a href="{{dotNetUrl}}"><u>Microsoft .NET Framework 4.5.1</u></a>
-            <p class="lead">Instale a aplicação <a href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a> para que o Assijus acesse seu Certificado Digital.</p>
-            <p class="lead">Após efetuar a instalação da aplicacação, encerre todas as janelas do Google Chrome e abra-o novamente. O Assijus estará pronto para uso</p>
-             <hr class="featurette-divider">
-            <p class="lead"><em>Caso a extensão não seja detectada, verifique se está instalada acessando a página da 
-            	<a href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka">
-            		<u>Chrome Web Store</u></a>. Também verifique na Lista de Extensões (Menu/Mais ferramentas/Extensões) se o Assijus Signer está presente e ativo.</em></p>
-          </div>
-          <div class="col-md-3 order-md-1 ">
-            <img class=" align-middle" src="logo-windows.png" style="width: 150px;" >
-          </div>
-        </div>
-        
-        <hr class="featurette-divider">
-        
-        <div class="row featurette">
-          <div class="col-md-9 order-md-1">
-            <h2 class="featurette-heading"><span class="text-muted">Mac OS</span></h2>
-            <p class="lead">No sistema operacional Mac OS é necessário que o computador tenha previamente instalado o <a href="{{javatUrl}}"><u>Java 8</u></a>
-            <p class="lead">Instale a aplicação <a href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"><u>assijus-chrome-extension-setup.pkg</u></a> para que o Assijus acesse seu Certificado Digital.</p>
-            <p class="lead">Após efetuar a instalação da aplicacação, encerre todas as janelas do Google Chrome e abra-o novamente. O Assijus estará pronto para uso</p>
-             <hr class="featurette-divider">
-            <p class="lead"><em>Caso a extensão não seja detectada, verifique se está instalada acessando a página da 
-            	<a href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka">
-            		<u>Chrome Web Store</u>
-            	</a>. 
-            	Também verifique na Lista de Extensões (Menu/Mais ferramentas/Extensões) se o Assijus Signer está presente e ativo.</em>
-            </p>
-          </div>
-          <div class="col-md-3 order-md-2 align-middle">
-            <img class="align-middle" src="logo-apple.png" style="width: 150px;" >
-          </div>
-        </div>
-        
-        
-        
-  <hr class="featurette-divider">
-        <div class="row featurette">
-          <div class="col-md-7 order-md-2">
-            <h2 class="featurette-heading"><span class="text-muted">Versão mobile</span></h2>
-            <p class="lead">Faça o download do Assijus para assinar com Certificado A1 no celular e produza assinaturas digitais no padrão ICP-Brasil AD-RB, utilizando certificado digital A1 diretamente de seu celular e em qualquer lugar.</p>
-
-			<div class="download-links">
-				<a href="https://play.google.com/store/apps/details?id=br.jus.trf2.assijusmobile" title="Disponível no Google Play" >
-					<img src="google-play-badge.png" alt="Disponível no Google Play" style="height: 70px;"/>
-				</a>
-				<a href="https://apps.apple.com/br/app/assijus/id1577390390" title="Baixe na App Store" >
-	 				<img src="apple-app-badge.png" alt="Baixe na App Store" style="height: 50px;"/>
-	 			</a>
-			</div>
-
-          </div>
-          <div class="col-md-5 order-md-1">
-            <img class="featurette-image img-fluid mx-auto" src="assijus-mobile-screen.png" data-holder-rendered="true" style="height: 500px;">
-          </div>
-        </div>
-
-        <hr class="featurette-divider">
-
-        <div class="row featurette">
-          <div class="col-md-7">
-            <h2 class="featurette-heading">And lastly, this one. <span class="text-muted">Checkmate.</span></h2>
-            <p class="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
-          </div>
-          <div class="col-md-5">
-            <img class="featurette-image img-fluid mx-auto" data-src="holder.js/500x500/auto" alt="500x500" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22500%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20500%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_17b12de70a5%20text%20%7B%20fill%3A%23AAAAAA%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A25pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_17b12de70a5%22%3E%3Crect%20width%3D%22500%22%20height%3D%22500%22%20fill%3D%22%23EEEEEE%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22185.1171875%22%20y%3D%22261.1%22%3E500x500%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true" style="width: 500px; height: 500px;">
-          </div>
-        </div>
-
-        <hr class="featurette-divider">
-
-        <!-- /END THE FEATURETTES -->
-        
-        
-        <!-- Three columns of text below the carousel -->
-        <div class="row">
-          <div class="col-lg-4">
-            <img class="rounded-circle" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Generic placeholder image" width="140" height="140">
-            <h2>Heading</h2>
-            <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details »</a></p>
-          </div><!-- /.col-lg-4 -->
-          <div class="col-lg-4">
-            <img class="rounded-circle" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Generic placeholder image" width="140" height="140">
-            <h2>Heading</h2>
-            <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details »</a></p>
-          </div><!-- /.col-lg-4 -->
-          <div class="col-lg-4">
-            <img class="rounded-circle" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Generic placeholder image" width="140" height="140">
-            <h2>Heading</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details »</a></p>
-          </div><!-- /.col-lg-4 -->
-        </div><!-- /.row -->
-
-      </div>
-	<div class="container content">
-		<div class="row mb-3">
-			<div class="col-md-12 mb-3 mt-3">
-				<div class="headline">
-					<h2>Por que Assijus?</h2>
-				</div>
-
-				<p style="font-size: 120%;">O Assijus - Assinador Digital da
-					Justiça - é um site que unifica documentos que precisam ser
-					assinados digitalmente em diferentes sistemas, simplificando, e
-					agilizando todo o processo de coleta de assinaturas.</p>
-
-				<p style="font-size: 120%;">No primeiro acesso ao Assijus, em
-					cada equipamento, é necessária uma instalação prévia, conforme as
-					orientações abaixo:</p>
-
-				<div class="headline">
-					<h2>Como instalar?</h2>
-				</div>
-
-				<ol style="font-size: 120%;">
-					<li>Caso o equipamento nunca tenha sido utilizado para assinar
-						documentos, pode ser necessário instalar o driver do token e a
-						cadeia de certificados da autoridade certificadora. O procedimento
-						de instalação é mesmo que consta da 
-						<a id="linkAcessoSiga" href="{{sigaUrl}}">página de acesso externo do SIGA</a>.
-					</li>
-					<li>Em Windows, instale <a
-						href="{{dotNetUrl}}"><u>Microsoft
-								.NET Framework 4.5.1</u></a>. Depois, instale o programa <a
-						href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a>.
-					</li>
-					<li>Em Mac OSX, instale <a
-						href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"><u>assijus-chrome-extension-setup.pkg</u></a>.
-						Se receber uma mensagem dizendo:
-						"assijus-chrome-extension-setup.pkg can’t be opened because it is
-						from an unidentified developer.", vá em "/Applications/System
-						Preferences/Security &amp; Privacy" e clique em "Open Anyway".
-					</li>
-					<li>Reinicie o navegador Chrome (feche e depois abra
-						novamente). Uma janela será exibida perguntando se deseja ativar a
-						extensão recentemente instalada. Clique no botão "Ativar extensão"</li>
-					<li>Caso a extensão não seja detectada, verifique se está
-						instalada acessando a página da <a
-						href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka"><u>Chrome
-								Web Store</u></a>. Também verifique na Lista de Extensões (Menu/Mais
-						ferramentas/Extensões) se o Assijus Signer está presente e ativo.
-					</li>
-				</ol>
-				
-				<div class="headline">
-					<h2>Versão mobile</h2>
-				</div>
-			    <p class="lead">Faça o download do Assijus para assinar com Certificado A1 no celular.</p>
-				<div class="download-links">
-					<a href="https://play.google.com/store/apps/details?id=br.jus.trf2.assijusmobile" title="Disponível no Google Play" >
-						<img src="google-play-badge.png" alt="Disponível no Google Play" style="height: 70px;"/>
-					</a>
-					<a href="https://apps.apple.com/br/app/assijus/id1577390390" title="Baixe na App Store" >
-		 				<img src="apple-app-badge.png" alt="Baixe na App Store" style="height: 50px;"/>
-		 			</a>
-				</div>
-				
-				<div class="headline">
-					<h2>Como assinar?</h2>
-				</div>
-				<ol style="font-size: 120%;">
-					<li>Plugue seu token no computador e entre no site do <a
-						href="/assijus"><u>Assijus</u></a>.
-					</li>
-					<li>Escolha o certificado se houver mais de um e informe o PIN</li>
-					<li>Marque ou desmarque documentos para indicar quais devem
-						ser assinados</li>
-					<li>Clique em "Assinar"</li>
-				</ol>
-
-				<div class="headline">
-					<h2>Informações Técnicas</h2>
-				</div>
-
-				<ul style="font-size: 120%;">
-					<li>Versão Assijus: {{test.version}}</li>
-					<li>Versão Assijus Chrome Extension:
-						{{versionAssijusChromeExtension}}</li>
-					<li>Versão Assijus Native Client:
-						{{versionAssijusNativeClient}}</li>
-				</ul>
-				
-
-
-
-
-				
-			</div>
+	<div class="jumbotron "> 
+		<div class="container">
+			<h1 class="display-3">Assijus - Assinador Digital</h1>
+			<p>Assinador Digital da Justiça - é uma aplicação que unifica
+				documentos que precisam ser assinados digitalmente em diferentes
+				sistemas, simplificando, e agilizando todo o processo de coleta de
+				assinaturas.</p>
 		</div>
 	</div>
-</div>
-<!--/row-->
-</div>
+	
+	<div class="container marketing">
+
+		<div class="row featurette">
+			<div class="col-md-7">
+				<h2 class="featurette-heading">Sobre</h2>
+				<p class="lead">Assijus - Assinador Digital da Justiça é uma
+					aplicação de <strong>código fonte aberto</strong> que se <strong>conecta</strong> simultaneamente a
+					<strong>diversos sistemas</strong> previamente configurados, entre eles o <strong><a href="{{sigaUrl}}"><u>SIGA</u></a></strong>,
+					listando os documentos pendentes de assinatura e produzindo,
+					através de seu Certificado Digital, assinaturas digitais no padrão
+					da <strong>ICP-Brasil (AD-RB)</strong>.</p>
+					
+				<p class="lead">
+					<em>Caso não tenha instalado seu Certificado Digital e os pré requisitos do Assijus, acesse o
+					<a href="#/instalacao">
+						<u>Tutorial de Instalação</u>
+					</a>
+					para preparar seu computador para assinatura.
+					</em>
+				</p>
+				
+				<p class="lead">Para detalhes técnicos do projeto Open Source, acesse o projeto no <a href="https://github.com/assijus/assijus">
+							<u>Github</u></a> e saiba mais.
+			</div>
+			<div class="col-md-5">
+				<img class="featurette-image img-fluid mx-auto"
+					data-src="holder.js/500x500/auto" alt="500x500"
+					style="width: 100%;" src="4419038.jpg" data-holder-rendered="true">
+			</div>
+		</div>
+
+
+
+		<div class="card  mb-5 ">
+		  <h5 class="card-header">Informações Técnicas</h5>
+		  <div class="card-body">
+			<ul style="font-size: 120%;">
+				<li>Versão Assijus: {{test.version}}</li>
+				<li>Versão Assijus Chrome Extension:
+					{{versionAssijusChromeExtension}}</li>
+				<li>Versão Assijus Native Client:
+					{{versionAssijusNativeClient}}</li>
+			</ul>
+		  </div>
+		</div>
+		
+
+		<div class="row">
+			<div class="col-6 text-right"></div>
+			<div class="col-6 text-right">
+				<p><small class="text-muted">Imagens fornecidas por: <a href='https://br.freepik.com/vetores/assinar'>br.freepik.com</a></small>
+			</div>
+		</div>
+		
+		<br/><br/>
+	</div>
+	<div class="foot bg-dark text-white text-right p-2"><small><em>Assijus - Assinador Digital v{{test.version}} </em></small></div>
 </div>
 
-<hr />
+
+
+
 
