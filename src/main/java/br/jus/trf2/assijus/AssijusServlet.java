@@ -76,7 +76,7 @@ public class AssijusServlet extends SwaggerServlet {
 			for (final String system : systems) {
 				addRestrictedProperty(system + ".url", "http://localhost:8080/" + system + "/api/v1");
 				addPrivateProperty(system + ".password", null);
-				addDependency(new SwaggerServletDependency("webservice", system, false, 0, 10000) {
+				addDependency(new SwaggerServletDependency("webservice", system, true, 0, 10000) {
 
 					@Override
 					public String getUrl() {
