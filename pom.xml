@@ -6,7 +6,7 @@
 	<groupId>br.jus.trf2</groupId>
 	<artifactId>assijus</artifactId>
 	<packaging>war</packaging>
-	<version>4.0.6</version>
+	<version>4.1.0</version>
 	<name>Assijus Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 
@@ -83,6 +83,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.1</version>
 				<configuration>
 					<archive>
 						<manifestEntries>
@@ -94,6 +95,10 @@
 			            <resource>
 			                <directory>src/main/webapp</directory>
 			                <filtering>true</filtering>
+							<includes>
+							  <include>**/*.js</include>
+							  <include>**/*.html</include>
+							</includes>
 			            </resource>
 		         	</webResources>
 				</configuration>

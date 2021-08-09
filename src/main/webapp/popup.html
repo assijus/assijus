@@ -52,51 +52,114 @@
 
 <script src="resources/popup-app.js"></script>
 <script src="resources/util.js"></script>
+<script type="text/javascript" src="https://disutgh7q0ncc.cloudfront.net/beacon.js"></script>
 </head>
 
 <body ng-app="app" ng-controller="ctrlPopup" ng-cloak>
 	<input type="hidden" id="chrome-extension-active" value="0" />
 	<input type="hidden" id="native-client-active" value="0" />
 
-	<div class="container content">
-		<div class="row" ng-show="pinDialog">
-			<div class="col-12">
-				<form ng-keyup="$event.keyCode == 13 && pinProsseguir()">
-					<label class="control-label" for="userPIN" style="width: 100%">Entre
-						o PIN do Certificado Digital <input type="password"
-						class="form-control" style="width: 100%" id="userPIN"
-						ng-model="pinField" placeholder="PIN" autofocus />
-					</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>
-				</form>
-			</div>
-			<div class="col-12">
-				<button type="button" ng-click="pinCancelar()" class="btn">Cancelar</button>
-				<button type="button" ng-click="pinProsseguir()" id="prosseguir"
-					class="btn btn-primary">Prosseguir</button>
+	<div class="container">
+		
+		<!-- Assinante -->
+		<div class="content" ng-show="assinante">
+			<div class="row">
+				<div class="col-12">
+					<div class="input-group mb-3">
+					  <div class="input-group-prepend">
+					    <span class="input-group-text">&#128273;</span>
+					  </div>
+					  <input type="text" class="form-control" readonly="yes" ng-model="assinante">
+					</div>
+				</div>
 			</div>
 		</div>
-
-		<div class="row" ng-show="certsDialog">
-			<div class="col-12">
-				<form ng-keyup="$event.keyCode == 13 && certsProsseguir()">
-					<label class="control-label" for="userPIN" style="width: 100%">Escolha
-						o certificado que será utilizado na assinatura:
-
-						<div class="radio" ng-repeat="item in list">
-							<label><input type="radio" ng-model="userSubjectField"
-								value="{{item.subject}}">{{item.subject}}</label>
-						</div>
-
-					</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>
-				</form>
+	
+		<!-- Keytore Dialog -->
+		<div class="content" ng-show="keystoreDialog">
+			<div class="row">
+				<div class="col-12">
+					<form>
+						<label class="control-label">Selecione a mídia de armazenamento do seu Certificado Digital</label>						
+						<div class="list-group" id="keystoreList">
+						  <a class="list-group-item list-group-item-action" ng-repeat="item in keystoreSupported" data-toggle="list" href="#" 
+								  	data-keystore="{{item.value}}"
+								  	ng-class="($index == 0 ? 'active' : '')">
+						    <div class="d-flex w-100 justify-content-between">
+						      <h5 class="mb-1">{{item.keystoreMedia}}</h5>
+						      <strong>{{item.keystoreCertificateType}}</strong>
+						    </div>
+						    <small>{{item.keystoreDescription}}</small>
+						  </a>
+						</div> 
+						<input type="text" class="form-control d-none" id="selectKeystore" ng-model="selectKeystore" />
+					</form>
+				</div> 
 			</div>
-			<div class="col-12">
-				<button type="button" ng-click="certsCancelar()" class="btn">Cancelar</button>
-				<button type="button" ng-click="certsProsseguir()" id="prosseguir"
-					class="btn btn-primary">Prosseguir</button>
+			<div class="row"> 
+				<div class="col-12 mt-4"> 
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button>
+						<button type="button" ng-click="keystoreProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
 			</div>
 		</div>
+		<!-- End -->
 
+		<!-- PIN PKCS Dialog -->
+		<div class="content" ng-show="pinDialog">
+			<div class="row mt-5">
+				<div class="col-12">
+					<form ng-keyup="$event.keyCode == 13 && pinProsseguir()">
+						<label class="control-label" for="userPIN" style="width: 100%">Entre com o PIN do Certificado Digital</label> 
+						<input type="password" class="form-control" style="width: 100%" id="userPIN" ng-model="pinField" placeholder="PIN" autofocus />
+						<em ng-show="errormsg" for="userPIN" class="invalid">{{errormsg}}</em>
+					</form>
+				</div>
+			</div>
+			<div class="row fixed-bottom bg-white"> 
+				<div class="col-12 mt-4">
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button>
+						<button type="button" ng-click="pinProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End -->
+
+		<!-- Select Certs Dialog -->
+		
+		<div class="content" ng-show="certsDialog">
+			<div class="row">	
+				<div class="col-12 mb-5">
+					<form>
+						<label class="control-label">Selecione o certificado que será utilizado na assinatura: </label>
+						<div class="list-group" id="certificadoList">
+						  <a class="list-group-item list-group-item-action" ng-repeat="item in listCert" data-toggle="list" href="#" 
+							  	data-cert="{{item}}"
+							  	ng-class="($index == 0 ? 'active' : '')">
+						    <div class="d-flex w-100 justify-content-between">
+						      <h6 class="mb-1">{{item.alias}}</h6>
+						    </div>
+						    <p><small>{{item.subject}}</small></p> 
+						  </a>
+						</div> 
+					</form>	
+				</div>
+			</div>
+			<div class="row fixed-bottom bg-white"> 
+				<div class="col-12 mt-4">
+					<div class="float-right">
+						<button type="button" ng-click="closeModal()" class="btn">Cancelar</button> 
+						<button type="button" ng-click="certsProsseguir()" id="prosseguir" class="btn btn-primary">Prosseguir</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End -->
+		
 		<div class="row" ng-show="showErrorDetails">
 			<div class="col-md-12">
 				<div id="error-detail">
@@ -124,41 +187,15 @@
 
 				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
-					<p>Não foi possível detectar a extensão do Chrome que é
+					<p>Não foi possível detectar a extensão do Google Chrome que é
 						utilizada para produzir as assinaturas digitais.</p>
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
-						necessária uma instalação prévia, conforme as orientações abaixo:</p>
-					<ol>
-						<li>Caso o equipamento nunca tenha sido utilizado para
-							assinar documentos, pode ser necessário instalar o driver do
-							token e a cadeia de certificados da autoridade certificadora. O
-							procedimento de instalação é mesmo que consta da <a
-							id="linkAcessoSiga" href="{{sigaUrl}}">página de acesso externo do
-								SIGA</a>.
-						</li>
-						<li>Em Windows, instale <a
-							href="{{dotNetUrl}}"><u>Microsoft
-									.NET Framework 4.5.1</u></a>. Depois, instale o programa <a
-							href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a>.
-						</li>
-						<li>Em Mac OSX, instale <a
-							href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"><u>assijus-chrome-extension-setup.pkg</u></a>.
-							Se receber uma mensagem dizendo:
-							"assijus-chrome-extension-setup.pkg can’t be opened because it is
-							from an unidentified developer.", vá em "/Applications/System
-							Preferences/Security &amp; Privacy" e clique em "Open Anyway".
-						</li>
-						<li>Reinicie o navegador Chrome (feche e depois abra
-							novamente). Uma janela será exibida perguntando se deseja ativar
-							a extensão recentemente instalada. Clique no botão "Ativar
-							extensão"</li>
-						<li>Caso a extensão não seja detectada, verifique se está
-							instalada acessando a página da <a
-							href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka"><u>Chrome
-									Web Store</u></a>. Também verifique na Lista de Extensões (Menu/Mais
-							ferramentas/Extensões) se o Assijus Signer está presente e ativo.
-						</li>
-					</ol>
+						necessária uma instalação prévia.</p>
+					<p>Caso não tenha instalado seu Certificado Digital e os pré-requisitos do Assijus, acesse o
+						<a href="#/instalacao" target="_BLANK">
+							<u>Tutorial de Instalação</u>
+						</a>para preparar seu computador para assinatura.
+					</p>
 				</div>
 
 				<div class="alert alert-danger"
@@ -171,8 +208,8 @@
 						esta página.
 					</p>
 					<p>Se o token estiver instalado e mesmo assim o erro persistir
-						pode haver um problema entre o Windows e o driver do token. Neste
-						caso, por favor, tente reiniciar o Windows.</p>
+						pode haver um problema entre seu computador e o driver do token. Neste
+						caso, por favor, tente reiniciar seu computador.</p>
 				</div>
 
 				<div ng-if="!showErrorDetails"
@@ -181,7 +218,7 @@
 						ng-show="!value.hasOwnProperty('hideAlert') && !(key == 'geral' && (errorDetails.geral.errormsg == errorMsgMissingCertificate || errorDetails.geral.errormsg == errorMsgMissingSigner))">
 						<p>
 							<strong>Problema - {{key}}:</strong>
-							{{composeErrorMessage(value)}}<span ng-click="presentError(key)">&nbsp;&#128269;</span>
+							{{composeErrorMessage(value)}}<span ng-click="presentError(key)" title="Clique para ver os detalhes do erro">&nbsp;&#128269;</span>
 						</p>
 						<p>
 							Para tentar novamente, <a href="javascript:location.reload();"><u>recarregue</u></a>

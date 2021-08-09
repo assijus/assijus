@@ -16,3 +16,6 @@ hs_err_pid*
 .classpath
 .tern-project
 .settings
+
+# Mac Files
+.DS_Store

@@ -1,0 +1,189 @@
+<div
+	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+
+	<div class="jumbotron ">
+		<div class="container">
+			<h1 class="display-3">Assijus - Assinador Digital</h1>
+			<p>Assinador Digital da Justiça - é um site que unifica
+				documentos que precisam ser assinados digitalmente em diferentes
+				sistemas, simplificando, e agilizando todo o processo de coleta de
+				assinaturas.</p>
+		</div>
+	</div>
+
+	<div class="container marketing">
+
+		<div class="row featurette">
+			<div class="col-md-7">
+				<h2 class="featurette-heading">Instalação</h2>
+				<p class="lead">No primeiro acesso ao Assijus, em cada
+					equipamento, é necessária uma instalação prévia, conforme as
+					orientações abaixo.</p>
+				<p class="lead">
+					Para <strong>Certificados Digital A3</strong>, armazenados em <strong>Token</strong>
+					ou <strong>Smartcards</strong>, caso o equipamento nunca tenha sido
+					utilizado para assinar documentos, pode ser necessário instalar o
+					driver do token e a cadeia de certificados conforme orientação da
+					Autoridade Certificadora utilizada.
+				</p>
+				<p class="lead">
+					Para <strong>Certificados Digital A1</strong>, armazenados no <strong>próprio
+						dispositivo</strong>, eles devem ser emitidos e instalados conforme <strong>Sistema
+						Operacional</strong> e orientações da Autoridade Certificadora.
+				</p>
+				<p class="lead">
+					<em><a href="#/instalacao-a1"> <u>Clique aqui</u>
+					</a> e saiba como importar e instalar o Certificado Digital A1 em seu
+						dispositivo. </em>
+				</p>
+				<hr class="featurette-divider">
+				<p class="lead">
+					O Assijus Web é compatível apenas com o navegador <strong>Google
+						Chrome</strong>, através da instalação de uma Chrome Extension. Para
+					dispositivos móveis utilize a <a href="#mobile"><u>Versão
+							mobile</u></a>
+				</p>
+				<!-- <a class="btn btn-lg btn-primary" href="#" role="button">Leia
+					mais</a> -->
+			</div>
+			<div class="col-md-5">
+				<img class="featurette-image img-fluid mx-auto"
+					data-src="holder.js/500x500/auto" alt="500x500"
+					style="width: 100%;" src="configuracao-ilustracao.jpg"
+					data-holder-rendered="true">
+			</div>
+		</div>
+
+
+
+		<hr class="featurette-divider">
+
+		<div class="row featurette">
+			<div class="col-md-9 order-md-2">
+				<h2 class="featurette-heading">
+					<span class="text-muted">Windows</span>
+				</h2>
+				<p class="lead">
+					No sistema operacional Windows é necessário que o computador tenha
+					previamente instalado o <a href="{{dotNetUrl}}"><u>Microsoft
+							.NET Framework 4.5.1</u></a>
+				<p class="lead">
+					Instale a aplicação <a
+						href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a>
+					para que o Assijus acesse seu Certificado Digital.
+				</p>
+				<p class="lead">Após efetuar a instalação da aplicacação,
+					encerre todas as janelas do Google Chrome e abra-o novamente. O
+					Assijus estará pronto para uso</p>
+				<hr class="featurette-divider">
+				<p class="lead">
+					<em>Caso a extensão não seja detectada, verifique se está
+						instalada acessando a página da <a
+						href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka">
+							<u>Chrome Web Store</u>
+					</a>. Também verifique na Lista de Extensões (Menu/Mais
+						ferramentas/Extensões) se o Assijus Signer está presente e ativo.
+					</em>
+				</p>
+			</div>
+			<div class="col-md-3 order-md-1 d-flex align-self-center text-center">
+				<img src="logo-windows.png" style="width: 150px;">
+			</div>
+		</div>
+
+		<hr class="featurette-divider">
+
+		<div class="row featurette">
+			<div class="col-md-9 order-md-1">
+				<h2 class="featurette-heading">
+					<span class="text-muted">Mac OS</span>
+				</h2>
+				<p class="lead">
+					No sistema operacional Mac OS é necessário que o computador tenha
+					previamente instalado o <a href="{{javatUrl}}"><u>Java 8</u></a>
+				<p class="lead">
+					Instale a aplicação <a
+						href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"><u>assijus-chrome-extension-setup.pkg</u></a>
+					para que o Assijus acesse seu Certificado Digital.
+				</p>
+				<p class="lead text-muted">
+					<em>Caso receba uma mensagem semelhante à:
+						"assijus-chrome-extension-setup.pkg não pode ser aberto porque
+						procede de um desenvolvedor não identificado", favor seguir as
+						seguintes orientações da Apple disponível em: <a
+						href="https://support.apple.com/pt-br/guide/mac-help/mh40616/mac"
+						target="_BLANK">Clique aqui</a>
+					</em>
+				</p>
+				<p class="lead">Após efetuar a instalação da aplicacação,
+					encerre todas as janelas do Google Chrome e abra-o novamente. O
+					Assijus estará pronto para uso</p>
+				<hr class="featurette-divider">
+				<p class="lead">
+					<em>Caso a extensão não seja detectada, verifique se está
+						instalada acessando a página da <a
+						href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka">
+							<u>Chrome Web Store</u>
+					</a>. Também verifique na Lista de Extensões (Menu/Mais
+						ferramentas/Extensões) se o Assijus Signer está presente e ativo.
+					</em>
+				</p>
+			</div>
+			<div class="col-md-3 order-md-2 align-self-center text-center">
+				<img src="logo-apple.png" style="width: 150px;">
+			</div>
+		</div>
+
+
+
+		<hr class="featurette-divider " id="mobile">
+		<div class="row featurette mb-4 ">
+			<div class="col-md-8 order-md-2">
+				<h2 class="featurette-heading">
+					<span class="text-muted">Versão mobile</span>
+				</h2>
+				<p class="lead">Faça o download do Assijus para assinar com
+					Certificado A1 no celular e produza assinaturas digitais no padrão
+					ICP-Brasil AD-RB, utilizando certificado digital A1 diretamente de
+					seu celular e em qualquer lugar.</p>
+
+				<div class="download-links">
+					<a
+						href="https://play.google.com/store/apps/details?id=br.jus.trf2.assijusmobile"
+						title="Disponível no Google Play"> <img
+						src="google-play-badge.png" alt="Disponível no Google Play"
+						style="height: 70px;" />
+					</a> <a href="https://apps.apple.com/br/app/assijus/id1577390390"
+						title="Baixe na App Store"> <img src="apple-app-badge.png"
+						alt="Baixe na App Store" style="height: 50px;" />
+					</a>
+				</div>
+
+				<hr class="featurette-divider">
+				<p class="lead">
+					<em><a href="#/instalacao-a1"> <u>Clique aqui</u>
+					</a> e saiba como importar o Certificado Digital A1 para seu celular. </em>
+				</p>
+
+			</div>
+			<div class="col-md-4 order-md-1">
+				<img class="featurette-image img-fluid mx-auto"
+					src="assijus-mobile-screen.png" data-holder-rendered="true"
+					style="height: 500px;">
+			</div>
+		</div>
+		<hr class="featurette-divider">
+		<p class="lead mt-2">
+			Após instalado os pré-requisitos do Assijus e seu Certificado
+			Digital, acesse seus <a href="#/home"><u>Documentos</u></a> para
+			listar e assinar. <br />Ainda tem dúvidas, acesse o <a
+				href="#/utilizacao"><u>Tutorial</u></a> e saiba como usar.
+		</p>
+
+	</div>
+	<div class="bg-dark text-white text-right p-2">
+		<small><em>Assijus - Assinador Digital v{{test.version}}
+		</em></small>
+	</div>
+</div>
+

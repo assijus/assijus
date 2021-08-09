@@ -3,6 +3,32 @@
 	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
 
 	<div class="container content" style="padding-top: 30px;">
+		<div class="alert alert-warning" role="alert"
+			ng-show="versionMacOsDesatualizada">
+			Extensão do Assijus Signer {{versionAssijusNativeClient}} encontra-se
+			desatualizada. <a
+				href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"
+				class="alert-link">Clique aqui</a> para baixar a versão
+			{{versaoMacOsAtualizada}} da extensão para Mac OS.
+			<button type="button" class="close" data-dismiss="alert"
+				aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		<div class="alert alert-warning" role="alert"
+			ng-show="versionWinDesatualizada">
+			Extensão do Assijus Signer {{versionAssijusNativeClient}} encontra-se
+			desatualizada. <a
+				href="signer/chrome-extension/assijus-chrome-extension-setup.msi"
+				class="alert-link">Clique aqui</a> para baixar a versão
+			{{versaoWinAtualizada}} da extensão para Windows.
+			<button type="button" class="close" data-dismiss="alert"
+				aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
 		<div class="row">
 			<div class="col-md-12">
 				<modal title="Detalhamento de Problema"
@@ -41,41 +67,16 @@
 
 				<div class="alert alert-danger"
 					ng-show="errorDetails.geral.errormsg == errorMsgMissingSigner">
-					<p>Não foi possível detectar a extensão do Chrome que é
+					<p>Não foi possível detectar a extensão do Google Chrome que é
 						utilizada para produzir as assinaturas digitais.</p>
 					<p>No primeiro acesso ao Assijus, em cada equipamento, é
-						necessária uma instalação prévia, conforme as orientações abaixo:</p>
-					<ol>
-						<li>Caso o equipamento nunca tenha sido utilizado para
-							assinar documentos, pode ser necessário instalar o driver do
-							token e a cadeia de certificados da autoridade certificadora. O
-							procedimento de instalação é mesmo que consta da <a
-							href="http://siga.jfrj.jus.br">página de acesso externo do
-								SIGA</a>.
-						</li>
-						<li>Em Windows, instale <a
-							href="http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe"><u>Microsoft
-									.NET Framework 4.5.1</u></a>. Depois, instale o programa <a
-							href="signer/chrome-extension/assijus-chrome-extension-setup.msi"><u>assijus-chrome-extension-setup.msi</u></a>.
-						</li>
-						<li>Em Mac OSX, instale <a
-							href="signer/chrome-extension/assijus-chrome-extension-setup.pkg"><u>assijus-chrome-extension-setup.pkg</u></a>.
-							Se receber uma mensagem dizendo:
-							"assijus-chrome-extension-setup.pkg can’t be opened because it is
-							from an unidentified developer.", vá em "/Applications/System
-							Preferences/Security &amp; Privacy" e clique em "Open Anyway".
-						</li>
-						<li>Reinicie o navegador Chrome (feche e depois abra
-							novamente). Uma janela será exibida perguntando se deseja ativar
-							a extensão recentemente instalada. Clique no botão "Ativar
-							extensão"</li>
-						<li>Caso a extensão não seja detectada, verifique se está
-							instalada acessando a página da <a
-							href="https://chrome.google.com/webstore/detail/assijus-signer/ifabfihopbhogohngopafekijckmpmka"><u>Chrome
-									Web Store</u></a>. Também verifique na Lista de Extensões (Menu/Mais
-							ferramentas/Extensões) se o Assijus Signer está presente e ativo.
-						</li>
-					</ol>
+						necessária uma instalação prévia.</p>
+					<p>
+						Caso não tenha instalado seu Certificado Digital e os
+						pré-requisitos do Assijus, acesse o <a href="#/instalacao"> <u>Tutorial
+								de Instalação</u>
+						</a>para preparar seu computador para assinatura.
+					</p>
 				</div>
 
 				<div class="alert alert-danger"
@@ -88,8 +89,8 @@
 						esta página.
 					</p>
 					<p>Se o token estiver instalado e mesmo assim o erro persistir
-						pode haver um problema entre o Windows e o driver do token. Neste
-						caso, por favor, tente reiniciar o Windows.</p>
+						pode haver um problema entre seu computador e o driver do token.
+						Neste caso, por favor, tente reiniciar seu computador.</p>
 				</div>
 
 				<div ng-repeat="(key, value) in errorDetails">
@@ -110,16 +111,25 @@
 		<div class="row margin-bottom-30"
 			ng-show="zeroDocumentosCarregados() && assinanteIdentificado()">
 			<div class="col-md-12">
-				<p style="font-size: 120%;"><span ng-show="apresentarTitulo()">Dr(a).</span> {{assinante}}, não
-					localizamos nenhum documento pendente de assinatura.</p>
+				<p style="font-size: 120%;">
+					<span ng-show="apresentarTitulo()">Dr(a).</span> {{assinante}}, não
+					localizamos nenhum documento pendente de assinatura.
+				</p>
 			</div>
 		</div>
+
 		<div class="row" ng-show="documentosCarregados()">
 			<div class="col-sm-7">
 				<div class="input-group">
-					<div class="input-group-prepend"><span class="input-group-text">&#128273;</span></div>
-						<input type="text" class="form-control" readonly="yes"
+					<div class="input-group-prepend">
+						<span class="input-group-text">&#128273;</span>
+					</div>
+					<input type="text" class="form-control" readonly="yes"
 						ng-model="assinante">
+					<button id="selCertificate" ng-show="permiteLogout()"
+						class="btn btn-light ml-1" ng-click="logout(progress)"
+						title="Clique para selecionar outro certificado">&#9167;
+					</button>
 				</div>
 				<!-- 
 				<p style="font-size: 120%;"
@@ -130,7 +140,9 @@
 			</div>
 			<div class="col-sm-3">
 				<div class="input-group">
-					<div class="input-group-prepend"><span class="input-group-text">&#128269;</span></div>
+					<div class="input-group-prepend">
+						<span class="input-group-text">&#128269;</span>
+					</div>
 					<input type="text" class="form-control" placeholder="Filtrar"
 						ng-model="filtro">
 
@@ -179,7 +191,9 @@
 										 --> <input type="hidden"
 								name="ad_url_post_password_{{doc.id}}" value="{{doc.code}}" />
 							</td>
-							<td><a href="/assijus/api/v1/view/{{doc.system}}/{{doc.id}}/{{doc.secret}}/{{authkey}}" target="_blank">{{doc.code}}</a></td>
+							<td><a
+								href="/assijus/api/v1/view/{{doc.system}}/{{doc.id}}/{{doc.secret}}/{{authkey}}"
+								target="_blank">{{doc.code}}</a></td>
 							<td>{{doc.descr}}</td>
 							<td>{{doc.kind}}</td>
 							<td>{{doc.origin}}</td>
@@ -194,14 +208,19 @@
 				</table>
 			</div>
 		</div>
-		<div class="row" ng-show="lastUpdateFormatted != null">
+		<div class="row align-middle" ng-show="lastUpdateFormatted != null">
 			<div class="col-md-12">
-				<p>
-					{{lastUpdateFormatted}} <a class="refresh"
-						ng-click="forceRefresh()">&#9851;</a>
-				</p>
+				<span>Última atualização</span> <span>
+					{{lastUpdateFormatted}} </span> <span class="h4"> <a
+					class="refresh" ng-click="forceRefresh()"
+					title="Clique para atualizar a lista de documentos"> &#128260;
+				</a>
+				</span>
 			</div>
 		</div>
 	</div>
 </div>
+
+<div class="foot">
+	<span :title="test.timestamp">v{{test.version}}</span>
 </div>

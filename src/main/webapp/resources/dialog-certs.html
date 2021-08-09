@@ -1,32 +1,34 @@
-<div class="modal fade">
-	<div class="modal-dialog">
+<div class="modal fade" id="modalDialogCerts">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">{{title}}</h5>
-				<button type="button" class="close" ng-click="close()"
-					data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" ng-click="close()" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-12">
-						<form ng-keyup="$event.keyCode == 13 && clickclose()">
-							<label class="control-label" for="userPIN" style="width: 100%">Escolha
-								o certificado que será utilizado na assinatura:
-
-								<div class="radio" ng-repeat="item in list">
-									<label><input type="radio" ng-model="cert.subject"
-										value="{{item.subject}}">{{item.subject}}</label>
-								</div>
-
-							</label> <em ng-show="errormsg" for="email" class="invalid">{{errormsg}}</em>
+						<form>
+							<label class="control-label">Selecione o certificado que será utilizado na assinatura: </label>
+							
+							<div class="list-group" id="certificadoList">
+							  <a class="list-group-item list-group-item-action" ng-repeat="item in list" data-toggle="list" href="#" 
+							  	data-cert="{{item}}"
+							  	ng-class="($index == 0 ? 'active' : '')">
+							    <div class="d-flex w-100 justify-content-between">
+							      <h5 class="mb-1">{{item.alias}}</h5>
+							    </div>
+							    <p><small>{{item.subject}}</small></p> 
+							  </a>
+							</div>
+							<input type="text" class="form-control d-none" id="selectCert" ng-model="selectCert" />
 						</form>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" ng-click="cancel()" class="btn">Cancelar</button>
-				<button type="button" ng-click="close()" id="prosseguir"
-					class="btn btn-primary" data-dismiss="modal">Prosseguir</button>
+				<button type="button" ng-click="prosseguir()" id="prosseguir" class="btn btn-primary" data-dismiss="modal">Prosseguir</button>
 			</div>
 		</div>
 	</div>
