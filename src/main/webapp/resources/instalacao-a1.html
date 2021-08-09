@@ -1,4 +1,5 @@
-<div cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+<div
+	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
 
 	<div class="jumbotron ">
 		<div class="container">
@@ -14,20 +15,28 @@
 
 		<div class="row featurette">
 			<div class="col-md-7">
-				<h2 class="featurette-heading">Instalação Certificado Digital A1</h2>
-				<p class="lead">Certificados Digitais do tipo <strong>A1</strong> são arquivos instalados em cada dispositivo a ser utilizado
-				a partir de um arquivo que, geralmente, possui a extensão <strong>.pfx</strong> ou <strong>.p12</strong>. 
-				Veja abaixo como instalar, de acordo com seu dispositivo.</p>
-				
+				<h2 class="featurette-heading">Instalação Certificado Digital
+					A1</h2>
 				<p class="lead">
-					<a class="mr-2" href="#/instalacao-a1#a1-android" title="Instalação Certificado A1 em dispositivos Android"><u>Android</u></a>
-					<a class="mr-2" href="#/instalacao-a1#a1-macos" title="Instalação Certificado A1 em computador Mac OS"><u>Mac OS</u></a>
+					Certificados Digitais do tipo <strong>A1</strong> são arquivos
+					instalados em cada dispositivo a ser utilizado a partir de um
+					arquivo que, geralmente, possui a extensão <strong>.pfx</strong> ou
+					<strong>.p12</strong>. Veja abaixo como instalar, de acordo com seu
+					dispositivo.
+				</p>
+
+				<p class="lead">
+					<a class="mr-2" href="#/instalacao-a1#a1-android"
+						title="Instalação Certificado A1 em dispositivos Android"><u>Android</u></a>
+					<a class="mr-2" href="#/instalacao-a1#a1-macos"
+						title="Instalação Certificado A1 em computador Mac OS"><u>Mac
+							OS</u></a>
 				</p>
 			</div>
 			<div class="col-md-5">
 				<img class="featurette-image img-fluid mx-auto"
 					data-src="holder.js/500x500/auto" alt="500x500"
-					style="width: 100%;" src="configuracao-ilustracao.jpg" 
+					style="width: 100%;" src="configuracao-ilustracao.jpg"
 					data-holder-rendered="true">
 			</div>
 		</div>
@@ -41,169 +50,212 @@
 				<h2 class="featurette-heading">
 					<span class="text-muted">Android</span>
 				</h2>
-				<p class="lead">Primeiro passo é transferir o arquivo .pfx ou .p12 para o dispositivo. Veja uma das formas abaixo:</p>
+				<p class="lead">Primeiro passo é transferir o arquivo .pfx ou
+					.p12 para o dispositivo. Veja uma das formas abaixo:</p>
 				<p class="lead">
-					<ol>
-						<li>Conecte o celular ao computador</li>
-						<li>No celular, clique em <strong>PERMITIR</strong> para possibilitar a cópia de arquivos entre computador e celular.</li>
-						<li>Selecione a opção <strong>Transferir arquivos</strong>.</li>
-					
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-permitir.png" 
-							data-holder-rendered="true"> 
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-transferir.png" 
+				<ol>
+					<li>Conecte o celular ao computador</li>
+					<li>No celular, clique em <strong>PERMITIR</strong> para
+						possibilitar a cópia de arquivos entre computador e celular.
+					</li>
+					<li>Selecione a opção <strong>Transferir arquivos</strong>.
+					</li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 30%;"
+							src="resources/imagens/android-a1-permitir.png"
+							data-holder-rendered="true"> <img class="img-fluid mx-auto"
+							style="width: 30%;"
+							src="resources/imagens/android-a1-transferir.png"
 							data-holder-rendered="true">
-						</div>
-					
-						<li>No computador, <strong>acesse a pasta</strong> onde foram salvos os arquivos e <strong>COPIE</strong> para uma pasta dentro do celular, o Certificado criado.</li>
-					
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 80%;" src="resources/imagens/android-a1-transferir-arquivo.png" 
-							data-holder-rendered="true"> 
-						</div>
-						
-						<li>Desconecte o telefone do computador.</li>
-					</ol>
-				<p class="lead">Depois o próximo passo é localizar, extrair e instalar o certificado no celula:</p>
-				<p class="lead">				
-					<ol start="4"> 
-						
-						<li>Localize no celular o arquivo do Certificado <strong>.pfx</strong> ou <strong>.p12</strong> copiado e toque para abrir.</li>
-						<li>Digite a senha criada e clique em <strong>OK</strong></li>
-						
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-arquivo-pfx.png" 
-							data-holder-rendered="true"> 
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-extrair-arquivo.png" 
-							data-holder-rendered="true"> 
-						</div>
-						
-						<li>Defina um <strong>Nome do Certificado</strong> e clique em <strong>OK</strong></li>
-						
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-certificado.png" 
-							data-holder-rendered="true"> 
-						</div>
-					</ol>
-				<p class="lead">Com isso seu Certificado Digital A1 estará pronto para uso.</p>
-				<p class="lead">				
-					<ol start="7"> 												
-						<li>Para testar, instale e abra o aplicativo <strong>Assijus</strong> disponível na <strong>Play Store</strong>.</li>
-						<li>Selecione o Certificado conforme nome definido e localize documentos disponíveis para assinatura.</li>
-						
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-assijus-app.png" 
-							data-holder-rendered="true"> 
-							<img class="img-fluid mx-auto"
-							style="width: 30%;" src="resources/imagens/android-a1-selecionar.png" 
-							data-holder-rendered="true"> 
-						</div>
-					</ol>
-				</p>
-				
-				<p class="lead">Serão listados os documentos disponíveis para assinatura, conforme o Certificado Digital carregado.</p>	
-				<p class="lead">Ainda tem dúvidas, acesse o <a href="#/utilizacao"><u>Tutorial</u></a>  e saiba como usar.</p>
-				
+					</div>
+
+					<li>No computador, <strong>acesse a pasta</strong> onde foram
+						salvos os arquivos e <strong>COPIE</strong> para uma pasta dentro
+						do celular, o Certificado criado.
+					</li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 80%;"
+							src="resources/imagens/android-a1-transferir-arquivo.png"
+							data-holder-rendered="true">
+					</div>
+
+					<li>Desconecte o telefone do computador.</li>
+				</ol>
+				<p class="lead">Depois o próximo passo é localizar, extrair e
+					instalar o certificado no celula:</p>
 				<p class="lead">
-					<em><strong>Obs.:</strong> Para Tablets, realizar o mesmo procedimento acima, porem caso ocorra erro:
+				<ol start="4">
+
+					<li>Localize no celular o arquivo do Certificado <strong>.pfx</strong>
+						ou <strong>.p12</strong> copiado e toque para abrir.
+					</li>
+					<li>Digite a senha criada e clique em <strong>OK</strong></li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 30%;"
+							src="resources/imagens/android-a1-arquivo-pfx.png"
+							data-holder-rendered="true"> <img class="img-fluid mx-auto"
+							style="width: 30%;"
+							src="resources/imagens/android-a1-extrair-arquivo.png"
+							data-holder-rendered="true">
+					</div>
+
+					<li>Defina um <strong>Nome do Certificado</strong> e clique em
+						<strong>OK</strong></li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 30%;"
+							src="resources/imagens/android-a1-certificado.png"
+							data-holder-rendered="true">
+					</div>
+				</ol>
+				<p class="lead">Com isso seu Certificado Digital A1 estará
+					pronto para uso.</p>
+				<p class="lead">
+				<ol start="7">
+					<li>Para testar, instale e abra o aplicativo <strong>Assijus</strong> disponível
+						na <strong>Play Store</strong>.
+					</li>
+					<li>Selecione o Certificado conforme nome definido e localize
+						documentos disponíveis para assinatura.</li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 30%;"
+							src="resources/imagens/android-a1-assijus-app.png"
+							data-holder-rendered="true"> <img class="img-fluid mx-auto"
+							style="width: 30%;"
+							src="resources/imagens/android-a1-selecionar.png"
+							data-holder-rendered="true">
+					</div>
+				</ol>
+				</p>
+
+				<p class="lead">Serão listados os documentos disponíveis para
+					assinatura, conforme o Certificado Digital carregado.</p>
+				<p class="lead">
+					Ainda tem dúvidas, acesse o <a href="#/utilizacao"><u>Tutorial</u></a>
+					e saiba como usar.
+				</p>
+
+				<p class="lead">
+					<em><strong>Obs.:</strong> Para Tablets, realizar o mesmo
+						procedimento acima, porem caso ocorra erro:
 						<ol>
 							<li>Realizar o procedimento para o celular.</li>
 							<li>Ativar o bluetooth do celular e do tablet.</li>
 							<li>Clicar sobre o certificado que esta no celular.</li>
-							<li>Escolha a opção compartilhar via bluetooth e escolha o tablet.</li>
+							<li>Escolha a opção compartilhar via bluetooth e escolha o
+								tablet.</li>
 							<li>Repetir os passos a partir do item 6.</li>
-						</ol>
-
-					</em>
+						</ol> </em>
 				</p>
-				
+
 			</div>
 			<div class="col-md-3 order-md-1 ">
 				<img class=" align-middle" src="resources/imagens/android-icon.png"
 					style="width: 150px;">
 			</div>
 		</div>
-		
+
 		<hr class="featurette-divider">
-		
-		
+
+
 		<div class="row featurette" id="a1-macos">
 			<div class="col-md-9 order-md-2">
 				<h2 class="featurette-heading">
 					<span class="text-muted">Mac OS</span>
 				</h2>
-				<p class="lead">Instalar o Certificado Digital no Mac OS é simples e rápido.
-								<br />O arquivo com seu certificado (.pfx ou .p12) deve estar disponível no seu computador. 
-								<br />Caso ainda não esteja, envie o arquivo para seu computador.</p>
 				<p class="lead">
-					<ol>
-						<li>Acesse o local onde encontra-se o arquivo com o certificado.</li>
-						<li>Dê um duplo clique no arquivo .pfx ou .p12 para iniciar a importação do certificado.</li>
-						
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 80%;" src="resources/imagens/macos-a1-arquivo-p12.png" 
-							data-holder-rendered="true"> 
-						</div>
-						
-						
-						<li>Será aberto o gerenciador de chaves do Mac OS. Informe a senha que foi definida na exportação do seu Certificado Digital e clique em <strong>OK</strong> para instalar.</li>
-					
-						<div class="text-center m-2">
-							<img class="img-fluid mx-auto"
-							style="width: 80%;" src="resources/imagens/macos-a1-instalacao-a1-keystore.png" 
-							data-holder-rendered="true"> 
-						</div>
-					
-					</ol>
-				<p class="lead">Após instalado, seu Certificado Digital estará disponível para utilização.</p>
-				
-				<div class="text-center m-2">
-					<img class="img-fluid mx-auto"
-					style="width: 80%;" src="resources/imagens/macos-a1-certificado-instalado.png" 
-					data-holder-rendered="true"> 
-				</div>	
-				
-				<p class="lead">Para utilizar, acesse o menu <strong>Documentos</strong> e, quando solicitado, selecione o Certificado Digital A1.</p>		
-				
-				
-				<div class="text-center m-2">
-					<img class="img-fluid mx-auto"
-					style="width: 50%;" src="resources/imagens/macos-a1-escolha-keystore.png" 
-					data-holder-rendered="true"> 
-				</div>	
-				
-				
-				
-				<p class="lead">Por padrão, todas as vezes que o sistema precisar acessar sua chave para autenticar-se ou produzir as assinaturas, será solicitada sua senha de 
-					<strong>Login do computador</strong> .</p>
-				<p class="lead">Informe a senha e clique em <strong>Permitir</strong></p>	
+					Instalar o Certificado Digital no Mac OS é simples e rápido. <br />O
+					arquivo com seu certificado (.pfx ou .p12) deve estar disponível no
+					seu computador. <br />Caso ainda não esteja, envie o arquivo para
+					seu computador.
+				</p>
+				<p class="lead">
+				<ol>
+					<li>Acesse o local onde encontra-se o arquivo com o
+						certificado.</li>
+					<li>Dê um duplo clique no arquivo .pfx ou .p12 para iniciar a
+						importação do certificado.</li>
 
-					
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 80%;"
+							src="resources/imagens/macos-a1-arquivo-p12.png"
+							data-holder-rendered="true">
+					</div>
+
+
+					<li>Será aberto o gerenciador de chaves do Mac OS. Informe a
+						senha que foi definida na exportação do seu Certificado Digital e
+						clique em <strong>OK</strong> para instalar.
+					</li>
+
+					<div class="text-center m-2">
+						<img class="img-fluid mx-auto" style="width: 80%;"
+							src="resources/imagens/macos-a1-instalacao-a1-keystore.png"
+							data-holder-rendered="true">
+					</div>
+
+				</ol>
+				<p class="lead">Após instalado, seu Certificado Digital estará
+					disponível para utilização.</p>
+
 				<div class="text-center m-2">
-					<img class="img-fluid mx-auto"
-					style="width: 50%;" src="resources/imagens/macos-a1-senha.png" 
-					data-holder-rendered="true"> 
-				</div>	
-				
-				<p class="lead">Serão listados os documentos disponíveis para assinatura, conforme o Certificado Digital carregado.</p>
-				<p class="lead">Ainda tem dúvidas, acesse o <a href="#/utilizacao"><u>Tutorial</u></a>  e saiba como usar.</p>
+					<img class="img-fluid mx-auto" style="width: 80%;"
+						src="resources/imagens/macos-a1-certificado-instalado.png"
+						data-holder-rendered="true">
+				</div>
+
+				<p class="lead">
+					Para utilizar, acesse o menu <strong>Documentos</strong> e, quando
+					solicitado, selecione o Certificado Digital A1.
+				</p>
+
+
+				<div class="text-center m-2">
+					<img class="img-fluid mx-auto" style="width: 50%;"
+						src="resources/imagens/macos-a1-escolha-keystore.png"
+						data-holder-rendered="true">
+				</div>
+
+
+
+				<p class="lead">
+					Por padrão, todas as vezes que o sistema precisar acessar sua chave
+					para autenticar-se ou produzir as assinaturas, será solicitada sua
+					senha de <strong>Login do computador</strong> .
+				</p>
+				<p class="lead">
+					Informe a senha e clique em <strong>Permitir</strong>
+				</p>
+
+
+				<div class="text-center m-2">
+					<img class="img-fluid mx-auto" style="width: 50%;"
+						src="resources/imagens/macos-a1-senha.png"
+						data-holder-rendered="true">
+				</div>
+
+				<p class="lead">Serão listados os documentos disponíveis para
+					assinatura, conforme o Certificado Digital carregado.</p>
+				<p class="lead">
+					Ainda tem dúvidas, acesse o <a href="#/utilizacao"><u>Tutorial</u></a>
+					e saiba como usar.
+				</p>
 			</div>
 			<div class="col-md-3 order-md-2 text-center">
 				<img src="logo-apple.png" style="width: 150px;">
 			</div>
 		</div>
 
-		
-		 
+
+
 	</div>
-	<div class="bg-dark text-white text-right p-2"><small><em>Assijus - Assinador Digital v{{test.version}} </em></small></div>
+	<div class="bg-dark text-white text-right p-2">
+		<small><em>Assijus - Assinador Digital v{{test.version}}
+		</em></small>
+	</div>
 </div>
 

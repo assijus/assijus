@@ -1,6 +1,7 @@
-<div cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
-	
-	<div class="jumbotron "> 
+<div
+	cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+
+	<div class="jumbotron ">
 		<div class="container">
 			<h1 class="display-3">Assijus - Assinador Digital</h1>
 			<p>Assinador Digital da Justiça - é uma aplicação que unifica
@@ -9,30 +10,34 @@
 				assinaturas.</p>
 		</div>
 	</div>
-	
+
 	<div class="container marketing">
 
 		<div class="row featurette">
 			<div class="col-md-7">
 				<h2 class="featurette-heading">Sobre</h2>
-				<p class="lead">Assijus - Assinador Digital da Justiça é uma
-					aplicação de <strong>código fonte aberto</strong> que se <strong>conecta</strong> simultaneamente a
-					<strong>diversos sistemas</strong> previamente configurados, entre eles o <strong><a href="{{sigaUrl}}"><u>SIGA</u></a></strong>,
-					listando os documentos pendentes de assinatura e produzindo,
-					através de seu Certificado Digital, assinaturas digitais no padrão
-					da <strong>ICP-Brasil (AD-RB)</strong>.</p>
-					
 				<p class="lead">
-					<em>Caso não tenha instalado seu Certificado Digital e os pré requisitos do Assijus, acesse o
-					<a href="#/instalacao">
-						<u>Tutorial de Instalação</u>
-					</a>
-					para preparar seu computador para assinatura.
+					Assijus - Assinador Digital da Justiça é uma aplicação de <strong>código
+						fonte aberto</strong> que se <strong>conecta</strong> simultaneamente a <strong>diversos
+						sistemas</strong> previamente configurados, entre eles o <strong><a
+						href="{{sigaUrl}}"><u>SIGA</u></a></strong>, listando os documentos
+					pendentes de assinatura e produzindo, através de seu Certificado
+					Digital, assinaturas digitais no padrão da <strong>ICP-Brasil
+						(AD-RB)</strong>.
+				</p>
+
+				<p class="lead">
+					<em>Caso não tenha instalado seu Certificado Digital e os pré
+						requisitos do Assijus, acesse o <a href="#/instalacao"> <u>Tutorial
+								de Instalação</u>
+					</a> para preparar seu computador para assinatura.
 					</em>
 				</p>
-				
-				<p class="lead">Para detalhes técnicos do projeto Open Source, acesse o projeto no <a href="https://github.com/assijus/assijus">
-							<u>Github</u></a> e saiba mais.
+
+				<p class="lead">
+					Para detalhes técnicos do projeto Open Source, acesse o projeto no
+					<a href="https://github.com/assijus/assijus"> <u>Github</u></a> e
+					saiba mais.
 			</div>
 			<div class="col-md-5">
 				<img class="featurette-image img-fluid mx-auto"
@@ -44,29 +49,35 @@
 
 
 		<div class="card  mb-5 ">
-		  <h5 class="card-header">Informações Técnicas</h5>
-		  <div class="card-body">
-			<ul style="font-size: 120%;">
-				<li>Versão Assijus: {{test.version}}</li>
-				<li>Versão Assijus Chrome Extension:
-					{{versionAssijusChromeExtension}}</li>
-				<li>Versão Assijus Native Client:
-					{{versionAssijusNativeClient}}</li>
-			</ul>
-		  </div>
+			<h5 class="card-header">Informações Técnicas</h5>
+			<div class="card-body">
+				<ul style="font-size: 120%;">
+					<li>Versão Assijus: {{test.version}}</li>
+					<li>Versão Assijus Chrome Extension:
+						{{versionAssijusChromeExtension}}</li>
+					<li>Versão Assijus Native Client:
+						{{versionAssijusNativeClient}}</li>
+				</ul>
+			</div>
 		</div>
-		
+
 
 		<div class="row">
 			<div class="col-6 text-right"></div>
 			<div class="col-6 text-right">
-				<p><small class="text-muted">Imagens fornecidas por: <a href='https://br.freepik.com/vetores/assinar'>br.freepik.com</a></small>
+				<p>
+					<small class="text-muted">Imagens fornecidas por: <a
+						href='https://br.freepik.com/vetores/assinar'>br.freepik.com</a></small>
 			</div>
 		</div>
-		
-		<br/><br/>
+
+		<br />
+		<br />
 	</div>
-	<div class="foot bg-dark text-white text-right p-2"><small><em>Assijus - Assinador Digital v{{test.version}} </em></small></div>
+	<div class="foot bg-dark text-white text-right p-2">
+		<small><em>Assijus - Assinador Digital v{{test.version}}
+		</em></small>
+	</div>
 </div>
 
 
