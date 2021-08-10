@@ -37,11 +37,18 @@
 <link rel="stylesheet" href="resources/app.css">
 </head>
 <body>
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<div cg-busy="{promise:promise,message:'Aguarde...',templateUrl:'resources/busy.html'}">
+
+	<div class="jumbotron ">
 		<div class="container">
-			<a class="navbar-brand" href="index.html">Assijus</a>
+			<h1 class="display-3">Assijus - Assinador Digital</h1>
+			<p>Assinador Digital da Justiça - é uma aplicação que unifica
+				documentos que precisam ser assinados digitalmente em diferentes
+				sistemas, simplificando, e agilizando todo o processo de coleta de
+				assinaturas.</p>
 		</div>
-	</nav>
+	</div>
+
 	<div class="container">
 		<h2>Política Privacidade</h2>
 		<p>
@@ -49,7 +56,7 @@
 			informações dos usuários que acessam o Assijus. A sua privacidade é
 			importante para nós. É política do Assijus respeitar a sua
 			privacidade em relação a qualquer informação sua que possamos coletar
-			no site <a href=https://assijus.trf2.jus.br>Assijus</a>, no
+			no site <a href="${assijus-url}">Assijus</a>, no
 			aplicativo Assijus, e em outros sites e aplicativos que possuímos e
 			operamos.
 		</p>
@@ -57,7 +64,7 @@
 		<h3>Definições</h3>
 		<ul>
 			<li>Site do Assijus: todas as páginas do Assijus acessíveis por
-				meio do endereço https://assijus.trf2.jus.br.</li>
+				meio do endereço ${assijus-url}.</li>
 			<li>Aplicativo Assijus: aplicativo do Assijus para dispositivos
 				móveis.</li>
 			<li>Usuário: todo cidadão que acessa o site ou o aplicativo do
@@ -189,6 +196,13 @@
 			Esta política é efetiva a partir de <strong>Julho</strong>/<strong>2021</strong>.
 		</p>
 	</div>
+	<div class="bg-dark text-white text-right p-2">
+		<small class="text-muted pr-4"><a class="text-white" href='#/politica-de-privacidade'>Política de Privacidade</a></small> 
+		<small><em>Assijus - Assinador Digital v{{test.version}}</em></small>
+	</div>
+</div>
+	
+
 
 	<!-- JS Global Compulsory -->
 	<script type="text/javascript" src="assets/jquery-1.12.3.min.js"></script>
