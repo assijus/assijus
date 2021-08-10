@@ -30,6 +30,9 @@ app.config(['$routeProvider', '$locationProvider',
 		}).when('/instalacao-a1', {
 			templateUrl: 'resources/instalacao-a1.html',
 			controller: 'ctrl2'
+		}).when('/politica-de-privacidade', {
+			templateUrl: 'politica-de-privacidade.html',
+			controller: 'ctrl2'
 		}).otherwise({
 			redirectTo: '/home'
 		});
