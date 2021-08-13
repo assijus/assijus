@@ -114,7 +114,12 @@
 				<p style="font-size: 120%;">
 					<span ng-show="apresentarTitulo()">Dr(a).</span> {{assinante}}, não
 					localizamos nenhum documento pendente de assinatura.
+					<span><button id="selCertificate" ng-show="permiteLogout()"
+						class="btn btn-light ml-1" ng-click="logout(progress)"
+						title="Clique para selecionar outro certificado">&#9167;
+					</button></span>
 				</p>
+
 			</div>
 		</div>
 
