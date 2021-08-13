@@ -907,15 +907,19 @@ app
 			// Initialize
 			//
 			$scope.getAuthKey = function() {
-				return $scope.authkey;
+				return sessionStorage.getItem(window.location.host +'-assijus-authkey');
 			}
 
 			$scope.setAuthKey = function(authkey) {
-				$scope.authkey = authkey;
+				sessionStorage.setItem(window.location.host +'-assijus-authkey', authkey);
+			}
+			
+			$scope.removeAuthKey = function() {
+				sessionStorage.removeItem(window.location.host +'-assijus-authkey');
 			}
 
 			$scope.hasAuthKey = function() {
-				return $scope.hasOwnProperty('authkey');
+				return $scope.getAuthKey() != null;  
 			}
 
 			// 2 steps
@@ -1137,7 +1141,7 @@ app
 					delete $scope.keystore;
 					delete $scope.userSubject;
 					delete $scope.userPIN;
-					delete $scope.authkey;
+					$scope.removeAuthKey();
 					$scope.forceRefresh();
 					console.log(response.data.errormsg);
 				}, function errorCallback(response) {

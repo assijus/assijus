@@ -476,15 +476,15 @@ app
 			// Initialize
 			//
 			$scope.getAuthKey = function() {
-				return $scope.authkey;
+				return sessionStorage.getItem(window.location.host +'-assijus-authkey');
 			}
 
 			$scope.setAuthKey = function(authkey) {
-				$scope.authkey = authkey;
+				sessionStorage.setItem(window.location.host +'-assijus-authkey', authkey);
 			}
 
 			$scope.hasAuthKey = function() {
-				return $scope.hasOwnProperty('authkey');
+				return $scope.getAuthKey() != null;  
 			}
 
 			// 2 steps
