@@ -766,15 +766,6 @@ app
 					cn = cn.replace("CN=", "");
 				}
 				$scope.assinante = cn;
-
-				if (window.wootric !== undefined) {
-					window.wootricSettings = {
-						email: cn,
-						created_at: 1234567890,
-						account_token: 'NPS-0f40366d'
-					};
-					window.wootric('run');
-				}
 			}
 
 			function isPkcsEnabled(keystoreSupported) {
