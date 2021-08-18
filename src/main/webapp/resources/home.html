@@ -77,6 +77,9 @@
 								de Instalação</u>
 						</a>para preparar seu computador para assinatura.
 					</p>
+					<p>Em dispositivos móveis, baixe e utilize apenas a  
+						<a href="#/instalacao#mobile"><u>Versão mobile</u></a>.
+					</p>
 				</div>
 
 				<div class="alert alert-danger"
@@ -114,7 +117,12 @@
 				<p style="font-size: 120%;">
 					<span ng-show="apresentarTitulo()">Dr(a).</span> {{assinante}}, não
 					localizamos nenhum documento pendente de assinatura.
+					<span><button id="selCertificate" ng-show="permiteLogout()"
+						class="btn btn-light ml-1" ng-click="logout(progress)"
+						title="Clique para selecionar outro certificado">&#9167;
+					</button></span>
 				</p>
+
 			</div>
 		</div>
 

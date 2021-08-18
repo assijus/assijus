@@ -476,15 +476,15 @@ app
 			// Initialize
 			//
 			$scope.getAuthKey = function() {
-				return $scope.authkey;
+				return sessionStorage.getItem(window.location.host +'-assijus-authkey');
 			}
 
 			$scope.setAuthKey = function(authkey) {
-				$scope.authkey = authkey;
+				sessionStorage.setItem(window.location.host +'-assijus-authkey', authkey);
 			}
 
 			$scope.hasAuthKey = function() {
-				return $scope.hasOwnProperty('authkey');
+				return $scope.getAuthKey() != null;  
 			}
 
 			// 2 steps
@@ -766,15 +766,6 @@ app
 					cn = cn.replace("CN=", "");
 				}
 				$scope.assinante = cn;
-
-				if (window.wootric !== undefined) {
-					window.wootricSettings = {
-						email: cn,
-						created_at: 1234567890,
-						account_token: 'NPS-0f40366d'
-					};
-					window.wootric('run');
-				}
 			}
 
 			function isPkcsEnabled(keystoreSupported) {
