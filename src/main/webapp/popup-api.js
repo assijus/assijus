@@ -55,6 +55,10 @@ function receiveMessageAssinaturaDigital(event) {
 var produzirAssinaturaDigital = function(params) {
 	window._AssinaturaDigitalParametros = params;
 	window.addEventListener("message", receiveMessageAssinaturaDigital, false);
+	
+	if (params.iframePopupUrl !== undefined && params.iframePopupUrl !== '') {
+		frameSrc = params.iframePopupUrl;
+	}
 
 	if (!params.beginCallback)
 		params.beginCallback = function() {
