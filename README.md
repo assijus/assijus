@@ -20,6 +20,9 @@ A maneira mais simples de integrar um novo sistema ao Assijus é utilizando uma 
 produzirAssinaturaDigital({
 		ui: 'bootstrap-3',
 		
+		// url do popup que será injetado no iframe. Se não informado, segue o default do <assijus-url> no maven
+		iframePopupUrl: 'https://assijus.trf2.jus.br/assijus/popup.html',
+		
 		docs: [
 			{id: 1, code: 'TRF-MEM-2017/00001'},
 			{id: 2, code: 'TRF-MEM-2017/00002'}
