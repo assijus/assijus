@@ -37,7 +37,7 @@ public class AssijusServlet extends SwaggerServlet {
 		addPublicProperty("java8.download.url", "https://javadl.oracle.com/webapps/download/GetFile/1.8.0_301-b09/d3c52aa6bfa54d3ca74e617f18309292/unix-i586/jdk-8u301-macosx-x64.dmg");
 		addPublicProperty("exibe.titulo.dr", "true");
 		addPublicProperty("extensao.macos.version", "2.0.1");
-		addPublicProperty("extensao.windows.version", "1.2.11.0");
+		addPublicProperty("extensao.windows.version", "1.2.10.7");
 		
 		// Redis
 		//
