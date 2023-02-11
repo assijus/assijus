@@ -919,7 +919,7 @@ app
 			}
 
 			$scope.hasAuthKey = function() {
-				return $scope.getAuthKey() != null;  
+				return $scope.getAuthKey() != null && $scope.getAuthKey() !== 'undefined';
 			}
 
 			// 2 steps
@@ -970,7 +970,7 @@ app
 									}
 								}
 							}
-							if (progress.active)
+							if (progress.active && Object.keys(data).length > 0)
 								$scope.update(data.list);
 							progress
 								.step("Lista de documentos recebida.");
