@@ -6,16 +6,12 @@ import java.util.Date;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.ITokenPost;
-import br.jus.trf2.assijus.IAssijus.SignedAttrsPostRequest;
-import br.jus.trf2.assijus.IAssijus.SignedAttrsPostResponse;
-import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
-import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
 
 public class TokenPost implements ITokenPost {
 
 	@Override
-	public void run(TokenPostRequest req, TokenPostResponse resp) throws Exception {
-		String time = SwaggerUtils.format(new Date());
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
+		String time = SwaggerUtils.dateAdapter.format(new Date());
 
 		// Produce response
 		String policy = "AD-RB";
@@ -25,8 +21,8 @@ public class TokenPost implements ITokenPost {
 
 		if (req.certificate != null) {
 			SignedAttrsPost sa = new SignedAttrsPost();
-			SignedAttrsPostRequest sareq = new SignedAttrsPostRequest();
-			SignedAttrsPostResponse saresp = new SignedAttrsPostResponse();
+			SignedAttrsPost.Request sareq = new SignedAttrsPost.Request();
+			SignedAttrsPost.Response saresp = new SignedAttrsPost.Response();
 			sareq.certificate = req.certificate;
 			sareq.policy = policy;
 			byte[] bytes = resp.token.getBytes(StandardCharsets.UTF_8);

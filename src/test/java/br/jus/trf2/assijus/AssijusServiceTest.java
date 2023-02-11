@@ -11,18 +11,18 @@ import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
-import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
-import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
-import br.jus.trf2.assijus.IAssijus.HashPostRequest;
-import br.jus.trf2.assijus.IAssijus.HashPostResponse;
-import br.jus.trf2.assijus.IAssijus.ListPostRequest;
-import br.jus.trf2.assijus.IAssijus.ListPostResponse;
-import br.jus.trf2.assijus.IAssijus.SavePostRequest;
-import br.jus.trf2.assijus.IAssijus.SavePostResponse;
-import br.jus.trf2.assijus.IAssijus.StorePostRequest;
-import br.jus.trf2.assijus.IAssijus.StorePostResponse;
-import br.jus.trf2.assijus.IAssijus.TokenPostRequest;
-import br.jus.trf2.assijus.IAssijus.TokenPostResponse;
+import br.jus.trf2.assijus.IAssijus.IAuthPost;
+import br.jus.trf2.assijus.IAssijus.IAuthPost;
+import br.jus.trf2.assijus.IAssijus.IHashPost;
+import br.jus.trf2.assijus.IAssijus.IHashPost;
+import br.jus.trf2.assijus.IAssijus.IListPost;
+import br.jus.trf2.assijus.IAssijus.IListPost;
+import br.jus.trf2.assijus.IAssijus.ISavePost;
+import br.jus.trf2.assijus.IAssijus.ISavePost;
+import br.jus.trf2.assijus.IAssijus.IStorePost;
+import br.jus.trf2.assijus.IAssijus.IStorePost;
+import br.jus.trf2.assijus.IAssijus.ITokenPost;
+import br.jus.trf2.assijus.IAssijus.ITokenPost;
 import junit.framework.TestCase;
 
 public class AssijusServiceTest extends TestCase {
@@ -88,8 +88,8 @@ public class AssijusServiceTest extends TestCase {
 	String signature = "NFARIGcbOEfESQt/Niq2EXP6L3gEbzrMZKC5vRqguws=";
 
 	public void testToken_Simple_Success() throws JSONException {
-		TokenPostRequest req = new TokenPostRequest();
-		TokenPostResponse resp = new TokenPostResponse();
+		TokenPost.Request req = new TokenPost.Request();
+		TokenPost.Response resp = new TokenPost.Response();
 		run("POST", "/token", req, resp);
 
 		assertEquals(policy, resp.policy);
@@ -97,8 +97,8 @@ public class AssijusServiceTest extends TestCase {
 	}
 
 	public void testAuth_ByToken_Success() throws JSONException {
-		AuthPostRequest req = new AuthPostRequest();
-		AuthPostResponse resp = new AuthPostResponse();
+		AuthPost.Request req = new AuthPost.Request();
+		AuthPost.Response resp = new AuthPost.Response();
 		req.token = token;
 		run("POST", "/auth", req, resp);
 
@@ -110,8 +110,8 @@ public class AssijusServiceTest extends TestCase {
 	}
 
 	public void testStore_Simple_Success() throws JSONException {
-		StorePostRequest req = new StorePostRequest();
-		StorePostResponse resp = new StorePostResponse();
+		StorePost.Request req = new StorePost.Request();
+		StorePost.Response resp = new StorePost.Response();
 		req.payload = sha1;
 		run("POST", "/store", req, resp);
 
@@ -120,16 +120,16 @@ public class AssijusServiceTest extends TestCase {
 	}
 
 	private String getAuthKey() {
-		AuthPostRequest req = new AuthPostRequest();
-		AuthPostResponse resp = new AuthPostResponse();
+		AuthPost.Request req = new AuthPost.Request();
+		AuthPost.Response resp = new AuthPost.Response();
 		req.token = token;
 		run("POST", "/auth", req, resp);
 		return resp.authkey;
 	}
 
 	public void testList_Simple_Success() throws JSONException {
-		ListPostRequest req = new ListPostRequest();
-		ListPostResponse resp = new ListPostResponse();
+		ListPost.Request req = new ListPost.Request();
+		ListPost.Response resp = new ListPost.Response();
 
 		req.certificate = SwaggerUtils.base64Decode(certificate);
 		req.authkey = getAuthKey();
@@ -141,8 +141,8 @@ public class AssijusServiceTest extends TestCase {
 	}
 
 	public void testHash_Simple_Success() throws JSONException {
-		HashPostRequest req = new HashPostRequest();
-		HashPostResponse resp = new HashPostResponse();
+		HashPost.Request req = new HashPost.Request();
+		HashPost.Response resp = new HashPost.Response();
 
 		req.authkey = getAuthKey();
 		req.id = id;
@@ -155,13 +155,13 @@ public class AssijusServiceTest extends TestCase {
 	}
 
 	public void testSave_Simple_Success() throws JSONException {
-		SavePostRequest req = new SavePostRequest();
-		SavePostResponse resp = new SavePostResponse();
+		SavePost.Request req = new SavePost.Request();
+		SavePost.Response resp = new SavePost.Response();
 
 		req.id = id;
 		req.code = code;
 		req.certificate = SwaggerUtils.base64Decode(certificate);
-		req.time = SwaggerUtils.parse(time);
+		req.time = SwaggerUtils.dateAdapter.parse(time);
 		req.system = system;
 		req.sha1 = SwaggerUtils.base64Decode(sha1);
 		req.sha256 = SwaggerUtils.base64Decode(sha256);

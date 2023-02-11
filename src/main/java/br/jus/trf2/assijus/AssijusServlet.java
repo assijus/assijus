@@ -31,7 +31,7 @@ public class AssijusServlet extends SwaggerServlet {
 
 		addPublicProperty("systems", null);
 		addPublicProperty("popup.urls", "http://localhost:8080");
-		addRestrictedProperty("blucservice.url", "http://localhost:8080/blucservice/api/v1");
+		addRestrictedProperty("blucservice.url", "http://localhost:4000/blucservice/api/v1");
 		addPublicProperty("siga.url", "http://siga.jfrj.jus.br");
 		addPublicProperty("dotnet.download.url", "http://assijus.jfrj.jus.br/downloads/Microsoft-DOT-NET-Framework-x86-x64-AllOS-ENU.exe");
 		addPublicProperty("java8.download.url", "https://javadl.oracle.com/webapps/download/GetFile/1.8.0_301-b09/d3c52aa6bfa54d3ca74e617f18309292/unix-i586/jdk-8u301-macosx-x64.dmg");

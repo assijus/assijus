@@ -83,7 +83,7 @@ public class Utils {
 			throw new Exception("Token não está no formato correto.");
 		byte[] tokenAsBytes = tokenAsString.getBytes("UTF-8");
 		String dateAsString = tokenAsString.substring(6);
-		Date date = SwaggerUtils.parse(dateAsString);
+		Date date = SwaggerUtils.dateAdapter.parse(dateAsString);
 		if (date == null)
 			throw new Exception("Data do token não está no formato correto.");
 		String signB64 = token.split(";")[1];
@@ -93,7 +93,7 @@ public class Utils {
 		// Validate: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
 		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
-		q.time = SwaggerUtils.parse(dateAsString);
+		q.time = SwaggerUtils.dateAdapter.parse(dateAsString);
 		q.sha1 = calcSha1(tokenAsBytes);
 		q.sha256 = calcSha256(tokenAsBytes);
 		q.crl = true;

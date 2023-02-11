@@ -7,17 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import br.jus.trf2.assijus.IAssijus.Document;
 import br.jus.trf2.assijus.IAssijus.ISupportListCpfGet;
-import br.jus.trf2.assijus.IAssijus.ListPostResponse;
 import br.jus.trf2.assijus.IAssijus.SupportDocument;
-import br.jus.trf2.assijus.IAssijus.SupportListCpfGetRequest;
-import br.jus.trf2.assijus.IAssijus.SupportListCpfGetResponse;
-
 public class SupportListCpfGet implements ISupportListCpfGet {
 	private static final Logger log = LoggerFactory.getLogger(SupportListCpfGet.class);
 
 	@Override
-	public void run(SupportListCpfGetRequest req, SupportListCpfGetResponse resp) throws Exception {
-		ListPostResponse lpr = new ListPostResponse();
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
+		ListPost.Response lpr = new ListPost.Response();
 		ListPost.produceListPostResponse(req.cpf, lpr);
 		resp.status = lpr.status;
 		resp.list = new ArrayList<>();
