@@ -1,15 +1,13 @@
 package br.jus.trf2.assijus;
 
 import br.jus.trf2.assijus.IAssijus.IStorePost;
-import br.jus.trf2.assijus.IAssijus.StorePostRequest;
-import br.jus.trf2.assijus.IAssijus.StorePostResponse;
 
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class StorePost implements IStorePost {
 
 	@Override
-	public void run(StorePostRequest req, StorePostResponse resp)
+	public void run(Request req, Response resp, AssijusContext ctx)
 			throws Exception {
 		String payload = req.payload;
 

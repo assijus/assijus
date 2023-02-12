@@ -12,8 +12,6 @@ import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.ISavePost;
-import br.jus.trf2.assijus.IAssijus.SavePostRequest;
-import br.jus.trf2.assijus.IAssijus.SavePostResponse;
 import br.jus.trf2.assijus.IAssijus.Warning;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
@@ -21,7 +19,7 @@ public class SavePost implements ISavePost {
 	private static final Logger log = LoggerFactory.getLogger(SavePost.class);
 
 	@Override
-	public void run(SavePostRequest req, SavePostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 
 		String code = req.code;
 		String system = req.system;
@@ -30,7 +28,7 @@ public class SavePost implements ISavePost {
 
 		String certificate = SwaggerUtils.base64Encode(req.certificate);
 		String signature = SwaggerUtils.base64Encode(req.signature);
-		String time = SwaggerUtils.format(req.time);
+		String time = SwaggerUtils.dateAdapter.format(req.time);
 		String policy = req.policy;
 
 		String sha1 = SwaggerUtils.base64Encode(req.sha1);
@@ -59,7 +57,7 @@ public class SavePost implements ISavePost {
 		if (signature.length() < 2000) {
 			IBlueCrystal.EnvelopePostRequest q2 = new IBlueCrystal.EnvelopePostRequest();
 			q2.certificate = SwaggerUtils.base64Decode(certificate);
-			q2.time = SwaggerUtils.parse(time);
+			q2.time = SwaggerUtils.dateAdapter.parse(time);
 			q2.policy = policy;
 			q2.sha1 = SwaggerUtils.base64Decode(sha1);
 			q2.sha256 = SwaggerUtils.base64Decode(sha256);
@@ -79,7 +77,7 @@ public class SavePost implements ISavePost {
 		// Validate: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
 		IBlueCrystal.ValidatePostRequest q3 = new IBlueCrystal.ValidatePostRequest();
-		q3.time = SwaggerUtils.parse(time);
+		q3.time = SwaggerUtils.dateAdapter.parse(time);
 		q3.sha1 = SwaggerUtils.base64Decode(sha1);
 		q3.sha256 = SwaggerUtils.base64Decode(sha256);
 		q3.crl = true;
@@ -92,7 +90,7 @@ public class SavePost implements ISavePost {
 		// Store the signature
 		IAssijusSystem.DocIdSignPutRequest q4 = new IAssijusSystem.DocIdSignPutRequest();
 		q4.envelope = SwaggerUtils.base64Decode(envelope);
-		q4.time = SwaggerUtils.parse(time);
+		q4.time = SwaggerUtils.dateAdapter.parse(time);
 		q4.name = name;
 		q4.cpf = cpf;
 		q4.sha1 = SwaggerUtils.base64Decode(sha1);

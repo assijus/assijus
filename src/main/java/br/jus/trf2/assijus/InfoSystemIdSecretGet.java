@@ -7,8 +7,6 @@ import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 
 import br.jus.trf2.assijus.IAssijus.IInfoSystemIdSecretGet;
-import br.jus.trf2.assijus.IAssijus.InfoSystemIdSecretGetRequest;
-import br.jus.trf2.assijus.IAssijus.InfoSystemIdSecretGetResponse;
 import br.jus.trf2.assijus.IAssijus.Movement;
 import br.jus.trf2.assijus.IAssijus.Signature;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
@@ -16,7 +14,7 @@ import br.jus.trf2.assijus.system.api.IAssijusSystem;
 public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 
 	@Override
-	public void run(InfoSystemIdSecretGetRequest req, InfoSystemIdSecretGetResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		IAssijusSystem.DocIdInfoGetResponse s = getInfo(req);
 
 		// Produce response
@@ -43,7 +41,7 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		}
 	}
 
-	public static IAssijusSystem.DocIdInfoGetResponse getInfo(InfoSystemIdSecretGetRequest req)
+	public static IAssijusSystem.DocIdInfoGetResponse getInfo(Request req)
 			throws Exception, PresentableException {
 		String system = req.system;
 		String id = req.id;

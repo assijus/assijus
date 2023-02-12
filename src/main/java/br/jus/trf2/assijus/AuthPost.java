@@ -4,23 +4,17 @@ import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
 
-import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
 import com.crivano.swaggerservlet.PresentableException;
-import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
-import br.jus.trf2.assijus.IAssijus.AuthPostRequest;
-import br.jus.trf2.assijus.IAssijus.AuthPostResponse;
-import br.jus.trf2.assijus.IAssijus.EnvelopePostRequest;
-import br.jus.trf2.assijus.IAssijus.EnvelopePostResponse;
+import br.jus.trf2.assijus.IAssijus.IEnvelopePost;
 import br.jus.trf2.assijus.IAssijus.IAuthPost;
-import br.jus.trf2.assijus.Utils.AuthKeyFields;
 
 public class AuthPost implements IAuthPost {
 
 	@Override
-	public void run(AuthPostRequest req, AuthPostResponse resp)
+	public void run(Request req, Response resp, AssijusContext ctx)
 			throws Exception {
 		String authkey = req.authkey;
 		String token = req.token;
@@ -45,8 +39,8 @@ public class AuthPost implements IAuthPost {
 		
 		if (req.signature != null && req.certificate != null) {
 			EnvelopePost e = new EnvelopePost();
-			EnvelopePostRequest ereq = new EnvelopePostRequest();
-			EnvelopePostResponse eresp = new EnvelopePostResponse();
+			IEnvelopePost.Request ereq = new IEnvelopePost.Request();
+			IEnvelopePost.Response eresp = new IEnvelopePost.Response();
 			
 			ereq.certificate = req.certificate;
 			ereq.policy = req.policy;
@@ -56,7 +50,7 @@ public class AuthPost implements IAuthPost {
 			ereq.sha256 = Utils.calcSha256(bytes);
 			ereq.signature = req.signature;
 			ereq.time = req.time;
-			e.run(ereq, eresp);
+			e.run(ereq, eresp, ctx);
 			
 			// Produce response
 			resp.name = eresp.name;

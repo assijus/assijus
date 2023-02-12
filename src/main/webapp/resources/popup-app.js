@@ -484,7 +484,7 @@ app
 			}
 
 			$scope.hasAuthKey = function() {
-				return $scope.getAuthKey() != null;  
+				return $scope.getAuthKey() != null && $scope.getAuthKey() !== 'undefined';
 			}
 
 			// 2 steps
