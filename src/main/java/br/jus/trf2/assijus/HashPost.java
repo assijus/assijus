@@ -49,16 +49,16 @@ public class HashPost implements IHashPost {
 		if (policy == null && sha256 != null)
 			policy = "AD-RB";
 		if (policy != null && !"PKCS7".equals(policy)) {
-			IBlueCrystal.HashPostRequest q = new IBlueCrystal.HashPostRequest();
+			IBlueCrystal.IHashPost.Request q = new IBlueCrystal.IHashPost.Request();
 			q.certificate = SwaggerUtils.base64Decode(certificate);
 			q.time = SwaggerUtils.dateAdapter.parse(time);
 			q.policy = policy;
 			q.sha1 = SwaggerUtils.base64Decode(sha1);
 			q.sha256 = SwaggerUtils.base64Decode(sha256);
 			q.crl = true;
-			IBlueCrystal.HashPostResponse s = SwaggerCall
+			IBlueCrystal.IHashPost.Response s = SwaggerCall
 					.callAsync("bluc-hash", null, "POST", Utils.getUrlBluCServer() + "/hash", q,
-							IBlueCrystal.HashPostResponse.class)
+							IBlueCrystal.IHashPost.Response.class)
 					.get(AssijusServlet.HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 			resp.hash = s.hash;
 			if (req.digest != null && req.digest)

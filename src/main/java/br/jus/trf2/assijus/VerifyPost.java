@@ -39,15 +39,15 @@ public class VerifyPost implements IVerifyPost {
 
 		// Verify: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
-		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
+		IBlueCrystal.IValidatePost.Request q = new IBlueCrystal.IValidatePost.Request();
 		q.time = SwaggerUtils.dateAdapter.parse(time);
 		q.sha1 = SwaggerUtils.base64Decode(sha1);
 		q.sha256 = SwaggerUtils.base64Decode(sha256);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(envelope);
-		IBlueCrystal.ValidatePostResponse s = SwaggerCall
+		IBlueCrystal.IValidatePost.Response s = SwaggerCall
 				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-						IBlueCrystal.ValidatePostResponse.class)
+						IBlueCrystal.IValidatePost.Response.class)
 				.get(AssijusServlet.SYSTEM_SIGNATURE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String policy = s.policy;

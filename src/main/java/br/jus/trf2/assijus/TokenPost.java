@@ -20,8 +20,8 @@ public class TokenPost implements ITokenPost {
 
 		if (req.certificate != null) {
 			SignedAttrsPost sa = new SignedAttrsPost();
-			br.jus.trf2.assijus.IAssijus.ISignedAttrsPost.Request sareq = new br.jus.trf2.assijus.IAssijus.ISignedAttrsPost.Request();
-			br.jus.trf2.assijus.IAssijus.ISignedAttrsPost.Response saresp = new br.jus.trf2.assijus.IAssijus.ISignedAttrsPost.Response();
+			IAssijus.ISignedAttrsPost.Request sareq = new IAssijus.ISignedAttrsPost.Request();
+			IAssijus.ISignedAttrsPost.Response saresp = new IAssijus.ISignedAttrsPost.Response();
 			sareq.certificate = req.certificate;
 			sareq.policy = policy;
 			byte[] bytes = resp.token.getBytes(StandardCharsets.UTF_8);

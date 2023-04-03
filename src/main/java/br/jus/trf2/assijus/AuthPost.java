@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
 
-import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
+import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
@@ -38,8 +38,8 @@ public class AuthPost implements IAuthPost {
 		if (req.signature != null && req.certificate != null) {
 			EnvelopePost e = new EnvelopePost();
 			
-			br.jus.trf2.assijus.IAssijus.IEnvelopePost.Request ereq = new br.jus.trf2.assijus.IAssijus.IEnvelopePost.Request();
-			br.jus.trf2.assijus.IAssijus.IEnvelopePost.Response eresp = new br.jus.trf2.assijus.IAssijus.IEnvelopePost.Response();
+			IAssijus.IEnvelopePost.Request ereq = new IAssijus.IEnvelopePost.Request();
+			IAssijus.IEnvelopePost.Response eresp = new IAssijus.IEnvelopePost.Response();
 			
 			ereq.certificate = req.certificate;
 			ereq.policy = req.policy;
@@ -64,7 +64,7 @@ public class AuthPost implements IAuthPost {
 		}
 
 		if (token != null) {
-			ValidatePostResponse json = Utils.validateToken(token,
+			IBlueCrystal.IValidatePost.Response json = Utils.validateToken(token,
 					Utils.getUrlBluCServer());
 			String cpf = null;
 			cpf = json.certdetails.cpf0;

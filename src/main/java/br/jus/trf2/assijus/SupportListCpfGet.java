@@ -14,7 +14,7 @@ public class SupportListCpfGet implements ISupportListCpfGet {
 
 	@Override
 	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
-		br.jus.trf2.assijus.IAssijus.IListPost.Response lpr = new br.jus.trf2.assijus.IAssijus.IListPost.Response();
+		IAssijus.IListPost.Response lpr = new IAssijus.IListPost.Response();
 		ListPost.produceListPostResponse(req.cpf, lpr);
 		resp.status = lpr.status;
 		resp.list = new ArrayList<>();

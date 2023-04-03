@@ -24,16 +24,16 @@ public class SignedAttrsPost implements ISignedAttrsPost {
 		if (policy == null && req.sha256 != null)
 			policy = "AD-RB";
 
-		IBlueCrystal.HashPostRequest q = new IBlueCrystal.HashPostRequest();
+		IBlueCrystal.IHashPost.Request q = new IBlueCrystal.IHashPost.Request();
 		q.certificate = req.certificate;
 		q.time = SwaggerUtils.dateAdapter.parse(time);
 		q.policy = policy;
 		q.sha1 = req.sha1;
 		q.sha256 = req.sha256;
 		q.crl = true;
-		IBlueCrystal.HashPostResponse s = SwaggerCall
+		IBlueCrystal.IHashPost.Response s = SwaggerCall
 				.callAsync("bluc-hash", null, "POST", Utils.getUrlBluCServer() + "/hash", q,
-						IBlueCrystal.HashPostResponse.class)
+						IBlueCrystal.IHashPost.Response.class)
 				.get(AssijusServlet.HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		resp.hash = s.hash;
 		resp.policyversion = s.policyversion;
