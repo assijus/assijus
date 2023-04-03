@@ -7,14 +7,12 @@ import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.IVerifyPost;
-import br.jus.trf2.assijus.IAssijus.VerifyPostRequest;
-import br.jus.trf2.assijus.IAssijus.VerifyPostResponse;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
 public class VerifyPost implements IVerifyPost {
 
 	@Override
-	public void run(VerifyPostRequest req, VerifyPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		String urlHash = Utils.getUrl(req.system) + "/doc/" + req.id + "/hash";
 
 		// Call document repository hash webservice
@@ -35,14 +33,14 @@ public class VerifyPost implements IVerifyPost {
 
 		// Parse request
 		String envelope = SwaggerUtils.base64Encode(systemsignresp.envelope);
-		String time = SwaggerUtils.format(systemsignresp.time);
+		String time = SwaggerUtils.dateAdapter.format(systemsignresp.time);
 		String sha1 = SwaggerUtils.base64Encode(systemresp.sha1);
 		String sha256 = SwaggerUtils.base64Encode(systemresp.sha256);
 
 		// Verify: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
 		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
-		q.time = SwaggerUtils.parse(time);
+		q.time = SwaggerUtils.dateAdapter.parse(time);
 		q.sha1 = SwaggerUtils.base64Decode(sha1);
 		q.sha256 = SwaggerUtils.base64Decode(sha256);
 		q.crl = true;

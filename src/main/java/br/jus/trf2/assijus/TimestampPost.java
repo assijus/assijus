@@ -17,13 +17,11 @@ import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.ITimestampPost;
-import br.jus.trf2.assijus.IAssijus.TimestampPostRequest;
-import br.jus.trf2.assijus.IAssijus.TimestampPostResponse;
 
 public class TimestampPost implements ITimestampPost {
 
 	@Override
-	public void run(TimestampPostRequest req, TimestampPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		final String issuer = AssijusServlet.getProp("timestamp.issuer");
 		if (issuer == null)
 			throw new PresentableException(

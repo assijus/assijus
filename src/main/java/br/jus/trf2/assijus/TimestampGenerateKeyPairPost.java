@@ -6,17 +6,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import br.jus.trf2.assijus.IAssijus.ITimestampGenerateKeyPairPost;
-import br.jus.trf2.assijus.IAssijus.TimestampGenerateKeyPairPostRequest;
-import br.jus.trf2.assijus.IAssijus.TimestampGenerateKeyPairPostResponse;
-
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class TimestampGenerateKeyPairPost implements
 		ITimestampGenerateKeyPairPost {
 
 	@Override
-	public void run(TimestampGenerateKeyPairPostRequest req,
-			TimestampGenerateKeyPairPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		// create the key instance
 		PublicKey publicKey = null;
 		PrivateKey privateKey = null;

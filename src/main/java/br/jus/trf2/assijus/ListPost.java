@@ -14,8 +14,6 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.Document;
 import br.jus.trf2.assijus.IAssijus.IListPost;
-import br.jus.trf2.assijus.IAssijus.ListPostRequest;
-import br.jus.trf2.assijus.IAssijus.ListPostResponse;
 import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetRequest;
 import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
 
@@ -24,7 +22,7 @@ public class ListPost implements IListPost {
 	private static final long TIMEOUT_MILLISECONDS = 27000;
 
 	@Override
-	public void run(ListPostRequest req, ListPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		String listkey = req.key;
 
 		String authkey = req.authkey;
@@ -39,7 +37,7 @@ public class ListPost implements IListPost {
 			if (listkey != null)
 				payload = SwaggerUtils.dbRetrieve(listkey, false);
 
-			ListPostResponse fakeresp = SwaggerUtils.fromJson(payload, ListPostResponse.class);
+			Response fakeresp = SwaggerUtils.fromJson(payload, Response.class);
 			if (fakeresp.list != null) {
 				resp.list.addAll(fakeresp.list);
 				for (Document d : resp.list)
@@ -50,7 +48,7 @@ public class ListPost implements IListPost {
 		}
 	}
 
-	public static void produceListPostResponse(String cpf, ListPostResponse resp) throws Exception {
+	public static void produceListPostResponse(String cpf, Response resp) throws Exception {
 		// Read list from connected systems
 		String[] systems = Utils.getSystems();
 		if (systems == null)

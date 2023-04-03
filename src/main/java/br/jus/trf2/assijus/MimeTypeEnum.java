@@ -1,10 +1,5 @@
 package br.jus.trf2.assijus;
 
-// Fonte inicial: https://github.com/boaglio/java-enum-mimetype/blob/master/MimeType.java
-
-import java.util.HashMap;
-import java.util.Locale;
-
 public enum MimeTypeEnum {
 
 	$323("text/h323"),

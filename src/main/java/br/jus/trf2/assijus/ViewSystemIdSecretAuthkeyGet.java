@@ -7,15 +7,12 @@ import com.crivano.swaggerservlet.SwaggerAsyncResponse;
 import com.crivano.swaggerservlet.SwaggerCall;
 
 import br.jus.trf2.assijus.IAssijus.IViewSystemIdSecretAuthkeyGet;
-import br.jus.trf2.assijus.IAssijus.ViewSystemIdSecretAuthkeyGetRequest;
-import br.jus.trf2.assijus.IAssijus.ViewSystemIdSecretAuthkeyGetResponse;
 import br.jus.trf2.assijus.system.api.IAssijusSystem;
 
 public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyGet {
 
 	@Override
-	public void run(ViewSystemIdSecretAuthkeyGetRequest req, ViewSystemIdSecretAuthkeyGetResponse resp)
-			throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		String system = req.system;
 		String id = req.id;
 		String cpf = Utils.assertValidAuthKey(req.authkey, Utils.getUrlBluCServer()).cpf;
