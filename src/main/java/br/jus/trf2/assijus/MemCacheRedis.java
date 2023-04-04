@@ -1,7 +1,6 @@
 package br.jus.trf2.assijus;
 
 import com.crivano.swaggerservlet.IMemCache;
-import com.crivano.swaggerservlet.SwaggerServlet;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

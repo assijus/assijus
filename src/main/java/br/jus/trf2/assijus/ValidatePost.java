@@ -1,8 +1,6 @@
 package br.jus.trf2.assijus;
 
 import br.jus.trf2.assijus.IAssijus.IValidatePost;
-import br.jus.trf2.assijus.IAssijus.ValidatePostRequest;
-import br.jus.trf2.assijus.IAssijus.ValidatePostResponse;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,24 +11,24 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 public class ValidatePost implements IValidatePost {
 
 	@Override
-	public void run(ValidatePostRequest req, ValidatePostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		// Parse request
 		String envelope = SwaggerUtils.base64Encode(req.envelope);
-		String time = SwaggerUtils.format(req.time);
+		String time = SwaggerUtils.dateAdapter.format(req.time);
 		String sha1 = SwaggerUtils.base64Encode(req.sha1);
 		String sha256 = SwaggerUtils.base64Encode(req.sha256);
 
 		// Validate: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
-		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
-		q.time = SwaggerUtils.parse(time);
+		IBlueCrystal.IValidatePost.Request q = new IBlueCrystal.IValidatePost.Request();
+		q.time = SwaggerUtils.dateAdapter.parse(time);
 		q.sha1 = SwaggerUtils.base64Decode(sha1);
 		q.sha256 = SwaggerUtils.base64Decode(sha256);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(envelope);
-		IBlueCrystal.ValidatePostResponse s = SwaggerCall
+		IBlueCrystal.IValidatePost.Response s = SwaggerCall
 				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-						IBlueCrystal.ValidatePostResponse.class)
+						IBlueCrystal.IValidatePost.Response.class)
 				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String policy = s.policy;

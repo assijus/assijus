@@ -17,12 +17,10 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 import com.crivano.blucservice.api.IBlueCrystal;
-import com.crivano.blucservice.api.IBlueCrystal.ValidatePostResponse;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerCallStatus;
 import com.crivano.swaggerservlet.SwaggerMultipleCallResult;
-import com.crivano.swaggerservlet.SwaggerServlet;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
 public class Utils {
@@ -77,13 +75,13 @@ public class Utils {
 		return null;
 	}
 
-	public static ValidatePostResponse validateToken(String token, String urlblucserver) throws Exception {
+	public static IBlueCrystal.IValidatePost.Response validateToken(String token, String urlblucserver) throws Exception {
 		String tokenAsString = token.split(";")[0];
 		if (!tokenAsString.startsWith("TOKEN-"))
 			throw new Exception("Token não está no formato correto.");
 		byte[] tokenAsBytes = tokenAsString.getBytes("UTF-8");
 		String dateAsString = tokenAsString.substring(6);
-		Date date = SwaggerUtils.parse(dateAsString);
+		Date date = SwaggerUtils.dateAdapter.parse(dateAsString);
 		if (date == null)
 			throw new Exception("Data do token não está no formato correto.");
 		String signB64 = token.split(";")[1];
@@ -92,15 +90,15 @@ public class Utils {
 
 		// Validate: call bluc-server validate webservice. If there is an error,
 		// it will throw an exception.
-		IBlueCrystal.ValidatePostRequest q = new IBlueCrystal.ValidatePostRequest();
-		q.time = SwaggerUtils.parse(dateAsString);
+		IBlueCrystal.IValidatePost.Request q = new IBlueCrystal.IValidatePost.Request();
+		q.time = SwaggerUtils.dateAdapter.parse(dateAsString);
 		q.sha1 = calcSha1(tokenAsBytes);
 		q.sha256 = calcSha256(tokenAsBytes);
 		q.crl = true;
 		q.envelope = SwaggerUtils.base64Decode(signB64);
 		return SwaggerCall
 				.callAsync("bluc-validate", null, "POST", Utils.getUrlBluCServer() + "/validate", q,
-						IBlueCrystal.ValidatePostResponse.class)
+						IBlueCrystal.IValidatePost.Response.class)
 				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 	}
 
@@ -112,7 +110,7 @@ public class Utils {
 		}
 
 		JSONObject json = new JSONObject(payload);
-		ValidatePostResponse blucresp = validateToken(json.getString("token"), urlblucserver);
+		com.crivano.blucservice.api.IBlueCrystal.IValidatePost.Response blucresp = validateToken(json.getString("token"), urlblucserver);
 
 		AuthKeyFields akf = new AuthKeyFields();
 		akf.cn = blucresp.cn;

@@ -9,19 +9,15 @@ import org.slf4j.LoggerFactory;
 
 import com.auth0.jwt.JWTSigner;
 import com.crivano.swaggerservlet.PresentableException;
-import com.crivano.swaggerservlet.SwaggerServlet;
-import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.ILoginPost;
-import br.jus.trf2.assijus.IAssijus.LoginPostRequest;
-import br.jus.trf2.assijus.IAssijus.LoginPostResponse;
 import br.jus.trf2.assijus.Utils.AuthKeyFields;
 
 public class LoginPost implements ILoginPost {
 	private static final Logger log = LoggerFactory.getLogger(LoginPost.class);
 
 	@Override
-	public void run(LoginPostRequest req, LoginPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		if (req.callback == null)
 			throw new PresentableException("Nenhuma URL de retorno especificada");
 

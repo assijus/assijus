@@ -3,20 +3,18 @@ package br.jus.trf2.assijus;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import br.jus.trf2.assijus.IAssijus.HashPostRequest;
-import br.jus.trf2.assijus.IAssijus.HashPostResponse;
-import br.jus.trf2.assijus.IAssijus.IHashPost;
-import br.jus.trf2.assijus.system.api.IAssijusSystem;
-
 import com.crivano.blucservice.api.IBlueCrystal;
 import com.crivano.swaggerservlet.PresentableException;
 import com.crivano.swaggerservlet.SwaggerCall;
 import com.crivano.swaggerservlet.SwaggerUtils;
 
+import br.jus.trf2.assijus.IAssijus.IHashPost;
+import br.jus.trf2.assijus.system.api.IAssijusSystem;
+
 public class HashPost implements IHashPost {
 
 	@Override
-	public void run(HashPostRequest req, HashPostResponse resp) throws Exception {
+	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
 		String certificate = SwaggerUtils.base64Encode(req.certificate);
 		String system = req.system;
 		String password = Utils.getPassword(system);
@@ -26,7 +24,7 @@ public class HashPost implements IHashPost {
 		String cpf = Utils.assertValidAuthKey(authkey, Utils.getUrlBluCServer()).cpf;
 
 		String urlHash = Utils.getUrl(system) + "/doc/" + id + "/hash";
-		String time = SwaggerUtils.format(new Date());
+		String time = SwaggerUtils.dateAdapter.format(new Date());
 
 		// Call document repository hash webservice
 		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
@@ -51,16 +49,16 @@ public class HashPost implements IHashPost {
 		if (policy == null && sha256 != null)
 			policy = "AD-RB";
 		if (policy != null && !"PKCS7".equals(policy)) {
-			IBlueCrystal.HashPostRequest q = new IBlueCrystal.HashPostRequest();
+			IBlueCrystal.IHashPost.Request q = new IBlueCrystal.IHashPost.Request();
 			q.certificate = SwaggerUtils.base64Decode(certificate);
-			q.time = SwaggerUtils.parse(time);
+			q.time = SwaggerUtils.dateAdapter.parse(time);
 			q.policy = policy;
 			q.sha1 = SwaggerUtils.base64Decode(sha1);
 			q.sha256 = SwaggerUtils.base64Decode(sha256);
 			q.crl = true;
-			IBlueCrystal.HashPostResponse s = SwaggerCall
+			IBlueCrystal.IHashPost.Response s = SwaggerCall
 					.callAsync("bluc-hash", null, "POST", Utils.getUrlBluCServer() + "/hash", q,
-							IBlueCrystal.HashPostResponse.class)
+							IBlueCrystal.IHashPost.Response.class)
 					.get(AssijusServlet.HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 			resp.hash = s.hash;
 			if (req.digest != null && req.digest)
@@ -89,7 +87,7 @@ public class HashPost implements IHashPost {
 			}
 			resp.policy = "PKCS7";
 		}
-		resp.time = SwaggerUtils.parse(time);
+		resp.time = SwaggerUtils.dateAdapter.parse(time);
 		resp.sha1 = SwaggerUtils.base64Decode(sha1);
 		resp.sha256 = SwaggerUtils.base64Decode(sha256);
 
