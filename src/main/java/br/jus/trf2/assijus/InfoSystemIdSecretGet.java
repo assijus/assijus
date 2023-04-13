@@ -15,7 +15,7 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 
 	@Override
 	public void run(Request req, Response resp, AssijusContext ctx) throws Exception {
-		IAssijusSystem.DocIdInfoGetResponse s = getInfo(req);
+		IAssijusSystem.IDocIdInfoGet.Response s = getInfo(req);
 
 		// Produce response
 		resp.status = s.status;
@@ -41,7 +41,7 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		}
 	}
 
-	public static IAssijusSystem.DocIdInfoGetResponse getInfo(Request req) throws Exception, PresentableException {
+	public static IAssijusSystem.IDocIdInfoGet.Response getInfo(Request req) throws Exception, PresentableException {
 		String system = req.system;
 		String id = req.id;
 		String password = Utils.getPassword(system);
@@ -49,12 +49,12 @@ public class InfoSystemIdSecretGet implements IInfoSystemIdSecretGet {
 		String urlInfo = Utils.getUrl(system) + "/doc/" + id + "/info";
 
 		// Call document repository hash webservice
-		IAssijusSystem.DocIdInfoGetRequest q = new IAssijusSystem.DocIdInfoGetRequest();
+		IAssijusSystem.IDocIdInfoGet.Request q = new IAssijusSystem.IDocIdInfoGet.Request();
 		q.id = id;
-		IAssijusSystem.DocIdInfoGetResponse s;
+		IAssijusSystem.IDocIdInfoGet.Response s;
 		try {
 			s = SwaggerCall
-					.callAsync(system + "-info", password, "GET", urlInfo, q, IAssijusSystem.DocIdInfoGetResponse.class)
+					.callAsync(system + "-info", password, "GET", urlInfo, q, IAssijusSystem.IDocIdInfoGet.Response.class)
 					.get(AssijusServlet.SYSTEM_LIST_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		} catch (Exception ex) {
 			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);

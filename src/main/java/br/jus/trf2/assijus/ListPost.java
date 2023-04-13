@@ -14,8 +14,7 @@ import com.crivano.swaggerservlet.SwaggerUtils;
 
 import br.jus.trf2.assijus.IAssijus.Document;
 import br.jus.trf2.assijus.IAssijus.IListPost;
-import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetRequest;
-import br.jus.trf2.assijus.system.api.IAssijusSystem.DocListGetResponse;
+import br.jus.trf2.assijus.system.api.IAssijusSystem.IDocListGet;
 
 public class ListPost implements IListPost {
 	private static final Logger log = LoggerFactory.getLogger(ListPost.class);
@@ -57,11 +56,11 @@ public class ListPost implements IListPost {
 		Map<String, SwaggerCallParameters> mapp = new HashMap<>();
 		for (String system : systems) {
 			String urlsys = Utils.getUrl(system);
-			DocListGetRequest q = new DocListGetRequest();
+			IDocListGet.Request q = new IDocListGet.Request();
 			q.cpf = cpf;
 			q.urlapi = urlsys;
 			mapp.put(system, new SwaggerCallParameters(system + "-list", Utils.getPassword(system), "GET",
-					urlsys + "/doc/list", q, DocListGetResponse.class));
+					urlsys + "/doc/list", q, IDocListGet.Response.class));
 
 		}
 		SwaggerMultipleCallResult mcr = SwaggerCall.callMultiple(mapp, 15000);
@@ -69,7 +68,7 @@ public class ListPost implements IListPost {
 		resp.list = new ArrayList<>();
 
 		for (String system : mcr.responses.keySet()) {
-			DocListGetResponse rl = (DocListGetResponse) mcr.responses.get(system);
+			IDocListGet.Response rl = (IDocListGet.Response) mcr.responses.get(system);
 			if (rl.list == null || rl.list.size() == 0)
 				continue;
 			for (br.jus.trf2.assijus.system.api.IAssijusSystem.Document r : rl.list) {

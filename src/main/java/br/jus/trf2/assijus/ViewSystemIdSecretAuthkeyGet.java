@@ -22,17 +22,17 @@ public class ViewSystemIdSecretAuthkeyGet implements IViewSystemIdSecretAuthkeyG
 		String urlView = Utils.getUrl(system) + "/doc/" + id + "/pdf";
 
 		// Processo completo
-		IAssijusSystem.DocIdPdfGetRequest q = new IAssijusSystem.DocIdPdfGetRequest();
+		IAssijusSystem.IDocIdPdfGet.Request q = new IAssijusSystem.IDocIdPdfGet.Request();
 		q.id = id;
 		q.cpf = cpf;
-		Future<SwaggerAsyncResponse<IAssijusSystem.DocIdPdfGetResponse>> future = SwaggerCall.callAsync(system + "-get",
-				password, "GET", urlView, q, IAssijusSystem.DocIdPdfGetResponse.class);
-		SwaggerAsyncResponse<IAssijusSystem.DocIdPdfGetResponse> sar = future.get();
+		Future<SwaggerAsyncResponse<IAssijusSystem.IDocIdPdfGet.Response>> future = SwaggerCall.callAsync(system + "-get",
+				password, "GET", urlView, q, IAssijusSystem.IDocIdPdfGet.Response.class);
+		SwaggerAsyncResponse<IAssijusSystem.IDocIdPdfGet.Response> sar = future.get();
 		if (sar.getException() != null) {
 			throw new PresentableException("Problema reportado por " + system + ": " + sar.getException().getMessage(),
 					sar.getException());
 		}
-		IAssijusSystem.DocIdPdfGetResponse r = (IAssijusSystem.DocIdPdfGetResponse) sar.getRespOrThrowException();
+		IAssijusSystem.IDocIdPdfGet.Response r = (IAssijusSystem.IDocIdPdfGet.Response) sar.getRespOrThrowException();
 
 		String secret = null;
 		if (r.getHeaderFields().get("Doc-Secret") != null)

@@ -88,7 +88,7 @@ public class SavePost implements ISavePost {
 				.get(AssijusServlet.VALIDATE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		// Store the signature
-		IAssijusSystem.DocIdSignPutRequest q4 = new IAssijusSystem.DocIdSignPutRequest();
+		IAssijusSystem.IDocIdSignPut.Request q4 = new IAssijusSystem.IDocIdSignPut.Request();
 		q4.envelope = SwaggerUtils.base64Decode(envelope);
 		q4.time = SwaggerUtils.dateAdapter.parse(time);
 		q4.name = name;
@@ -96,10 +96,10 @@ public class SavePost implements ISavePost {
 		q4.sha1 = SwaggerUtils.base64Decode(sha1);
 		q4.extra = extra;
 		String urlSave = Utils.getUrl(system) + "/doc/" + id + "/sign";
-		IAssijusSystem.DocIdSignPutResponse s4;
+		IAssijusSystem.IDocIdSignPut.Response s4;
 		try {
 			s4 = SwaggerCall
-				.callAsync("system-save", password, "PUT", urlSave, q4, IAssijusSystem.DocIdSignPutResponse.class)
+				.callAsync("system-save", password, "PUT", urlSave, q4, IAssijusSystem.IDocIdSignPut.Response.class)
 				.get(AssijusServlet.SYSTEM_SAVE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		} catch (Exception ex) {
 			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);

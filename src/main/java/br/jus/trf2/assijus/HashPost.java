@@ -27,13 +27,13 @@ public class HashPost implements IHashPost {
 		String time = SwaggerUtils.dateAdapter.format(new Date());
 
 		// Call document repository hash webservice
-		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
+		IAssijusSystem.IDocIdHashGet.Request systemreq = new IAssijusSystem.IDocIdHashGet.Request();
 		systemreq.cpf = cpf;
-		IAssijusSystem.DocIdHashGetResponse systemresp;
+		IAssijusSystem.IDocIdHashGet.Response systemresp;
 		try {
 			systemresp = SwaggerCall
 					.callAsync("system-hash", password, "GET", urlHash, systemreq,
-							IAssijusSystem.DocIdHashGetResponse.class)
+							IAssijusSystem.IDocIdHashGet.Response.class)
 					.get(AssijusServlet.SYSTEM_HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 		} catch (Exception ex) {
 			throw new PresentableException("Problema reportado por " + system + ": " + ex.getMessage(), ex);

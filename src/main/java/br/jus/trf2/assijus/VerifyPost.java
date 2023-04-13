@@ -16,19 +16,19 @@ public class VerifyPost implements IVerifyPost {
 		String urlHash = Utils.getUrl(req.system) + "/doc/" + req.id + "/hash";
 
 		// Call document repository hash webservice
-		IAssijusSystem.DocIdHashGetRequest systemreq = new IAssijusSystem.DocIdHashGetRequest();
-		IAssijusSystem.DocIdHashGetResponse systemresp = SwaggerCall
+		IAssijusSystem.IDocIdHashGet.Request systemreq = new IAssijusSystem.IDocIdHashGet.Request();
+		IAssijusSystem.IDocIdHashGet.Response systemresp = SwaggerCall
 				.callAsync("system-hash", Utils.getPassword(req.system), "GET", urlHash, systemreq,
-						IAssijusSystem.DocIdHashGetResponse.class)
+						IAssijusSystem.IDocIdHashGet.Response.class)
 				.get(AssijusServlet.SYSTEM_HASH_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		String urlSignature = Utils.getUrl(req.system) + "/sign/" + req.ref;
 
 		// Call document repository hash webservice
-		IAssijusSystem.SignRefGetRequest systemsignreq = new IAssijusSystem.SignRefGetRequest();
-		IAssijusSystem.SignRefGetResponse systemsignresp = SwaggerCall
+		IAssijusSystem.ISignRefGet.Request systemsignreq = new IAssijusSystem.ISignRefGet.Request();
+		IAssijusSystem.ISignRefGet.Response systemsignresp = SwaggerCall
 				.callAsync("system-signature", Utils.getPassword(req.system), "GET", urlSignature, systemreq,
-						IAssijusSystem.SignRefGetResponse.class)
+						IAssijusSystem.ISignRefGet.Response.class)
 				.get(AssijusServlet.SYSTEM_SIGNATURE_TIMEOUT, TimeUnit.SECONDS).getRespOrThrowException();
 
 		// Parse request
