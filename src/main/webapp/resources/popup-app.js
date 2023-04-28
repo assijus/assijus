@@ -869,6 +869,7 @@ app
 				if (data.origin !== $scope.parentUrl)
 					return;
 				var permitido = false;
+				console.log("oioioi")
 				for (var i = 0; i < $scope.allowedParents.length; i++) {
 					if (data.origin
 						.startsWith($scope.allowedParents[i])) {
@@ -919,6 +920,8 @@ app
 					function successCallback(response) {
 						$scope.test = response.data;
 						var popupUrls = response.data.properties['assijus.popup.urls'];
+						if (popupUrls) 
+							popupUrls = popupUrls.replace(/^\[default: (.+)\]$/ms, "$1");
 						$scope.allowedParents = popupUrls !== '[undefined]' ? popupUrls
 							.split(';')
 							: [];
